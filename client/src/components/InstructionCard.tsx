@@ -86,18 +86,7 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
                   : instruction.description}
               </p>
 
-              {/* Language indicator when not English */}
-              {language !== "en" && instruction.translation[language as keyof typeof instruction.translation] && (
-                <div className="bg-blue-50 rounded-lg p-3 mb-4">
-                  <div className="text-sm text-[hsl(207,90%,54%)] font-medium flex items-center">
-                    <Languages className="w-4 h-4 mr-2" />
-                    {language === 'id' && 'Showing in Bahasa Indonesia'}
-                    {language === 'th' && 'แสดงเป็นภาษาไทย'}
-                    {language === 'vi' && 'Hiển thị bằng tiếng Việt'}
-                    {language === 'fil' && 'Nagpapakita sa Filipino'}
-                  </div>
-                </div>
-              )}
+
 
               {/* Status Indicators */}
               <div className="flex items-center space-x-4 mb-4">
