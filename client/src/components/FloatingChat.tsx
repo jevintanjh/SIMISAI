@@ -58,7 +58,16 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
     const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     const recognition = new SpeechRecognition();
     
-    recognition.lang = language === 'id' ? 'id-ID' : 'en-US';
+    // Map language codes to proper locale identifiers for speech recognition
+    const languageMap: Record<string, string> = {
+      'en': 'en-US',
+      'id': 'id-ID',
+      'th': 'th-TH',
+      'vi': 'vi-VN',
+      'fil': 'fil-PH'
+    };
+    
+    recognition.lang = languageMap[language] || 'en-US';
     recognition.continuous = false;
     recognition.interimResults = false;
 

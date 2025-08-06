@@ -84,6 +84,18 @@ export class MemStorage implements IStorage {
           "id": {
             title: "Persiapkan Perangkat",
             description: "Pastikan monitor tekanan darah berada di permukaan yang stabil dan terpasang atau memiliki baterai yang cukup."
+          },
+          "th": {
+            title: "เตรียมอุปกรณ์",
+            description: "ตรวจสอบให้แน่ใจว่าเครื่องวัดความดันโลหิตอยู่บนพื้นผิวที่มั่นคงและเสียบปลั๊กหรือมีแบตเตอรี่เพียงพอ"
+          },
+          "vi": {
+            title: "Chuẩn bị thiết bị",
+            description: "Đảm bảo máy đo huyết áp được đặt trên bề mặt ổn định và được cắm điện hoặc có đủ pin."
+          },
+          "fil": {
+            title: "Ihanda ang Aparato",
+            description: "Siguraduhin na ang blood pressure monitor ay nasa stable na surface at nakakabit o may sapat na battery."
           }
         },
         audioUrl: null,
@@ -100,6 +112,18 @@ export class MemStorage implements IStorage {
           "id": {
             title: "Lingkarkan Manset di Lengan Anda",
             description: "Lingkarkan manset di sekitar lengan atas Anda, sekitar 1 inci di atas siku. Manset harus pas tetapi tidak terlalu ketat."
+          },
+          "th": {
+            title: "พันข้อมือรอบแขน",
+            description: "วางข้อมือรอบต้นแขนของคุณ ประมาณ 1 นิ้วเหนือข้อศอก ข้อมือควรพอดีแต่ไม่แน่นเกินไป"
+          },
+          "vi": {
+            title: "Quấn vòng bít quanh cánh tay",
+            description: "Đặt vòng bít quanh cánh tay trên của bạn, cách khuỷu tay khoảng 1 inch. Vòng bít phải vừa khít nhưng không quá chặt."
+          },
+          "fil": {
+            title: "Ikabit ang Cuff sa Braso",
+            description: "Ilagay ang cuff sa paligid ng inyong upper arm, mga 1 pulgada sa itaas ng siko. Ang cuff ay dapat makakasya ngunit hindi masyadong mahigpit."
           }
         },
         audioUrl: null,

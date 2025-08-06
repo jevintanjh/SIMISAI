@@ -28,6 +28,18 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
       id: {
         title: "Lingkarkan Manset di Lengan Anda",
         description: "Lingkarkan manset di sekitar lengan atas Anda, sekitar 1 inci di atas siku. Manset harus pas tetapi tidak terlalu ketat."
+      },
+      th: {
+        title: "พันข้อมือรอบแขน",
+        description: "วางข้อมือรอบต้นแขนของคุณ ประมาณ 1 นิ้วเหนือข้อศอก ข้อมือควรพอดีแต่ไม่แน่นเกินไป"
+      },
+      vi: {
+        title: "Quấn vòng bít quanh cánh tay",
+        description: "Đặt vòng bít quanh cánh tay trên của bạn, cách khuỷu tay khoảng 1 inch. Vòng bít phải vừa khít nhưng không quá chặt."
+      },
+      fil: {
+        title: "Ikabit ang Cuff sa Braso",
+        description: "Ilagay ang cuff sa paligid ng inyong upper arm, mga 1 pulgada sa itaas ng siko. Ang cuff ay dapat makakasya ngunit hindi masyadong mahigpit."
       }
     },
     checkpoints: ["Cuff Position", "Tightness Check"],
@@ -39,7 +51,10 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
       stop();
       setIsPlaying(false);
     } else {
-      const textToSpeak = language === "en" ? instruction.description : instruction.translation.id?.description;
+      let textToSpeak = instruction.description;
+      if (language !== "en" && instruction.translation[language as keyof typeof instruction.translation]) {
+        textToSpeak = instruction.translation[language as keyof typeof instruction.translation]?.description || instruction.description;
+      }
       if (textToSpeak) {
         speak(textToSpeak, language, playbackSpeed);
         setIsPlaying(true);
@@ -68,14 +83,17 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
               </p>
 
               {/* Multi-language Support */}
-              {language !== "en" && instruction.translation.id && (
+              {language !== "en" && instruction.translation[language as keyof typeof instruction.translation] && (
                 <div className="bg-blue-50 rounded-lg p-4 mb-4">
                   <div className="text-sm text-[hsl(207,90%,54%)] font-medium mb-2 flex items-center">
                     <Languages className="w-4 h-4 mr-2" />
-                    Bahasa Indonesia:
+                    {language === 'id' && 'Bahasa Indonesia:'}
+                    {language === 'th' && 'ไทย:'}
+                    {language === 'vi' && 'Tiếng Việt:'}
+                    {language === 'fil' && 'Filipino:'}
                   </div>
                   <p className="text-gray-700 text-sm leading-relaxed">
-                    {instruction.translation.id.description}
+                    {instruction.translation[language as keyof typeof instruction.translation]?.description}
                   </p>
                 </div>
               )}
@@ -128,7 +146,15 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
                     </Button>
                   </div>
                 </div>
-                <div className="text-sm text-gray-600 mb-3">Playing in English</div>
+                <div className="text-sm text-gray-600 mb-3">
+                  Playing in {
+                    language === 'en' ? 'English' :
+                    language === 'id' ? 'Bahasa Indonesia' :
+                    language === 'th' ? 'ไทย' :
+                    language === 'vi' ? 'Tiếng Việt' :
+                    language === 'fil' ? 'Filipino' : 'English'
+                  }
+                </div>
                 <div className="flex items-center space-x-3">
                   <Button
                     onClick={handlePlayPause}

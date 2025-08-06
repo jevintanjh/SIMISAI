@@ -13,7 +13,17 @@ export function useVoice() {
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = language === 'id' ? 'id-ID' : 'en-US';
+    
+    // Map language codes to proper locale identifiers
+    const languageMap: Record<string, string> = {
+      'en': 'en-US',
+      'id': 'id-ID',
+      'th': 'th-TH',
+      'vi': 'vi-VN',
+      'fil': 'fil-PH'
+    };
+    
+    utterance.lang = languageMap[language] || 'en-US';
     utterance.rate = rate;
     utterance.pitch = 1;
     utterance.volume = 0.8;

@@ -178,6 +178,24 @@ function generateAIResponse(userMessage: string, language: string): string {
       tight: "Jika manset terasa terlalu ketat, longgarkan sedikit. Harus aman tetapi tidak memotong sirkulasi.",
       position: "Pastikan manset diposisikan sekitar 1 inci di atas siku Anda, dengan selang menghadap ke bawah lengan.",
       default: "Saya dapat membantu Anda dengan pemantauan tekanan darah. Langkah spesifik apa yang Anda kesulitan?"
+    },
+    th: {
+      cuff: "ข้อมือควรพอดีแต่ไม่แน่น คุณควรจะสามารถสอดนิ้วหนึ่งเข้าไปข้างใต้ได้อย่างสบาย",
+      tight: "หากข้อมือรู้สึกแน่นเกินไป ให้คลายออกเล็กน้อย ควรมั่นคงแต่ไม่ขัดการไหลเวียนของเลือด",
+      position: "ตรวจสอบให้แน่ใจว่าข้อมือวางอยู่ประมาณ 1 นิ้วเหนือข้อศอกของคุณ โดยท่อหันหน้าลงตามแขน",
+      default: "ฉันสามารถช่วยคุณเรื่องการตรวจวัดความดันโลหิตได้ คุณมีปัญหาขั้นตอนไหนเป็นพิเศษ?"
+    },
+    vi: {
+      cuff: "Vòng bít phải vừa khít nhưng không chặt. Bạn có thể luồn một ngón tay xuống dưới một cách thoải mái.",
+      tight: "Nếu vòng bít cảm thấy quá chặt, hãy nới lỏng một chút. Nó phải chắc chắn nhưng không cắt đứt tuần hoàn.",
+      position: "Đảm bảo vòng bít được định vị cách khuỷu tay khoảng 1 inch, với ống hướng xuống cánh tay của bạn.",
+      default: "Tôi có thể giúp bạn theo dõi huyết áp. Bạn gặp khó khăn ở bước nào cụ thể?"
+    },
+    fil: {
+      cuff: "Ang cuff ay dapat makasya ngunit hindi masyadong mahigpit. Dapat mong maipasok ang isang daliri sa ilalim nito nang komportable.",
+      tight: "Kung ang cuff ay masyadong mahigpit, medyo kaluwagin. Dapat itong secure ngunit hindi nakakapigil sa daloy ng dugo.",
+      position: "Siguraduhin na ang cuff ay nakaposisyon mga 1 pulgada sa itaas ng inyong siko, at ang tubo ay nakaharap pababa sa braso.",
+      default: "Maaari kitang tulungan sa blood pressure monitoring. Anong specific na step ang inyong pinagkakaabala?"
     }
   };
 
