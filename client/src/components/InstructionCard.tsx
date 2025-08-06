@@ -76,25 +76,26 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900 text-lg mb-3">
-                {instruction.title}
+                {language !== "en" && instruction.translation[language as keyof typeof instruction.translation]
+                  ? instruction.translation[language as keyof typeof instruction.translation]?.title || instruction.title
+                  : instruction.title}
               </h3>
               <p className="text-gray-600 mb-4 leading-relaxed">
-                {instruction.description}
+                {language !== "en" && instruction.translation[language as keyof typeof instruction.translation]
+                  ? instruction.translation[language as keyof typeof instruction.translation]?.description || instruction.description
+                  : instruction.description}
               </p>
 
-              {/* Multi-language Support */}
+              {/* Language indicator when not English */}
               {language !== "en" && instruction.translation[language as keyof typeof instruction.translation] && (
-                <div className="bg-blue-50 rounded-lg p-4 mb-4">
-                  <div className="text-sm text-[hsl(207,90%,54%)] font-medium mb-2 flex items-center">
+                <div className="bg-blue-50 rounded-lg p-3 mb-4">
+                  <div className="text-sm text-[hsl(207,90%,54%)] font-medium flex items-center">
                     <Languages className="w-4 h-4 mr-2" />
-                    {language === 'id' && 'Bahasa Indonesia:'}
-                    {language === 'th' && 'ไทย:'}
-                    {language === 'vi' && 'Tiếng Việt:'}
-                    {language === 'fil' && 'Filipino:'}
+                    {language === 'id' && 'Showing in Bahasa Indonesia'}
+                    {language === 'th' && 'แสดงเป็นภาษาไทย'}
+                    {language === 'vi' && 'Hiển thị bằng tiếng Việt'}
+                    {language === 'fil' && 'Nagpapakita sa Filipino'}
                   </div>
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    {instruction.translation[language as keyof typeof instruction.translation]?.description}
-                  </p>
                 </div>
               )}
 
