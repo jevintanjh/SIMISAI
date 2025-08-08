@@ -83,24 +83,25 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
           <div className="w-24 h-0.5 bg-gradient-to-r from-primary to-blue-400 mx-auto"></div>
         </div>
 
-        <div className="grid grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {/* Language Selection */}
           <Card className="bg-card/50 border-white/20 backdrop-blur-sm hover:bg-card/70 transition-all duration-300">
-            <CardContent className="p-8">
-              <div className="flex items-center space-x-3 mb-6 justify-center">
-                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                  <Globe className="w-6 h-6 text-primary" />
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-4 justify-center">
+                <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                  <Globe className="w-5 h-5 text-primary" />
                 </div>
               </div>
               <h3 className="font-semibold text-white text-center mb-2">Language</h3>
-              <p className="text-white/60 text-sm text-center mb-4">Select your preferred language</p>
+              <p className="text-white/60 text-xs text-center mb-4">Select your preferred language</p>
               <select 
                 value={language} 
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full bg-gray-800 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full bg-gray-800 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 style={{
                   backgroundColor: '#1f2937',
-                  color: '#ffffff'
+                  color: '#ffffff',
+                  fontSize: '14px'
                 }}
               >
                 <option value="" disabled style={{ backgroundColor: '#1f2937', color: '#9ca3af' }}>Select language</option>
@@ -115,21 +116,22 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
 
           {/* Device Selection */}
           <Card className="bg-card/50 border-white/20 backdrop-blur-sm hover:bg-card/70 transition-all duration-300">
-            <CardContent className="p-8">
-              <div className="flex items-center space-x-3 mb-6 justify-center">
-                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                  <Camera className="w-6 h-6 text-primary" />
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-4 justify-center">
+                <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                  <Camera className="w-5 h-5 text-primary" />
                 </div>
               </div>
               <h3 className="font-semibold text-white text-center mb-2">Device</h3>
-              <p className="text-white/60 text-sm text-center mb-4">Choose medical device type</p>
+              <p className="text-white/60 text-xs text-center mb-4">Choose medical device type</p>
               <select 
                 value={device} 
                 onChange={(e) => setDevice(e.target.value)}
-                className="w-full bg-gray-800 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full bg-gray-800 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 style={{
                   backgroundColor: '#1f2937',
-                  color: '#ffffff'
+                  color: '#ffffff',
+                  fontSize: '14px'
                 }}
               >
                 <option value="" disabled style={{ backgroundColor: '#1f2937', color: '#9ca3af' }}>Select device</option>
@@ -144,21 +146,22 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
 
           {/* Guidance Style */}
           <Card className="bg-card/50 border-white/20 backdrop-blur-sm hover:bg-card/70 transition-all duration-300">
-            <CardContent className="p-8">
-              <div className="flex items-center space-x-3 mb-6 justify-center">
-                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                  <Target className="w-6 h-6 text-primary" />
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-4 justify-center">
+                <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                  <Target className="w-5 h-5 text-primary" />
                 </div>
               </div>
               <h3 className="font-semibold text-white text-center mb-2">Guidance</h3>
-              <p className="text-white/60 text-sm text-center mb-4">Select instruction style</p>
+              <p className="text-white/60 text-xs text-center mb-4">Select instruction style</p>
               <select 
                 value={guidanceStyle} 
                 onChange={(e) => setGuidanceStyle(e.target.value)}
-                className="w-full bg-gray-800 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full bg-gray-800 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 style={{
                   backgroundColor: '#1f2937',
-                  color: '#ffffff'
+                  color: '#ffffff',
+                  fontSize: '14px'
                 }}
               >
                 <option value="" disabled style={{ backgroundColor: '#1f2937', color: '#9ca3af' }}>Select style</option>
@@ -173,21 +176,22 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
 
           {/* Voice Options */}
           <Card className="bg-card/50 border-white/20 backdrop-blur-sm hover:bg-card/70 transition-all duration-300">
-            <CardContent className="p-8">
-              <div className="flex items-center space-x-3 mb-6 justify-center">
-                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                  <Volume2 className="w-6 h-6 text-primary" />
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3 mb-4 justify-center">
+                <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                  <Volume2 className="w-5 h-5 text-primary" />
                 </div>
               </div>
               <h3 className="font-semibold text-white text-center mb-2">Voice</h3>
-              <p className="text-white/60 text-sm text-center mb-4">Audio assistance option</p>
+              <p className="text-white/60 text-xs text-center mb-4">Audio assistance option</p>
               <select 
                 value={voiceOption} 
                 onChange={(e) => setVoiceOption(e.target.value)}
-                className="w-full bg-gray-800 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full bg-gray-800 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 style={{
                   backgroundColor: '#1f2937',
-                  color: '#ffffff'
+                  color: '#ffffff',
+                  fontSize: '14px'
                 }}
               >
                 <option value="" disabled style={{ backgroundColor: '#1f2937', color: '#9ca3af' }}>Select voice</option>
@@ -236,6 +240,21 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
             </div>
           </div>
         )}
+
+        {/* How It Works Preview */}
+        <div className="mt-16 text-center">
+          <h3 className="text-2xl font-bold text-white mb-6">How SIMIS AI Works</h3>
+          <div className="bg-card/30 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
+            <img 
+              src="/attached_assets/generated_images/SIMIS_AI_thermometer_detection_interface_ddfe0475.png" 
+              alt="SIMIS AI Interface Preview - Split screen showing thermometer detection with camera view and step-by-step guidance"
+              className="w-full max-w-4xl mx-auto rounded-lg shadow-lg"
+            />
+            <p className="text-white/70 text-sm mt-4 max-w-2xl mx-auto">
+              Real-time camera detection identifies your thermometer, while our AI provides step-by-step guidance in your preferred language with voice assistance.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
