@@ -26,88 +26,38 @@ export const WelcomeScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl bg-purple-900/50 border-purple-700/50 backdrop-blur-lg">
-        <div className="p-8 text-center">
-          <h1 className="text-4xl font-bold text-white mb-2">Welcome to SIMIS AI</h1>
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-purple-400 to-transparent mb-8"></div>
-          
-          <div className="flex flex-wrap gap-4 justify-center mb-8">
-            {/* Language Button */}
-            <LanguageSelector />
-            
-            {/* Device Button */}
-            <DeviceSelector />
-            
-            {/* Guidance Style Button */}
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="lg"
-                className="bg-purple-800/50 border-purple-600 text-purple-100 hover:bg-purple-700/50 px-6 py-3"
-              >
-                <Settings className="w-5 h-5 mr-2" />
-                Guidance: {guidanceStyle.charAt(0).toUpperCase() + guidanceStyle.slice(1)}
-              </Button>
-              <div className="flex gap-2 justify-center">
-                {(['direct', 'gentle', 'detailed'] as const).map((style) => (
-                  <Button
-                    key={style}
-                    variant={guidanceStyle === style ? "default" : "ghost"}
-                    size="sm"
-                    className="text-purple-100 hover:bg-purple-700/50"
-                    onClick={() => setGuidanceStyle(style)}
-                  >
-                    {style.charAt(0).toUpperCase() + style.slice(1)}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Voice Button */}
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="lg"
-                className="bg-purple-800/50 border-purple-600 text-purple-100 hover:bg-purple-700/50 px-6 py-3"
-              >
-                <Mic className="w-5 h-5 mr-2" />
-                Voice: {voicePreference === 'text_only' ? 'Text Only' : voicePreference.charAt(0).toUpperCase() + voicePreference.slice(1)}
-              </Button>
-              <div className="flex gap-2 justify-center">
-                {(['male', 'female', 'text_only'] as const).map((voice) => (
-                  <Button
-                    key={voice}
-                    variant={voicePreference === voice ? "default" : "ghost"}
-                    size="sm"
-                    className="text-purple-100 hover:bg-purple-700/50"
-                    onClick={() => setVoicePreference(voice)}
-                  >
-                    {voice === 'text_only' ? 'Text' : voice.charAt(0).toUpperCase() + voice.slice(1)}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Start Button */}
-            <Button
-              size="lg"
-              onClick={handleStart}
-              disabled={!canStart}
-              className="bg-white text-purple-900 hover:bg-purple-100 px-8 py-3 font-semibold"
-            >
-              <Play className="w-5 h-5 mr-2" />
-              Start
-            </Button>
-          </div>
-
-          {!canStart && (
-            <p className="text-purple-300 text-sm">
-              Please select a device to continue
-            </p>
-          )}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
+      <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700 rounded-2xl p-12 w-full max-w-5xl shadow-2xl">
+        
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-white mb-4">Welcome to SIMIS AI</h1>
+          <div className="w-96 h-px bg-gradient-to-r from-transparent via-slate-400 to-transparent mx-auto"></div>
         </div>
-      </Card>
+
+        {/* Main Controls Row */}
+        <div className="flex items-center justify-center gap-4 mb-8 flex-wrap">
+          <LanguageSelector />
+          <DeviceSelector />
+          <GuidanceSelector guidanceStyle={guidanceStyle} setGuidanceStyle={setGuidanceStyle} />
+          <VoiceSelector voicePreference={voicePreference} setVoicePreference={setVoicePreference} />
+          <Button
+            onClick={handleStart}
+            disabled={!canStart}
+            className="bg-white hover:bg-gray-100 text-slate-900 px-6 py-3 rounded-lg font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Play className="w-5 h-5" />
+            Start
+          </Button>
+        </div>
+
+        {/* Error Message */}
+        {!canStart && (
+          <div className="text-center">
+            <p className="text-slate-400">Please select a device to continue</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
