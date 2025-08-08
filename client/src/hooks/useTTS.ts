@@ -22,10 +22,12 @@ export const useTTS = (voicePreference: VoicePreference) => {
       const matchesLang = voice.lang.startsWith(language.split('-')[0]);
       if (voicePreference === 'text_only') return false;
       
-      const matchesGender = voicePreference === 'male' ? 
-        voice.name.toLowerCase().includes('male') : 
-        voice.name.toLowerCase().includes('female');
-      return matchesLang && matchesGender;
+      if (voicePreference === 'male') {
+        return matchesLang && voice.name.toLowerCase().includes('male');
+      } else if (voicePreference === 'female') {
+        return matchesLang && voice.name.toLowerCase().includes('female');
+      }
+      return matchesLang;
     });
 
     if (preferredVoice) {

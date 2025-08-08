@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Play, Settings, Mic, MessageSquare } from 'lucide-react';
@@ -40,60 +40,52 @@ export const WelcomeScreen: React.FC = () => {
             <DeviceSelector />
             
             {/* Guidance Style Button */}
-            <div className="relative group">
+            <div className="space-y-2">
               <Button
                 variant="outline"
                 size="lg"
                 className="bg-purple-800/50 border-purple-600 text-purple-100 hover:bg-purple-700/50 px-6 py-3"
               >
                 <Settings className="w-5 h-5 mr-2" />
-                Guidance
+                Guidance: {guidanceStyle.charAt(0).toUpperCase() + guidanceStyle.slice(1)}
               </Button>
-              <div className="absolute top-full left-0 mt-2 hidden group-hover:block z-50">
-                <Card className="bg-purple-900/90 border-purple-600 p-4 min-w-[200px]">
-                  <div className="space-y-2">
-                    {(['direct', 'gentle', 'detailed'] as const).map((style) => (
-                      <Button
-                        key={style}
-                        variant={guidanceStyle === style ? "default" : "ghost"}
-                        size="sm"
-                        className="w-full text-left justify-start text-purple-100 hover:bg-purple-700/50"
-                        onClick={() => setGuidanceStyle(style)}
-                      >
-                        {style.charAt(0).toUpperCase() + style.slice(1)} Instructions
-                      </Button>
-                    ))}
-                  </div>
-                </Card>
+              <div className="flex gap-2 justify-center">
+                {(['direct', 'gentle', 'detailed'] as const).map((style) => (
+                  <Button
+                    key={style}
+                    variant={guidanceStyle === style ? "default" : "ghost"}
+                    size="sm"
+                    className="text-purple-100 hover:bg-purple-700/50"
+                    onClick={() => setGuidanceStyle(style)}
+                  >
+                    {style.charAt(0).toUpperCase() + style.slice(1)}
+                  </Button>
+                ))}
               </div>
             </div>
             
             {/* Voice Button */}
-            <div className="relative group">
+            <div className="space-y-2">
               <Button
                 variant="outline"
                 size="lg"
                 className="bg-purple-800/50 border-purple-600 text-purple-100 hover:bg-purple-700/50 px-6 py-3"
               >
                 <Mic className="w-5 h-5 mr-2" />
-                Voice
+                Voice: {voicePreference === 'text_only' ? 'Text Only' : voicePreference.charAt(0).toUpperCase() + voicePreference.slice(1)}
               </Button>
-              <div className="absolute top-full left-0 mt-2 hidden group-hover:block z-50">
-                <Card className="bg-purple-900/90 border-purple-600 p-4 min-w-[200px]">
-                  <div className="space-y-2">
-                    {(['male', 'female', 'text_only'] as const).map((voice) => (
-                      <Button
-                        key={voice}
-                        variant={voicePreference === voice ? "default" : "ghost"}
-                        size="sm"
-                        className="w-full text-left justify-start text-purple-100 hover:bg-purple-700/50"
-                        onClick={() => setVoicePreference(voice)}
-                      >
-                        {voice === 'text_only' ? 'Text Only' : voice.charAt(0).toUpperCase() + voice.slice(1)} Voice
-                      </Button>
-                    ))}
-                  </div>
-                </Card>
+              <div className="flex gap-2 justify-center">
+                {(['male', 'female', 'text_only'] as const).map((voice) => (
+                  <Button
+                    key={voice}
+                    variant={voicePreference === voice ? "default" : "ghost"}
+                    size="sm"
+                    className="text-purple-100 hover:bg-purple-700/50"
+                    onClick={() => setVoicePreference(voice)}
+                  >
+                    {voice === 'text_only' ? 'Text' : voice.charAt(0).toUpperCase() + voice.slice(1)}
+                  </Button>
+                ))}
               </div>
             </div>
             
