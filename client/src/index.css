@@ -3,32 +3,33 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(0, 0%, 100%);
-  --foreground: hsl(20, 14.3%, 4.1%);
-  --muted: hsl(60, 4.8%, 95.9%);
-  --muted-foreground: hsl(25, 5.3%, 44.7%);
-  --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(20, 14.3%, 4.1%);
-  --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(20, 14.3%, 4.1%);
-  --border: hsl(20, 5.9%, 90%);
-  --input: hsl(20, 5.9%, 90%);
+  --background: hsl(260, 30%, 8%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(260, 20%, 18%);
+  --muted-foreground: hsl(0, 0%, 65%);
+  --popover: hsl(260, 25%, 12%);
+  --popover-foreground: hsl(0, 0%, 95%);
+  --card: hsl(260, 25%, 12%);
+  --card-foreground: hsl(0, 0%, 95%);
+  --border: hsl(260, 15%, 25%);
+  --input: hsl(260, 15%, 20%);
   --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(60, 4.8%, 95.9%);
-  --secondary-foreground: hsl(24, 9.8%, 10%);
-  --accent: hsl(60, 4.8%, 95.9%);
-  --accent-foreground: hsl(24, 9.8%, 10%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(260, 20%, 18%);
+  --secondary-foreground: hsl(0, 0%, 85%);
+  --accent: hsl(260, 20%, 18%);
+  --accent-foreground: hsl(0, 0%, 95%);
   --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(20, 14.3%, 4.1%);
-  --radius: 0.5rem;
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(207, 90%, 54%);
+  --radius: 0.75rem;
   
-  /* Medical Assistant Custom Colors */
-  --medical-blue: hsl(207, 90%, 54%);
+  /* SIMIS AI Custom Colors */
+  --simis-purple: hsl(260, 30%, 8%);
+  --simis-card: hsl(260, 25%, 12%);
   --detection-green: hsl(122, 39%, 49%);
   --interactive-orange: hsl(36, 100%, 50%);
-  --medical-gray: hsl(0, 0%, 96%);
+  --sidebar-purple: hsl(260, 20%, 15%);
 }
 
 .dark {
