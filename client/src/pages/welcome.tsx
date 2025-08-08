@@ -97,11 +97,15 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
               <select 
                 value={language} 
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full bg-input/50 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+                className="w-full bg-gray-800 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                style={{
+                  backgroundColor: '#1f2937',
+                  color: '#ffffff'
+                }}
               >
-                <option value="" disabled className="text-gray-500">Select language</option>
+                <option value="" disabled style={{ backgroundColor: '#1f2937', color: '#9ca3af' }}>Select language</option>
                 {languages.map((lang) => (
-                  <option key={lang.value} value={lang.value} className="bg-gray-900 text-white">
+                  <option key={lang.value} value={lang.value} style={{ backgroundColor: '#1f2937', color: '#ffffff' }}>
                     {lang.label}
                   </option>
                 ))}
@@ -122,11 +126,15 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
               <select 
                 value={device} 
                 onChange={(e) => setDevice(e.target.value)}
-                className="w-full bg-input/50 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+                className="w-full bg-gray-800 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                style={{
+                  backgroundColor: '#1f2937',
+                  color: '#ffffff'
+                }}
               >
-                <option value="" disabled className="text-gray-500">Select device</option>
+                <option value="" disabled style={{ backgroundColor: '#1f2937', color: '#9ca3af' }}>Select device</option>
                 {devices.map((dev) => (
-                  <option key={dev.value} value={dev.value} className="bg-gray-900 text-white">
+                  <option key={dev.value} value={dev.value} style={{ backgroundColor: '#1f2937', color: '#ffffff' }}>
                     {dev.icon} {dev.label}
                   </option>
                 ))}
@@ -147,11 +155,15 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
               <select 
                 value={guidanceStyle} 
                 onChange={(e) => setGuidanceStyle(e.target.value)}
-                className="w-full bg-input/50 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+                className="w-full bg-gray-800 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                style={{
+                  backgroundColor: '#1f2937',
+                  color: '#ffffff'
+                }}
               >
-                <option value="" disabled className="text-gray-500">Select style</option>
+                <option value="" disabled style={{ backgroundColor: '#1f2937', color: '#9ca3af' }}>Select style</option>
                 {guidanceOptions.map((style) => (
-                  <option key={style.value} value={style.value} className="bg-gray-900 text-white">
+                  <option key={style.value} value={style.value} style={{ backgroundColor: '#1f2937', color: '#ffffff' }}>
                     {style.icon} {style.label}
                   </option>
                 ))}
@@ -172,11 +184,15 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
               <select 
                 value={voiceOption} 
                 onChange={(e) => setVoiceOption(e.target.value)}
-                className="w-full bg-input/50 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+                className="w-full bg-gray-800 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                style={{
+                  backgroundColor: '#1f2937',
+                  color: '#ffffff'
+                }}
               >
-                <option value="" disabled className="text-gray-500">Select voice</option>
+                <option value="" disabled style={{ backgroundColor: '#1f2937', color: '#9ca3af' }}>Select voice</option>
                 {voiceOptions.map((voice) => (
-                  <option key={voice.value} value={voice.value} className="bg-gray-900 text-white">
+                  <option key={voice.value} value={voice.value} style={{ backgroundColor: '#1f2937', color: '#ffffff' }}>
                     {voice.icon} {voice.label}
                   </option>
                 ))}
