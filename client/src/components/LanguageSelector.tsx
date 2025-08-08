@@ -20,7 +20,8 @@ export const LanguageSelector: React.FC = () => {
         className="bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700/50 px-6 py-3 rounded-lg flex items-center gap-2"
       >
         <Globe className="w-5 h-5" />
-        Language
+        <span className="mr-1">{selectedConfig.flag}</span>
+        {selectedConfig.code === 'english' ? 'English' : selectedConfig.nativeName}
         <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </Button>
       

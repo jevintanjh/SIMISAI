@@ -20,7 +20,7 @@ export const DeviceSelector: React.FC = () => {
         className="bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700/50 px-6 py-3 rounded-lg flex items-center gap-2"
       >
         <Search className="w-5 h-5" />
-        Device
+        {selectedDeviceData ? selectedDeviceData.name : 'Select Device'}
         <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </Button>
       

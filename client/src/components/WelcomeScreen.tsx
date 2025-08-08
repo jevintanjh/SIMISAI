@@ -71,6 +71,12 @@ interface GuidanceSelectorProps {
 const GuidanceSelector: React.FC<GuidanceSelectorProps> = ({ guidanceStyle, setGuidanceStyle }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
+  const guidanceLabels = {
+    direct: 'Direct',
+    gentle: 'Gentle', 
+    detailed: 'Detailed'
+  };
+
   return (
     <div className="relative">
       <Button
@@ -79,7 +85,7 @@ const GuidanceSelector: React.FC<GuidanceSelectorProps> = ({ guidanceStyle, setG
         className="bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700/50 px-6 py-3 rounded-lg flex items-center gap-2"
       >
         <Settings className="w-5 h-5" />
-        Guidance
+        Guidance: {guidanceLabels[guidanceStyle]}
       </Button>
       
       {isOpen && (
@@ -120,6 +126,12 @@ interface VoiceSelectorProps {
 const VoiceSelector: React.FC<VoiceSelectorProps> = ({ voicePreference, setVoicePreference }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
+  const voiceLabels = {
+    male: 'Male',
+    female: 'Female',
+    text_only: 'Text Only'
+  };
+
   return (
     <div className="relative">
       <Button
@@ -128,7 +140,7 @@ const VoiceSelector: React.FC<VoiceSelectorProps> = ({ voicePreference, setVoice
         className="bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700/50 px-6 py-3 rounded-lg flex items-center gap-2"
       >
         <Mic className="w-5 h-5" />
-        Voice
+        Voice: {voiceLabels[voicePreference]}
       </Button>
       
       {isOpen && (
