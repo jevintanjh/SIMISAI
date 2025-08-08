@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 //   SelectValue,
 // } from "@/components/ui/select";
 import { Globe, Camera, Target, Volume2, Play } from "lucide-react";
+import simulationImage from "@assets/generated_images/SIMIS_AI_thermometer_detection_interface_ddfe0475.png";
 
 interface WelcomeProps {
   onStartSession: (config: SessionConfig) => void;
@@ -246,7 +247,7 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
           <h3 className="text-2xl font-bold text-white mb-6">How SIMIS AI Works</h3>
           <div className="bg-card/30 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
             <img 
-              src="/attached_assets/generated_images/SIMIS_AI_thermometer_detection_interface_ddfe0475.png" 
+              src={simulationImage} 
               alt="SIMIS AI Interface Preview - Split screen showing thermometer detection with camera view and step-by-step guidance"
               className="w-full max-w-4xl mx-auto rounded-lg shadow-lg"
             />
