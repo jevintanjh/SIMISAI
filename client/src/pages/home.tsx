@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AppHeader from "@/components/AppHeader";
 import CameraView from "@/components/CameraView";
+import { MediaPipeCameraView } from "@/components/MediaPipeCameraView";
 import InstructionCard from "@/components/InstructionCard";
 import DeviceLibrary from "@/components/DeviceLibrary";
 import FloatingChat from "@/components/FloatingChat";
@@ -10,18 +11,33 @@ export default function Home() {
   const [currentTab, setCurrentTab] = useState<"scan" | "devices" | "history" | "settings">("scan");
   const [currentLanguage, setCurrentLanguage] = useState("en");
   const [currentSession, setCurrentSession] = useState<string | null>(null);
+  const [useMediaPipe, setUseMediaPipe] = useState(true); // Toggle for MediaPipe vs old camera
+  const [thermometerDetected, setThermometerDetected] = useState<any>(null);
 
   return (
     <div className="bg-gray-100 font-sans min-h-screen">
       <AppHeader 
         currentLanguage={currentLanguage}
         onLanguageChange={setCurrentLanguage}
+        useMediaPipe={useMediaPipe}
+        onToggleMediaPipe={setUseMediaPipe}
       />
       
       <main className="max-w-md mx-auto bg-white min-h-screen relative">
         {currentTab === "scan" && (
           <>
-            <CameraView />
+            {useMediaPipe ? (
+              <div className="p-4">
+                <MediaPipeCameraView 
+                  onThermometerDetected={(detection) => {
+                    setThermometerDetected(detection);
+                    console.log('Thermometer detected:', detection);
+                  }}
+                />
+              </div>
+            ) : (
+              <CameraView />
+            )}
             <InstructionCard 
               language={currentLanguage}
               sessionId={currentSession}

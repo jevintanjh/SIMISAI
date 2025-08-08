@@ -6,11 +6,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Stethoscope, Globe, ChevronDown } from "lucide-react";
+import { Stethoscope, Globe, ChevronDown, Camera } from "lucide-react";
 
 interface AppHeaderProps {
   currentLanguage: string;
   onLanguageChange: (language: string) => void;
+  useMediaPipe?: boolean;
+  onToggleMediaPipe?: (enabled: boolean) => void;
 }
 
 const languages = [
@@ -21,7 +23,7 @@ const languages = [
   { code: "fil", name: "Filipino" },
 ];
 
-export default function AppHeader({ currentLanguage, onLanguageChange }: AppHeaderProps) {
+export default function AppHeader({ currentLanguage, onLanguageChange, useMediaPipe = true, onToggleMediaPipe }: AppHeaderProps) {
   const currentLangName = languages.find(lang => lang.code === currentLanguage)?.name || "EN";
   
   return (
@@ -31,10 +33,23 @@ export default function AppHeader({ currentLanguage, onLanguageChange }: AppHead
           <div className="bg-white rounded-lg p-2">
             <Stethoscope className="text-[hsl(207,90%,54%)] text-lg" />
           </div>
-          <h1 className="text-lg font-semibold">Medical Assistant</h1>
+          <h1 className="text-lg font-semibold">SIMIS AI</h1>
         </div>
         
-        <DropdownMenu>
+        <div className="flex items-center space-x-2">
+          {onToggleMediaPipe && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onToggleMediaPipe(!useMediaPipe)}
+              className="bg-white bg-opacity-20 hover:bg-white hover:bg-opacity-30 text-white"
+            >
+              <Camera className="w-4 h-4 mr-1" />
+              <span className="text-xs">{useMediaPipe ? 'MP' : 'STD'}</span>
+            </Button>
+          )}
+          
+          <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
               variant="ghost" 
@@ -58,6 +73,7 @@ export default function AppHeader({ currentLanguage, onLanguageChange }: AppHead
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </div>
     </header>
   );
