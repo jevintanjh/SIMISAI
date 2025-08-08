@@ -61,3 +61,98 @@ export const WelcomeScreen: React.FC = () => {
     </div>
   );
 };
+
+// Guidance Selector Component
+interface GuidanceSelectorProps {
+  guidanceStyle: any;
+  setGuidanceStyle: (style: any) => void;
+}
+
+const GuidanceSelector: React.FC<GuidanceSelectorProps> = ({ guidanceStyle, setGuidanceStyle }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <div className="relative">
+      <Button
+        variant="outline"
+        onClick={() => setIsOpen(!isOpen)}
+        className="bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700/50 px-6 py-3 rounded-lg flex items-center gap-2"
+      >
+        <Settings className="w-5 h-5" />
+        Guidance
+      </Button>
+      
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-2 z-50 bg-slate-800/90 border border-slate-600 rounded-lg p-3 min-w-[200px]">
+          <div className="space-y-2">
+            {(['direct', 'gentle', 'detailed'] as const).map((style) => (
+              <button
+                key={style}
+                onClick={() => {
+                  setGuidanceStyle(style);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-3 py-2 rounded text-sm flex items-center gap-2 ${
+                  guidanceStyle === style 
+                    ? 'bg-purple-600 text-white' 
+                    : 'text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+                {style === 'direct' && 'Direct instructions'}
+                {style === 'gentle' && 'Gentle suggestions'}
+                {style === 'detailed' && 'Detailed explanations'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Voice Selector Component  
+interface VoiceSelectorProps {
+  voicePreference: any;
+  setVoicePreference: (voice: any) => void;
+}
+
+const VoiceSelector: React.FC<VoiceSelectorProps> = ({ voicePreference, setVoicePreference }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <div className="relative">
+      <Button
+        variant="outline"
+        onClick={() => setIsOpen(!isOpen)}
+        className="bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700/50 px-6 py-3 rounded-lg flex items-center gap-2"
+      >
+        <Mic className="w-5 h-5" />
+        Voice
+      </Button>
+      
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-2 z-50 bg-slate-800/90 border border-slate-600 rounded-lg p-3 min-w-[150px]">
+          <div className="space-y-2">
+            {(['male', 'female', 'text_only'] as const).map((voice) => (
+              <button
+                key={voice}
+                onClick={() => {
+                  setVoicePreference(voice);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-3 py-2 rounded text-sm ${
+                  voicePreference === voice 
+                    ? 'bg-purple-600 text-white' 
+                    : 'text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                {voice === 'text_only' ? 'Text' : voice.charAt(0).toUpperCase() + voice.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
