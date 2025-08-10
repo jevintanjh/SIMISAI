@@ -27,23 +27,24 @@ export const WelcomeScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
-      <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700 rounded-2xl p-12 w-full max-w-5xl shadow-2xl relative">
-        
-        {/* Logo in top left corner */}
-        <div className="absolute top-6 left-6">
-          <img 
-            src={simisLogo} 
-            alt="SIMIS.AI Logo" 
-            className="h-12 w-auto object-contain"
-          />
-        </div>
-        
-        {/* Header */}
-        <div className="text-center mb-12 pt-8">
-          <h1 className="text-5xl font-bold text-white mb-4">Welcome to SIMIS AI</h1>
-          <div className="w-96 h-px bg-gradient-to-r from-transparent via-slate-400 to-transparent mx-auto"></div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+      {/* Logo at top of page */}
+      <div className="flex justify-center pt-8 pb-6">
+        <img 
+          src={simisLogo} 
+          alt="SIMIS.AI Logo" 
+          className="h-20 w-auto object-contain"
+        />
+      </div>
+      
+      <div className="flex items-center justify-center">
+        <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700 rounded-2xl p-12 w-full max-w-5xl shadow-2xl">
+          
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-bold text-white mb-4">Welcome to SIMIS AI</h1>
+            <div className="w-96 h-px bg-gradient-to-r from-transparent via-slate-400 to-transparent mx-auto"></div>
+          </div>
 
         {/* Main Controls Row */}
         <div className="flex items-center justify-center gap-4 mb-8 flex-wrap">
@@ -67,6 +68,7 @@ export const WelcomeScreen: React.FC = () => {
             <p className="text-slate-400">Please select a device to continue</p>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
