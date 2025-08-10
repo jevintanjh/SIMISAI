@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight, SkipForward, RotateCcw, CheckCircle } from 'lucide-react';
 import { CameraFeed } from './CameraFeed';
 import { ProgressTracker } from './ProgressTracker';
 import { ChatInterface } from './ChatInterface';
@@ -15,7 +15,8 @@ export const GuidanceInterface: React.FC = () => {
     selectedLanguage,
     voicePreference,
     endSession,
-    nextStep
+    nextStep,
+    previousStep
   } = useGuidanceStore();
 
   const { speak } = useTTS(voicePreference);
@@ -107,11 +108,71 @@ export const GuidanceInterface: React.FC = () => {
             <div className="mt-4 p-4 bg-purple-900/30 border border-purple-700/50 rounded-lg">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="text-white text-sm font-medium">Audio Instructions</span>
+                <span className="text-white text-sm font-medium">Current Step Instructions</span>
               </div>
-              <p className="text-purple-100 text-sm">
+              <p className="text-purple-100 text-sm mb-4">
                 {currentInstruction || 'Loading instructions...'}
               </p>
+              
+              {/* Step Navigation Controls */}
+              <div className="flex items-center justify-between pt-3 border-t border-purple-700/50">
+                <div className="text-purple-300 text-xs">
+                  Step {currentSession.currentStep + 1} of {currentSession.totalSteps}
+                </div>
+                
+                <div className="flex gap-2">
+                  {currentSession.currentStep > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={previousStep}
+                      className="text-purple-200 border-purple-600 hover:bg-purple-800/50"
+                    >
+                      <RotateCcw className="w-4 h-4 mr-1" />
+                      Previous
+                    </Button>
+                  )}
+                  
+                  {currentSession.currentStep < currentSession.totalSteps - 1 ? (
+                    <Button
+                      onClick={nextStep}
+                      size="sm"
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                      <ArrowRight className="w-4 h-4 mr-1" />
+                      Next Step
+                    </Button>
+                  ) : currentSession.currentStep === currentSession.totalSteps - 1 ? (
+                    <Button
+                      onClick={nextStep}
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      Complete
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleBackToWelcome}
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-1" />
+                      New Session
+                    </Button>
+                  )}
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => nextStep()}
+                    className="text-purple-200 border-purple-600 hover:bg-purple-800/50"
+                  >
+                    <SkipForward className="w-4 h-4 mr-1" />
+                    Skip
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
 

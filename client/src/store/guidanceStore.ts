@@ -24,6 +24,7 @@ interface GuidanceState {
   startSession: () => void;
   endSession: () => void;
   nextStep: () => void;
+  previousStep: () => void;
   addChatMessage: (role: 'user' | 'assistant', content: string) => void;
   clearChat: () => void;
   setShowWelcome: (show: boolean) => void;
@@ -110,6 +111,23 @@ export const useGuidanceStore = create<GuidanceState>((set, get) => ({
         }
       });
     }
+  },
+
+  previousStep: () => {
+    const { currentSession } = get();
+    if (!currentSession || currentSession.currentStep <= 0) return;
+
+    const previousStepNumber = currentSession.currentStep - 1;
+    const updatedCompletedSteps = currentSession.completedSteps.filter(step => step !== currentSession.currentStep);
+
+    set({
+      currentSession: {
+        ...currentSession,
+        currentStep: previousStepNumber,
+        completedSteps: updatedCompletedSteps,
+        isActive: true // Reactivate if it was completed
+      }
+    });
   },
 
   addChatMessage: (role, content) => {
