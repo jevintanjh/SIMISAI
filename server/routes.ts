@@ -115,25 +115,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const data = aiGuidanceRequestSchema.parse(req.body);
       
+      console.log('AI Generation Request:', {
+        deviceType: data.deviceType,
+        guidanceStyle: data.guidanceStyle,
+        language: data.language,
+        currentStep: data.currentStep,
+        userAction: data.userAction,
+        isCorrectiveNeeded: data.isCorrectiveNeeded
+      });
+      
       const stylePrompts = {
-        direct: "Give short, direct instructions",
-        gentle: "Use encouraging, supportive language", 
-        detailed: "Provide detailed explanations with reasoning"
+        direct: "BE DIRECT AND BRIEF. Use minimal words. No encouragement or praise. Just state what to do. Example: 'Place thermometer under tongue. Wait for beep.' Maximum 10 words per sentence.",
+        gentle: "BE VERY ENCOURAGING AND SUPPORTIVE. Always start with praise like 'You're doing wonderfully!' or 'Great work!' Use caring language like 'Take your time', 'Don't worry', 'You've got this!' Make the user feel supported and confident.", 
+        detailed: "BE EDUCATIONAL AND THOROUGH. Explain WHY each step is important, what sounds/sensations to expect, potential issues to watch for, and scientific reasoning. Include tips and background knowledge. Use 2-3 sentences minimum with rich context."
       };
 
-      const systemPrompt = `You are SIMIS.AI, a medical device guidance assistant. ${stylePrompts[data.guidanceStyle]}. 
-      Current device: ${data.deviceName || data.deviceType}
-      Current step ${data.currentStep + 1}: ${data.currentStepInstruction || "Using medical device"}
-      Target language: ${data.languageNativeName || data.language} (${data.languageCode || data.language})
-      User action detected: ${data.userAction}
-      ${data.isCorrectiveNeeded ? "PROVIDE CORRECTIVE FEEDBACK" : "PROVIDE ENCOURAGEMENT"}
-      
-      Respond in JSON format with:
-      - instruction: English instruction
-      - translatedInstruction: Instruction in ${data.languageNativeName || data.language}
-      - corrective: boolean indicating if this is corrective feedback
-      - nextAction: what the user should do next (optional)
-      - audioInstruction: simplified version for text-to-speech in the target language`;
+      const systemPrompt = `You are SIMIS.AI, a medical device guidance assistant.
+
+GUIDANCE STYLE: ${data.guidanceStyle.toUpperCase()}
+STYLE REQUIREMENT: ${stylePrompts[data.guidanceStyle]}
+
+Current device: ${data.deviceName || data.deviceType}
+Current step ${data.currentStep + 1}: ${data.currentStepInstruction || "Using medical device"}
+Target language: ${data.languageNativeName || data.language} (${data.languageCode || data.language})
+User action detected: ${data.userAction}
+${data.isCorrectiveNeeded ? "PROVIDE CORRECTIVE FEEDBACK" : "PROVIDE ENCOURAGEMENT"}
+
+IMPORTANT: Your response must match the ${data.guidanceStyle} style exactly as described above.
+
+Respond in JSON format with:
+- instruction: English instruction
+- translatedInstruction: Instruction in ${data.languageNativeName || data.language}
+- corrective: boolean indicating if this is corrective feedback
+- nextAction: what the user should do next (optional)
+- audioInstruction: simplified version for text-to-speech in the target language`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
@@ -149,6 +164,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const result = JSON.parse(response.choices[0].message.content || '{}');
+      
+      console.log('AI Generation Response:', {
+        style: data.guidanceStyle,
+        instruction: result.instruction,
+        translatedInstruction: result.translatedInstruction
+      });
       
       res.json({
         instruction: result.instruction || data.currentStepInstruction,

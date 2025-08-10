@@ -33,6 +33,8 @@ export const GuidanceInterface: React.FC = () => {
         console.log('Generating guidance for:', {
           deviceType: currentSession.deviceType,
           currentStep: currentSession.currentStep,
+          guidanceStyle: currentSession.guidanceStyle,
+          language: selectedLanguage,
           userAction,
           needsCorrection,
           deviceDetected: lastDetection?.deviceDetected,
@@ -63,7 +65,7 @@ export const GuidanceInterface: React.FC = () => {
     };
 
     generateInstruction();
-  }, [currentSession?.currentStep, lastDetection, selectedLanguage, voicePreference, speak]);
+  }, [currentSession?.currentStep, currentSession?.guidanceStyle, lastDetection, selectedLanguage, voicePreference, speak]);
 
   const handleDetection = (detection: DetectionResult) => {
     setLastDetection(detection);
