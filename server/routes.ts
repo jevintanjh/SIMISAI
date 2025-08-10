@@ -148,7 +148,7 @@ Respond in JSON format with:
 - translatedInstruction: Instruction in ${data.languageNativeName || data.language}
 - corrective: boolean indicating if this is corrective feedback
 - nextAction: what the user should do next (optional)
-- audioInstruction: simplified version for text-to-speech in the target language`;
+- audioInstruction: SAME as translatedInstruction - keep audio and visual instructions identical for consistency`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
