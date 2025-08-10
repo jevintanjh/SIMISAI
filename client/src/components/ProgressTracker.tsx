@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Circle } from 'lucide-react';
 import { GuidanceSession } from '@shared/schema';
+import { deviceInstructions } from '@/lib/deviceInstructions';
 
 interface ProgressTrackerProps {
   session: GuidanceSession;
@@ -14,6 +15,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
   currentInstruction
 }) => {
   const progressPercentage = (session.currentStep / session.totalSteps) * 100;
+  const deviceInfo = deviceInstructions[session.deviceType];
 
   return (
     <Card className="bg-purple-900/30 border-purple-700/50 p-6">
@@ -80,7 +82,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
               <span className={`text-sm ${
                 isCurrent ? 'text-white font-medium' : 'text-purple-200'
               }`}>
-                Step {index + 1}: Loading instruction...
+                Step {index + 1}: {deviceInfo.steps[index]}
               </span>
             </div>
           );
