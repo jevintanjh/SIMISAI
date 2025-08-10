@@ -5,7 +5,7 @@ import { Play, Settings, Mic, MessageSquare } from 'lucide-react';
 import { LanguageSelector } from './LanguageSelector';
 import { DeviceSelector } from './DeviceSelector';
 import { useGuidanceStore } from '@/store/guidanceStore';
-import simisLogo from '@assets/generated_images/SIMIS.AI_medical_logo_7265e473.png';
+import simisLogo from '@assets/generated_images/SIMIS.AI_transparent_logo_d8ec2da1.png';
 
 export const WelcomeScreen: React.FC = () => {
   const {
@@ -33,7 +33,7 @@ export const WelcomeScreen: React.FC = () => {
         <img 
           src={simisLogo} 
           alt="SIMIS.AI Logo" 
-          className="h-20 w-auto object-contain"
+          className="h-32 w-auto object-contain"
         />
       </div>
       
