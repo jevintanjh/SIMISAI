@@ -6,12 +6,25 @@ A multilingual, AI-powered medical device guidance application that provides rea
 
 ## 🌟 Features
 
+### Core Functionality
 - **Smart Device Detection**: AI-powered computer vision recognizes medical devices using your camera
 - **Multilingual Support**: Available in 10+ Southeast Asian languages with native voice support
-- **Real-time Guidance**: Step-by-step instructions with corrective feedback
-- **Interactive Chat**: Conversational AI assistant for answering questions during device operation
-- **Voice Options**: Choose between male, female, or text-only guidance
-- **Personalized Experience**: Select from direct, gentle, or detailed instruction styles
+- **Real-time AI Guidance**: Dynamic step-by-step instructions powered by OpenAI GPT-4o
+- **Interactive Chat**: Conversational AI assistant with formatted responses and multi-language support
+- **Voice Options**: Enhanced TTS with male, female, or text-only guidance across multiple languages
+- **Personalized Experience**: Three distinct AI guidance styles (direct, gentle, detailed) with dramatically different outputs
+
+### Navigation & Control
+- **Step Navigation Controls**: Previous, Next, Skip, and Complete buttons for easy progression
+- **Smart Progress Tracking**: Visual step indicators showing "Step X of Y" with completion status
+- **Session Management**: Full session lifecycle with backward/forward navigation capabilities
+- **Visual Progress Bar**: Real-time progress visualization in the sidebar
+
+### Enhanced User Experience  
+- **Formatted Chat Responses**: Numbered lists, bullet points, and bold text formatting
+- **Audio-Visual Sync**: Identical audio and visual instructions for consistency
+- **Responsive Design**: Mobile-friendly interface with purple gradient theme
+- **Error Handling**: Comprehensive error states and fallback mechanisms
 
 ## 🚀 Quick Start
 
@@ -57,28 +70,64 @@ A multilingual, AI-powered medical device guidance application that provides rea
 - **Session Management**: Stateless session handling with unique session identifiers
 
 ### Key Technologies
-- **AI Integration**: OpenAI SDK for GPT-4o model integration
+- **AI Integration**: OpenAI SDK for GPT-4o model with real-time instruction generation
+- **Enhanced TTS System**: Web Speech API with improved male/female voice detection
 - **Computer Vision**: Simulated device detection system with realistic confidence scores
-- **Text-to-Speech**: Browser-based speech synthesis with Web Speech API
+- **Step Navigation**: Full session control with previous/next/skip/complete functionality
+- **Formatted Chat**: Rich text rendering with numbered lists, bullets, and bold formatting
 - **Database**: Drizzle ORM with PostgreSQL support (configured for @neondatabase/serverless)
-- **Styling**: Tailwind CSS with custom design system and dark theme support
+- **Styling**: Tailwind CSS with custom purple gradient design system
 
-## 🎯 MVP Focus
+## 🎯 Current Implementation Status
 
-**Current Implementation**: Oral thermometer guidance system
-**Planned Expansion**: Blood pressure monitors and blood glucose meters
+### Fully Implemented Features ✅
+- **Multi-Device Support**: Oral thermometer, blood pressure monitor, and blood glucose meter
+- **AI Guidance Styles**: Direct, Gentle, and Detailed modes with distinct AI personalities
+- **Step Navigation**: Complete navigation system with Previous/Next/Skip/Complete controls
+- **Enhanced TTS**: Working male and female voice selection across languages
+- **Formatted Chat**: Rich text responses with lists, formatting, and proper spacing
+- **Progress Tracking**: Visual step indicators and completion tracking
+- **Multilingual Support**: 10+ Southeast Asian languages with native TTS
+
+### Technical Achievements ✅
+- **Real-time AI Generation**: Dynamic instruction creation using OpenAI GPT-4o
+- **Audio-Visual Consistency**: Synchronized audio and visual instructions
+- **Session Management**: Full backward/forward navigation with state persistence
+- **Enhanced Voice System**: Fixed TTS to properly detect and use male/female voices
+- **Rich Text Rendering**: Chat responses with numbered lists, bullet points, and bold formatting
+- **Smart Navigation Logic**: Context-aware button states (Previous, Next, Complete, New Session)
+- **Error Handling**: Comprehensive fallback systems and user feedback
+- **Responsive Design**: Mobile-optimized interface with accessibility features
+
+### Recent Development Highlights 🚀
+- **Step Navigation System**: Complete implementation of Previous/Next/Skip/Complete controls
+- **TTS Voice Selection Fix**: Resolved male voice limitation - now properly detects "Microsoft George", "Google UK English Male", etc.
+- **AI Response Formatting**: Enhanced system prompts to generate well-structured responses with proper formatting
+- **Chat Interface Overhaul**: Rebuilt chat system with backend API integration and rich text support
+- **Progress Visualization**: Added visual step indicators showing "Step X of Y" with completion status
+- **Audio-Visual Sync**: Fixed instruction consistency between spoken and displayed text
 
 ## 📱 How It Works
 
+### Getting Started
 1. **Select Your Device**: Choose from thermometer, blood pressure monitor, or glucose meter
-2. **Pick Your Language**: Available in 10+ Southeast Asian languages with native voice support
-3. **Start Guidance**: Follow real-time instructions with your camera active
+2. **Choose Language & Style**: Pick from 10+ Southeast Asian languages and 3 guidance styles
+3. **Set Voice Preference**: Select male voice, female voice, or text-only mode
+4. **Start Guided Session**: Follow AI-generated instructions with camera detection
 
-### Core Features Implementation
-- **Computer Vision**: Simulated device detection system with user action tracking
-- **Multilingual Support**: Native script support and localized device instructions
-- **Real-time Guidance**: Step-by-step instruction generation with corrective feedback
-- **Chat Interface**: Conversational AI assistant for device operation questions
+### During Your Session
+- **Step-by-Step Navigation**: Use Previous/Next buttons to control your pace
+- **AI-Powered Instructions**: Each step generates contextual guidance in your preferred style
+- **Real-Time Chat Support**: Ask questions anytime with formatted AI responses  
+- **Progress Tracking**: Visual indicators show your current step and overall progress
+- **Camera Feedback**: Device detection provides real-time validation and corrections
+
+### Advanced Features
+- **Dynamic AI Generation**: Every instruction is generated in real-time by GPT-4o, not pre-written
+- **Guidance Style Adaptation**: Direct (brief), Gentle (encouraging), Detailed (comprehensive) modes
+- **Multi-Language TTS**: Enhanced voice selection with proper male/female voice detection
+- **Session Persistence**: Continue sessions with full backward/forward navigation capability
+- **Smart Error Recovery**: Corrective feedback when device detection issues occur
 
 ## 🛠️ Development
 
@@ -108,8 +157,10 @@ A multilingual, AI-powered medical device guidance application that provides rea
 
 ### Data Schema Design
 - **Type Safety**: Zod schemas for runtime validation of device types, languages, and session data
-- **Session Management**: Comprehensive session tracking with progress indicators
-- **Device Instructions**: Structured data for device-specific procedures and metadata
+- **Session Management**: Comprehensive session tracking with step navigation and completion status
+- **Device Instructions**: AI-generated contextual guidance rather than static content
+- **Chat History**: Persistent conversation storage with formatted message rendering
+- **Progress Tracking**: Step completion arrays and navigation state management
 
 ## 🌐 Deployment Considerations
 
@@ -131,8 +182,10 @@ A multilingual, AI-powered medical device guidance application that provides rea
 
 ### Runtime Services
 - **Media Access**: Browser MediaDevices API for camera access
-- **Speech Synthesis**: Web Speech API for text-to-speech functionality
-- **State Persistence**: Browser localStorage for user preferences
+- **Enhanced Speech Synthesis**: Web Speech API with improved male/female voice detection
+- **AI Processing**: Real-time OpenAI GPT-4o integration for dynamic instruction generation
+- **State Persistence**: Browser localStorage for user preferences and session data
+- **Rich Text Rendering**: Custom formatting engine for numbered lists, bullets, and bold text
 
 ## 📄 License
 

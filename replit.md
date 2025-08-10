@@ -2,7 +2,19 @@
 
 ## Overview
 
-SIMIS AI is a multilingual, AI-powered medical device guidance application that provides real-time assistance for using medical devices safely and effectively. The system combines computer vision for device detection, text-to-speech capabilities, and conversational AI to deliver step-by-step instructions in 10+ Southeast Asian languages. Currently focused on oral thermometer guidance with plans to expand to blood pressure monitors and blood glucose meters.
+SIMIS AI is a multilingual, AI-powered medical device guidance application that provides real-time assistance for using medical devices safely and effectively. The system combines computer vision for device detection, enhanced text-to-speech capabilities, and conversational AI to deliver step-by-step instructions in 10+ Southeast Asian languages. 
+
+**Current Status**: Fully functional with support for oral thermometers, blood pressure monitors, and blood glucose meters. Features complete step navigation, enhanced TTS voice selection, formatted chat responses, and real-time AI instruction generation.
+
+## Recent Changes (Updated: August 2025)
+
+### Major Feature Implementations ✅
+- **Step Navigation System**: Complete Previous/Next/Skip/Complete button controls with smart state management
+- **Enhanced TTS Voice Selection**: Fixed male voice limitation - now properly detects and uses voices like "Microsoft George", "Google UK English Male" 
+- **Rich Chat Formatting**: Numbered lists, bullet points, bold text, and proper spacing in AI responses
+- **AI Response Enhancement**: Improved system prompts for better-structured, formatted guidance
+- **Audio-Visual Consistency**: Synchronized audio and visual instructions (fixed previous intentional discrepancy)
+- **Progress Visualization**: Step indicators showing "Step X of Y" with completion tracking
 
 ## User Preferences
 
@@ -23,10 +35,15 @@ The system integrates with OpenAI's GPT-4o model for generating contextual, mult
 Device detection is implemented through a simulated computer vision system that mimics real-time analysis capabilities. The system provides bounding box detection, confidence scoring, and user action recognition. This simulation layer allows for development and testing while preparing for integration with actual computer vision APIs.
 
 ### Audio System
-Text-to-speech functionality is implemented using the Web Speech API with support for multiple languages and voice preferences (male, female, text-only). The system handles voice selection based on language and user preferences, with proper error handling and fallback mechanisms.
+Text-to-speech functionality is implemented using the Web Speech API with enhanced voice selection logic. The system now properly detects male and female voices by recognizing common voice names (e.g., "Microsoft George", "Google UK English Male") rather than relying on generic "male"/"female" keywords. Supports multiple languages with fallback mechanisms and comprehensive error handling. Fixed the previous limitation where only female voices were working.
 
 ### State Management
-The application uses Zustand for centralized state management, handling user preferences, session data, chat history, and UI state. The store provides actions for session lifecycle management, preference updates, and real-time communication features.
+The application uses Zustand for centralized state management, handling user preferences, session data, chat history, and UI state. The store provides actions for session lifecycle management including:
+- **nextStep()**: Advance to next step with completion tracking
+- **previousStep()**: Navigate backwards through completed steps  
+- **Session Management**: Full lifecycle control with state persistence
+- **Chat History**: Formatted message storage with rich text rendering
+- **Progress Tracking**: Step completion arrays and visual indicators
 
 ## External Dependencies
 
@@ -58,4 +75,9 @@ The application uses Zustand for centralized state management, handling user pre
 - **React Hook Form**: Performant form handling with minimal re-renders
 - **Zod**: Schema validation for type-safe data handling
 
-The architecture emphasizes modularity, type safety, and scalability while maintaining performance and user experience across diverse linguistic and cultural contexts.
+### Chat & Formatting
+- **Rich Text Engine**: Custom rendering for numbered lists, bullet points, and bold text
+- **Message Formatting**: Enhanced AI prompts for structured response generation
+- **Multilingual Chat**: Real-time translation and context-aware responses
+
+The architecture emphasizes modularity, type safety, and scalability while maintaining performance and user experience across diverse linguistic and cultural contexts. Recent enhancements focus on user navigation control, voice accessibility, and enhanced AI-generated content formatting.
