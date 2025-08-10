@@ -19,11 +19,23 @@ export const deviceInstructions: Record<DeviceType, {
     totalSteps: 5
   },
   infrared_thermometer: {
-    name: "Oral Thermometer",
+    name: "Infrared Thermometer", 
     icon: "🌡️",
     steps: [
+      "Turn on the infrared thermometer and wait for the ready signal",
+      "Point the thermometer at the forehead, 1-3 cm away",
+      "Press and hold the measurement button",
+      "Wait for the beep and measurement result",
+      "Read the temperature on the display"
+    ],
+    totalSteps: 5
+  },
+  oral_thermometer: {
+    name: "Oral Thermometer",
+    icon: "🌡️", 
+    steps: [
       "Turn on the thermometer and wait for the ready signal",
-      "Place the tip under your tongue, to the side of your mouth",
+      "Place the tip under your tongue, to the side of your mouth", 
       "Close your mouth gently and keep your lips sealed",
       "Wait for the thermometer to beep (usually 30-60 seconds)",
       "Remove and read the temperature display"

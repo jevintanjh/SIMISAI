@@ -3,6 +3,7 @@ import { z } from "zod";
 // Device types supported by the system (MVP: oral thermometer focus)
 export const deviceTypeSchema = z.enum([
   "infrared_thermometer",
+  "oral_thermometer",
   "blood_pressure_monitor",
   "blood_glucose_meter"
 ]);

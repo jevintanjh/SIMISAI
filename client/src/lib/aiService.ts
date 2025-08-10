@@ -28,26 +28,82 @@ export class AIService {
     
     // If no valid API key, return fallback response
     if (!hasValidApiKey()) {
-      const fallbackTranslations: Record<Language, string[]> = {
-        english: device.steps,
-        bahasa_indonesia: [
-          "Nyalakan termometer dan tunggu sinyal siap",
-          "Letakkan ujung di bawah lidah Anda, di sisi mulut",
-          "Tutup mulut dengan lembut dan jaga bibir tetap tertutup",
-          "Tunggu termometer berbunyi bip (biasanya 30-60 detik)",
-          "Lepaskan dan baca tampilan suhu"
-        ],
-        bahasa_melayu: device.steps, // Use English as fallback for other languages
-        thai: device.steps,
-        vietnamese: device.steps,
-        filipino: device.steps,
-        myanmar: device.steps,
-        lao: device.steps,
-        khmer: device.steps,
-        brunei_malay: device.steps
+      const fallbackTranslations: Record<DeviceType, Record<Language, string[]>> = {
+        oral_thermometer: {
+          english: device.steps,
+          bahasa_indonesia: [
+            "Nyalakan termometer dan tunggu sinyal siap",
+            "Letakkan ujung di bawah lidah Anda, di sisi mulut",
+            "Tutup mulut dengan lembut dan jaga bibir tetap tertutup",
+            "Tunggu termometer berbunyi bip (biasanya 30-60 detik)",
+            "Lepaskan dan baca tampilan suhu"
+          ],
+          bahasa_melayu: device.steps,
+          thai: device.steps,
+          vietnamese: device.steps,
+          filipino: device.steps,
+          myanmar: device.steps,
+          lao: device.steps,
+          khmer: device.steps,
+          brunei_malay: device.steps
+        },
+        infrared_thermometer: {
+          english: device.steps,
+          bahasa_indonesia: [
+            "Nyalakan termometer infrared dan tunggu sinyal siap",
+            "Arahkan ke dahi, jaga jarak 1-3 cm",
+            "Tekan tombol pengukuran dan tahan tetap",
+            "Tunggu bunyi bip dan hasil pengukuran",
+            "Baca hasil suhu pada layar"
+          ],
+          bahasa_melayu: device.steps,
+          thai: device.steps,
+          vietnamese: device.steps,
+          filipino: device.steps,
+          myanmar: device.steps,
+          lao: device.steps,
+          khmer: device.steps,
+          brunei_malay: device.steps
+        },
+        blood_pressure_monitor: {
+          english: device.steps,
+          bahasa_indonesia: [
+            "Pasang manset di lengan atas, 2-3 cm di atas siku",
+            "Pastikan manset pas tapi tidak terlalu ketat",
+            "Tekan tombol START untuk memulai pengukuran",
+            "Duduk tenang, jangan bergerak atau bicara",
+            "Tunggu pengukuran selesai dan baca hasilnya"
+          ],
+          bahasa_melayu: device.steps,
+          thai: device.steps,
+          vietnamese: device.steps,
+          filipino: device.steps,
+          myanmar: device.steps,
+          lao: device.steps,
+          khmer: device.steps,
+          brunei_malay: device.steps
+        },
+        blood_glucose_meter: {
+          english: device.steps,
+          bahasa_indonesia: [
+            "Masukkan strip tes ke dalam alat pengukur",
+            "Tusuk ujung jari dengan lancet untuk darah",
+            "Teteskan darah ke area tes pada strip",
+            "Tunggu alat menghitung kadar gula darah",
+            "Baca hasil pada layar dan catat"
+          ],
+          bahasa_melayu: device.steps,
+          thai: device.steps,
+          vietnamese: device.steps,
+          filipino: device.steps,
+          myanmar: device.steps,
+          lao: device.steps,
+          khmer: device.steps,
+          brunei_malay: device.steps
+        }
       };
 
-      const translatedSteps = fallbackTranslations[language] || device.steps;
+      const translatedSteps = fallbackTranslations[deviceType]?.[language] || device.steps;
       const instruction = translatedSteps[currentStep] || currentStepInstruction;
 
       return {
