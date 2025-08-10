@@ -38,10 +38,22 @@ export class AIService {
             "Tunggu termometer berbunyi bip (biasanya 30-60 detik)",
             "Lepaskan dan baca tampilan suhu"
           ],
-          bahasa_melayu: device.steps,
+          bahasa_melayu: [
+            "Hidupkan termometer dan tunggu isyarat sedia",
+            "Letakkan hujung di bawah lidah anda, di tepi mulut",
+            "Tutup mulut perlahan dan pastikan bibir tertutup",
+            "Tunggu termometer berbunyi bip (biasanya 30-60 saat)",
+            "Keluarkan dan baca paparan suhu"
+          ],
           thai: device.steps,
           vietnamese: device.steps,
-          filipino: device.steps,
+          filipino: [
+            "Buksan ang thermometer at hintayin ang ready signal",
+            "Ilagay ang dulo sa ilalim ng dila, sa gilid ng bibig",
+            "Isara ang bibig ng mahinahon at panatilihing nakadikit ang labi",
+            "Hintayin ang tunog ng thermometer (karaniwang 30-60 segundo)",
+            "Alisin at basahin ang temperature display"
+          ],
           myanmar: device.steps,
           lao: device.steps,
           khmer: device.steps,
@@ -56,10 +68,22 @@ export class AIService {
             "Tunggu bunyi bip dan hasil pengukuran",
             "Baca hasil suhu pada layar"
           ],
-          bahasa_melayu: device.steps,
+          bahasa_melayu: [
+            "Hidupkan termometer inframerah dan tunggu isyarat sedia",
+            "Halakan ke dahi, jaga jarak 1-3 cm",
+            "Tekan butang pengukuran dan tahan",
+            "Tunggu bunyi bip dan keputusan pengukuran",
+            "Baca keputusan suhu pada skrin"
+          ],
           thai: device.steps,
           vietnamese: device.steps,
-          filipino: device.steps,
+          filipino: [
+            "Buksan ang infrared thermometer at hintayin ang ready signal",
+            "Itutok sa noo, 1-3 cm ang layo",
+            "Pindutin at hawakan ang measurement button",
+            "Hintayin ang beep at measurement result",
+            "Basahin ang temperature sa display"
+          ],
           myanmar: device.steps,
           lao: device.steps,
           khmer: device.steps,
@@ -74,7 +98,13 @@ export class AIService {
             "Duduk tenang, jangan bergerak atau bicara",
             "Tunggu pengukuran selesai dan baca hasilnya"
           ],
-          bahasa_melayu: device.steps,
+          bahasa_melayu: [
+            "Pasang manset di lengan atas, 2-3 cm di atas siku",
+            "Pastikan manset sesuai tetapi tidak terlalu ketat",
+            "Tekan butang START untuk memulakan pengukuran",
+            "Duduk tenang, jangan bergerak atau bercakap",
+            "Tunggu pengukuran selesai dan baca keputusannya"
+          ],
           thai: device.steps,
           vietnamese: device.steps,
           filipino: [
@@ -98,7 +128,13 @@ export class AIService {
             "Tunggu alat menghitung kadar gula darah",
             "Baca hasil pada layar dan catat"
           ],
-          bahasa_melayu: device.steps,
+          bahasa_melayu: [
+            "Masukkan jalur ujian ke dalam meter",
+            "Tusuk hujung jari dengan lancet untuk darah",
+            "Teteskan darah ke kawasan ujian pada jalur",
+            "Tunggu alat mengira paras gula darah",
+            "Baca keputusan pada skrin dan catat"
+          ],
           thai: device.steps,
           vietnamese: device.steps,
           filipino: [
