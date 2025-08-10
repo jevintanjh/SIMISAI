@@ -1,17 +1,6 @@
-import OpenAI from "openai";
 import { Language, DeviceType, GuidanceStyle, AiGuidanceResponse } from "@shared/schema";
 import { languageConfig } from "./languages";
 import { deviceInstructions } from "./deviceInstructions";
-
-// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ 
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY || 'demo-key-placeholder',
-  dangerouslyAllowBrowser: true
-});
-
-const hasValidApiKey = () => {
-  return import.meta.env.VITE_OPENAI_API_KEY && import.meta.env.VITE_OPENAI_API_KEY !== 'demo-key-placeholder';
-};
 
 export class AIService {
   async generateGuidance(
@@ -26,8 +15,38 @@ export class AIService {
     const langConfig = languageConfig[language];
     const currentStepInstruction = device.steps[currentStep];
     
-    // If no valid API key, return fallback response
-    if (!hasValidApiKey()) {
+    // Call backend API for AI generation
+    try {
+      const response = await fetch('/api/ai/generate-guidance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          deviceType,
+          currentStep,
+          language,
+          guidanceStyle,
+          userAction,
+          isCorrectiveNeeded,
+          deviceName: device.name,
+          currentStepInstruction,
+          languageNativeName: langConfig.nativeName,
+          languageCode: langConfig.code
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate AI guidance');
+      }
+
+      const result = await response.json();
+      return result;
+      
+    } catch (error) {
+      console.error('AI Service error:', error);
+      
+      // Enhanced fallback with proper translations
       const fallbackTranslations: Record<DeviceType, Record<Language, string[]>> = {
         oral_thermometer: {
           english: device.steps,
@@ -304,62 +323,6 @@ export class AIService {
         corrective: isCorrectiveNeeded,
         nextAction: isCorrectiveNeeded ? "Please adjust your position and try again" : undefined,
         audioInstruction: instruction
-      };
-    }
-
-    try {
-      const stylePrompts = {
-        direct: "Give short, direct instructions",
-        gentle: "Use encouraging, supportive language", 
-        detailed: "Provide detailed explanations with reasoning"
-      };
-
-      const systemPrompt = `You are SIMIS.AI, a medical device guidance assistant. ${stylePrompts[guidanceStyle]}. 
-      Current device: ${device.name}
-      Current step ${currentStep + 1}/${device.totalSteps}: ${currentStepInstruction}
-      Target language: ${langConfig.nativeName} (${langConfig.code})
-      User action detected: ${userAction}
-      ${isCorrectiveNeeded ? "PROVIDE CORRECTIVE FEEDBACK" : "PROVIDE ENCOURAGEMENT"}
-      
-      Respond in JSON format with:
-      - instruction: English instruction
-      - translatedInstruction: Instruction in ${langConfig.nativeName}
-      - corrective: boolean indicating if this is corrective feedback
-      - nextAction: what the user should do next (optional)
-      - audioInstruction: simplified version for text-to-speech`;
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { 
-            role: "user", 
-            content: `User is on step ${currentStep + 1}: "${currentStepInstruction}". User action: "${userAction}". ${isCorrectiveNeeded ? "User needs correction." : "User is doing well."}` 
-          }
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 500
-      });
-
-      const result = JSON.parse(response.choices[0].message.content || '{}');
-      
-      return {
-        instruction: result.instruction || currentStepInstruction,
-        translatedInstruction: result.translatedInstruction || currentStepInstruction,
-        corrective: isCorrectiveNeeded,
-        nextAction: result.nextAction,
-        audioInstruction: result.audioInstruction || result.translatedInstruction
-      };
-
-    } catch (error) {
-      console.error('AI Service error:', error);
-      // Fallback response
-      return {
-        instruction: currentStepInstruction,
-        translatedInstruction: currentStepInstruction,
-        corrective: isCorrectiveNeeded,
-        nextAction: undefined,
-        audioInstruction: currentStepInstruction
       };
     }
   }
