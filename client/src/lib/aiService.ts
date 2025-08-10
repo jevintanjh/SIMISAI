@@ -45,8 +45,20 @@ export class AIService {
             "Tunggu termometer berbunyi bip (biasanya 30-60 saat)",
             "Keluarkan dan baca paparan suhu"
           ],
-          thai: device.steps,
-          vietnamese: device.steps,
+          thai: [
+            "เปิดเครื่องวัดอุณหภูมิและรอสัญญาณพร้อม",
+            "วางปลายใต้ลิ้นของคุณ ด้านข้างของปาก",
+            "ปิดปากเบาๆ และให้ริมฝีปากแนบกัน",
+            "รอเครื่องวัดอุณหภูมิส่งเสียงบี๊บ (ปกติ 30-60 วินาที)",
+            "เอาออกและอ่านการแสดงอุณหภูมิ"
+          ],
+          vietnamese: [
+            "Bật nhiệt kế và đợi tín hiệu sẵn sàng",
+            "Đặt đầu dưới lưỡi của bạn, ở bên cạnh miệng",
+            "Nhẹ nhàng đóng miệng và giữ môi khép kín",
+            "Đợi nhiệt kế kêu bíp (thường là 30-60 giây)",
+            "Lấy ra và đọc màn hình nhiệt độ"
+          ],
           filipino: [
             "Buksan ang thermometer at hintayin ang ready signal",
             "Ilagay ang dulo sa ilalim ng dila, sa gilid ng bibig",
@@ -54,10 +66,34 @@ export class AIService {
             "Hintayin ang tunog ng thermometer (karaniwang 30-60 segundo)",
             "Alisin at basahin ang temperature display"
           ],
-          myanmar: device.steps,
-          lao: device.steps,
-          khmer: device.steps,
-          brunei_malay: device.steps
+          myanmar: [
+            "အပူချိန်တိုင်းကိရိယာကို ဖွင့်ပြီး အဆင်သင့်အချက်အလက်ကို စောင့်ပါ",
+            "လျှာအောက်တွင် ပါးစပ်ဘေးတွင် ထိပ်ကို ထားပါ",
+            "ပါးစပ်ကို နူးညံ့စွာပိတ်ပြီး နှုတ်ခမ်းများကို ကပ်အောင်ထားပါ",
+            "အပူချိန်တိုင်းကိရိယာ ဗီပ်အသံထွက်သည်အထိ စောင့်ပါ (ပုံမှန် 30-60 စက္ကန့်)",
+            "ဖယ်ရှားပြီး အပူချိန်ပြသမှုကို ဖတ်ပါ"
+          ],
+          lao: [
+            "ເປີດເຄື່ອງວັດອຸນຫະພູມແລະລໍຖ້າສັນຍານພ້ອມ",
+            "ວາງປາຍໃຕ້ລີ້ນຂອງເຈົ້າ, ຢູ່ຂ້າງປາກ",
+            "ປິດປາກເບົາໆແລະໃຫ້ຮິມຝີປາກແນບກັນ",
+            "ລໍຖ້າເຄື່ອງວັດອຸນຫະພູມສົ່ງສຽງບີບ (ປົກກະຕິ 30-60 ວິນາທີ)",
+            "ເອົາອອກແລະອ່ານການສະແດງອຸນຫະພູມ"
+          ],
+          khmer: [
+            "បើកម៉ាស៊ីនវាស់កម្ដៅ និងរង់ចាំសញ្ញាណ​ត្រៀម",
+            "ដាក់ចុងនៅក្រោមអណ្ដាត របស់អ្នក នៅជិតមាត់",
+            "បិទមាត់បន្តិចៗ និងទុកបបូរមាត់ឲ្យជិតគ្នា",
+            "រង់ចាំម៉ាស៊ីនវាស់កម្ដៅបន្លឺសំឡេង (ធម្មតា 30-60 វិនាទី)",
+            "យកចេញ និងអានការបង្ហាញកម្ដៅ"
+          ],
+          brunei_malay: [
+            "Buka termometer dan tunggu isyarat sedia",
+            "Letakkan hujung di bawah lidah anda, di sisi mulut",
+            "Tutup mulut perlahan dan pastikan bibir rapat",
+            "Tunggu termometer berbunyi bip (biasanya 30-60 saat)",
+            "Keluarkan dan baca paparan suhu"
+          ]
         },
         infrared_thermometer: {
           english: device.steps,
@@ -75,8 +111,20 @@ export class AIService {
             "Tunggu bunyi bip dan keputusan pengukuran",
             "Baca keputusan suhu pada skrin"
           ],
-          thai: device.steps,
-          vietnamese: device.steps,
+          thai: [
+            "เปิดเครื่องวัดอุณหภูมิอินฟราเรดและรอสัญญาณพร้อม",
+            "จ่อไปที่หน้าผาก เว้นระยะ 1-3 ซม.",
+            "กดและกดค้างปุ่มวัด",
+            "รอเสียงบี๊บและผลการวัด",
+            "อ่านอุณหภูมิบนจอแสดงผล"
+          ],
+          vietnamese: [
+            "Bật nhiệt kế hồng ngoại và đợi tín hiệu sẵn sàng",
+            "Hướng về phía trán, cách 1-3 cm",
+            "Nhấn và giữ nút đo",
+            "Đợi tiếng bíp và kết quả đo",
+            "Đọc nhiệt độ trên màn hình"
+          ],
           filipino: [
             "Buksan ang infrared thermometer at hintayin ang ready signal",
             "Itutok sa noo, 1-3 cm ang layo",
@@ -84,10 +132,34 @@ export class AIService {
             "Hintayin ang beep at measurement result",
             "Basahin ang temperature sa display"
           ],
-          myanmar: device.steps,
-          lao: device.steps,
-          khmer: device.steps,
-          brunei_malay: device.steps
+          myanmar: [
+            "အင်ဖရာရက်အပူချိန်တိုင်းကိရိယာကို ဖွင့်ပြီး အဆင်သင့်အချက်အလက်ကို စောင့်ပါ",
+            "နဖူးဆီသို့ ညွှန်းပါ၊ 1-3 စင်တီမီတာ အကွာအဝေး",
+            "တိုင်းတာမှုခလုတ်ကို နှိပ်ပြီး ဆုပ်ကိုင်ထားပါ",
+            "ဗီပ်အသံနှင့် တိုင်းတာမှုရလဒ်ကို စောင့်ပါ",
+            "ပြသမှုပေါ်တွင် အပူချိန်ကို ဖတ်ပါ"
+          ],
+          lao: [
+            "ເປີດເຄື່ອງວັດອຸນຫະພູມອິນຟຣາເຣດແລະລໍຖ້າສັນຍານພ້ອມ",
+            "ຊີ້ໄປທີ່ຫນ້າຜາກ, ຫ່າງ 1-3 ຊັງຕີແມັດ",
+            "ກົດແລະຖືປຸ່ມວັດແທກ",
+            "ລໍຖ້າສຽງບີບແລະຜົນການວັດແທກ",
+            "ອ່ານອຸນຫະພູມໃນການສະແດງຜົນ"
+          ],
+          khmer: [
+            "បើកម៉ាស៊ីនវាស់កម្ដៅអ៊ីនហ្វ្រារ៉េដ និងរង់ចាំសញ្ញាណត្រៀម",
+            "ចង្អុលទៅកាន់ថ្ងាស, ចម្ងាយ 1-3 សង់ទីម៉ែត្រ",
+            "ចុចនិងកាន់ប៊ូតុងវាស់",
+            "រង់ចាំសំឡេងបន្លឺ និងលទ្ធផលវាស់",
+            "អានកម្ដៅនៅលើអេក្រង់បង្ហាញ"
+          ],
+          brunei_malay: [
+            "Buka termometer inframerah dan tunggu isyarat sedia",
+            "Halakan ke dahi, jaga jarak 1-3 cm",
+            "Tekan dan tahan butang pengukuran",
+            "Tunggu bunyi bip dan keputusan pengukuran",
+            "Baca suhu pada paparan"
+          ]
         },
         blood_pressure_monitor: {
           english: device.steps,
@@ -105,8 +177,20 @@ export class AIService {
             "Duduk tenang, jangan bergerak atau bercakap",
             "Tunggu pengukuran selesai dan baca keputusannya"
           ],
-          thai: device.steps,
-          vietnamese: device.steps,
+          thai: [
+            "ใส่สายรัดที่แขนส่วนบน 2-3 ซม. เหนือข้อศอก",
+            "ตรวจสอบให้แน่ใจว่าสายรัดพอดีแต่ไม่แน่นเกินไป",
+            "กดปุ่ม START เพื่อเริ่มการวัด",
+            "นั่งเงียบ อย่าเคลื่อนไหวหรือพูด",
+            "รอการวัดเสร็จสิ้นและอ่านผลลัพธ์"
+          ],
+          vietnamese: [
+            "Đặt băng quấn trên cánh tay trên, 2-3 cm phía trên khuỷu tay",
+            "Đảm bảo băng quấn vừa vặn nhưng không quá chặt",
+            "Nhấn nút START để bắt đầu đo",
+            "Ngồi yên lặng, đừng di chuyển hoặc nói chuyện",
+            "Đợi đo xong và đọc kết quả"
+          ],
           filipino: [
             "Ikabit ang cuff sa itaas ng braso",
             "Siguraduhing tama ang pagkakakabit ng cuff",
@@ -114,10 +198,34 @@ export class AIService {
             "Mananahimik at huwag kumukyut habang sumusukat",
             "Hintayin makumpleto at basahin ang resulta"
           ],
-          myanmar: device.steps,
-          lao: device.steps,
-          khmer: device.steps,
-          brunei_malay: device.steps
+          myanmar: [
+            "လက်မောင်းအပေါ်ပိုင်းတွင် လက်စွပ်ကို တပ်ပါ၊ တံတောင်ဆစ်အပေါ် 2-3 စင်တီမီတာ",
+            "လက်စွပ်သည် သင့်လျော်သော်လည်း အလွန်တင်းမကျပ်ရန် သေချာပါစေ",
+            "တိုင်းတာခြင်းစတင်ရန် START ခလုတ်ကို နှိပ်ပါ",
+            "ဆိတ်ဆိတ်ထိုင်ပါ၊ မလှုပ်ရှားပါနှင့် မပြောပါနှင့်",
+            "တိုင်းတာမှုပြီးသည်အထိ စောင့်ပြီး ရလဒ်ကို ဖတ်ပါ"
+          ],
+          lao: [
+            "ໃສ່ສາຍຮັດທີ່ແຂນສ່ວນເທິງ, 2-3 ຊັງຕີແມັດເໜືອຂໍ້ຕໍ່",
+            "ໃຫ້ແນ່ໃຈວ່າສາຍຮັດພໍດີແຕ່ບໍ່ແໜ້ນເກີນໄປ",
+            "ກົດປຸ່ມ START ເພື່ອເລີ່ມການວັດ",
+            "ນັ່ງເງິບໆ, ຢ່າເຄື່ອນໄຫວຫຼືເວົ້າ",
+            "ລໍຖ້າການວັດສຳເລັດແລະອ່ານຜົນລັບ"
+          ],
+          khmer: [
+            "ដាក់កម្ទេចនៅលើផ្នែកខាងលើនៃដៃ 2-3 សង់ទីម៉ែត្រពីលើកែងដៃ",
+            "ត្រូវប្រាកដថាកម្ទេចត្រឹមត្រូវប៉ុន្តែមិនតឹងពេក",
+            "ចុចប៊ូតុង START ដើម្បីចាប់ផ្តើមវាស់",
+            "អង្គុយស្ងៀម កុំផ្លាស់ទីឬនិយាយ",
+            "រង់ចាំការវាស់បានបញ្ចប់ និងអានលទ្ធផល"
+          ],
+          brunei_malay: [
+            "Pasang manset di lengan atas, 2-3 cm di atas siku",
+            "Pastikan manset sesuai tetapi tidak terlalu ketat",
+            "Tekan butang START untuk memulakan pengukuran",
+            "Duduk tenang, jangan bergerak atau bercakap",
+            "Tunggu pengukuran selesai dan baca keputusannya"
+          ]
         },
         blood_glucose_meter: {
           english: device.steps,
@@ -135,8 +243,20 @@ export class AIService {
             "Tunggu alat mengira paras gula darah",
             "Baca keputusan pada skrin dan catat"
           ],
-          thai: device.steps,
-          vietnamese: device.steps,
+          thai: [
+            "ใส่แผ่นทดสอบลงในเครื่องวัด",
+            "ใช้แลนเซ็ตเจาะปลายนิ้วเพื่อเอาเลือด",
+            "หยดเลือดลงบนบริเวณทดสอบของแผ่น",
+            "รอเครื่องคำนวณระดับน้ำตาลในเลือด",
+            "อ่านผลลัพธ์บนหน้าจอและบันทึก"
+          ],
+          vietnamese: [
+            "Chèn dải thử vào máy đo",
+            "Dùng kim chích đầu ngón tay để lấy máu",
+            "Nhỏ máu lên vùng thử của dải",
+            "Đợi máy tính toán mức đường huyết",
+            "Đọc kết quả trên màn hình và ghi lại"
+          ],
           filipino: [
             "Ilagay ang test strip sa glucometer",
             "Linisin ang daliri gamit ng alcohol",
@@ -144,10 +264,34 @@ export class AIService {
             "Ilagay ang patak ng dugo sa test strip",
             "Hintayin ang resulta sa screen"
           ],
-          myanmar: device.steps,
-          lao: device.steps,
-          khmer: device.steps,
-          brunei_malay: device.steps
+          myanmar: [
+            "တိုင်းတာကိရိယာထဲသို့ စမ်းသပ်မှုတန်းကို ထည့်ပါ",
+            "လက်ညှိုးဖျားကို သွေးယူရန် လန်းဆက်ဖြင့် ထိုးပါ",
+            "တန်း၏ စမ်းသပ်မှုနေရာပေါ်သို့ သွေးကို ယိုခေါက်ပါ",
+            "ကိရိယာက သွေးထဲရှိ သကြားဓာတ်ပမာဏကို တွက်ချက်ရန် စောင့်ပါ",
+            "ပြသမှုပေါ်တွင် ရလဒ်ကို ဖတ်ပြီး မှတ်တမ်းတင်ပါ"
+          ],
+          lao: [
+            "ໃສ່ແຜ່ນທົດສອບເຂົ້າໄປໃນເຄື່ອງວັດ",
+            "ໃຊ້ແລນເຊັດແທງຫົວນິ້ວເພື່ອເອົາເລືອດ",
+            "ຢອດເລືອດລົງໃສ່ບໍລິເວນທົດສອບຂອງແຜ່ນ",
+            "ລໍຖ້າເຄື່ອງຄິດໄລ່ລະດັບນ້ຳຕານໃນເລືອດ",
+            "ອ່ານຜົນລັບໃນໜ້າຈໍ ແລະບັນທຶກ"
+          ],
+          khmer: [
+            "បញ្ចូលបន្ទះធ្វើតេស្តទៅក្នុងម៉ាស៊ីនវាស់",
+            "ប្រើឡង់សេតចាក់ចុងម្រាមដៃដើម្បីយកឈាម",
+            "ចុះឈាមលើតំបន់ធ្វើតេស្តនៃបន្ទះ",
+            "រង់ចាំឲ្យម៉ាស៊ីនគណនាកម្រិតស្ករក្នុងឈាម",
+            "អានលទ្ធផលនៅលើអេក្រង់ និងកត់ត្រា"
+          ],
+          brunei_malay: [
+            "Masukkan jalur ujian ke dalam meter",
+            "Tusuk hujung jari dengan lancet untuk darah",
+            "Teteskan darah ke kawasan ujian pada jalur",
+            "Tunggu alat mengira paras gula darah",
+            "Baca keputusan pada skrin dan catat"
+          ]
         }
       };
 
