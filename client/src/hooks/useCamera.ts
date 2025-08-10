@@ -10,10 +10,20 @@ export const useCamera = () => {
   const startCamera = useCallback(async () => {
     try {
       setError(null);
+      
+      // Stop any existing camera stream first
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      
+      // Small delay to ensure previous stream is properly released
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
-          width: 640, 
-          height: 480,
+          width: { ideal: 640 }, 
+          height: { ideal: 480 },
           facingMode: 'user'
         } 
       });
@@ -28,8 +38,19 @@ export const useCamera = () => {
           setHasPermission(true);
         };
       }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Camera access failed';
+    } catch (err: any) {
+      let errorMessage = 'Camera access failed';
+      
+      if (err.name === 'NotReadableError') {
+        errorMessage = 'Camera is already in use by another application. Please close other tabs or applications using the camera and try again.';
+      } else if (err.name === 'NotAllowedError') {
+        errorMessage = 'Camera access denied. Please allow camera permissions and refresh the page.';
+      } else if (err.name === 'NotFoundError') {
+        errorMessage = 'No camera found. Please connect a camera and try again.';
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      
       setError(errorMessage);
       setHasPermission(false);
       console.error('Camera error:', err);
