@@ -5,6 +5,7 @@ import { Play, Settings, Mic, MessageSquare } from 'lucide-react';
 import { LanguageSelector } from './LanguageSelector';
 import { DeviceSelector } from './DeviceSelector';
 import { useGuidanceStore } from '@/store/guidanceStore';
+import simisLogo from '@assets/generated_images/SIMIS.AI_medical_logo_7265e473.png';
 
 export const WelcomeScreen: React.FC = () => {
   const {
@@ -27,10 +28,19 @@ export const WelcomeScreen: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
-      <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700 rounded-2xl p-12 w-full max-w-5xl shadow-2xl">
+      <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700 rounded-2xl p-12 w-full max-w-5xl shadow-2xl relative">
+        
+        {/* Logo in top left corner */}
+        <div className="absolute top-6 left-6">
+          <img 
+            src={simisLogo} 
+            alt="SIMIS.AI Logo" 
+            className="h-12 w-auto object-contain"
+          />
+        </div>
         
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 pt-8">
           <h1 className="text-5xl font-bold text-white mb-4">Welcome to SIMIS AI</h1>
           <div className="w-96 h-px bg-gradient-to-r from-transparent via-slate-400 to-transparent mx-auto"></div>
         </div>
