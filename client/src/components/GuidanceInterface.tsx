@@ -30,6 +30,15 @@ export const GuidanceInterface: React.FC = () => {
         const userAction = lastDetection?.userActions[0] || 'starting';
         const needsCorrection = lastDetection ? !lastDetection.deviceDetected : false;
 
+        console.log('Generating guidance for:', {
+          deviceType: currentSession.deviceType,
+          currentStep: currentSession.currentStep,
+          userAction,
+          needsCorrection,
+          deviceDetected: lastDetection?.deviceDetected,
+          confidence: lastDetection?.confidence
+        });
+
         const guidance = await aiService.generateGuidance(
           currentSession.deviceType,
           currentSession.currentStep,
@@ -38,6 +47,8 @@ export const GuidanceInterface: React.FC = () => {
           userAction,
           needsCorrection
         );
+
+        console.log('AI generated guidance:', guidance);
 
         setCurrentInstruction(guidance.translatedInstruction);
 
