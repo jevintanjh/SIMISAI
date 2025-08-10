@@ -2,72 +2,60 @@
 
 ## Overview
 
-SIMIS AI is a multilingual medical device guidance application that provides real-time, AI-powered assistance for using medical devices. The system combines computer vision, text-to-speech, and conversational AI to guide users through device operation procedures in multiple Southeast Asian languages. 
-
-**MVP Focus:** Oral thermometer guidance system with expansion planned for blood pressure monitors and blood glucose meters.
+SIMIS AI is a multilingual, AI-powered medical device guidance application that provides real-time assistance for using medical devices safely and effectively. The system combines computer vision for device detection, text-to-speech capabilities, and conversational AI to deliver step-by-step instructions in 10+ Southeast Asian languages. Currently focused on oral thermometer guidance with plans to expand to blood pressure monitors and blood glucose meters.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-Tech Stack Preference: Confirmed React-based fullstack architecture with OpenAI integration.
-MVP Device: Oral thermometer only for initial implementation.
 
 ## System Architecture
 
 ### Frontend Architecture
-- **Framework**: React with TypeScript, built using Vite for fast development and building
-- **UI Components**: shadcn/ui component library built on Radix UI primitives with Tailwind CSS for styling
-- **State Management**: Zustand for global state management, handling user preferences, session data, and chat messages
-- **Routing**: Wouter for lightweight client-side routing
-- **Data Fetching**: TanStack Query for server state management and API data fetching
+The application uses a modern React-based architecture built with TypeScript and Vite for fast development and optimized builds. The UI leverages shadcn/ui components built on Radix UI primitives with Tailwind CSS for consistent, accessible styling. State management is handled through Zustand for global application state, while TanStack Query manages server state and API interactions. Client-side routing is implemented using Wouter for lightweight navigation.
 
 ### Backend Architecture
-- **Server Framework**: Express.js with TypeScript running on Node.js
-- **Development Setup**: Vite middleware integration for seamless development experience
-- **API Design**: RESTful endpoints for guidance session management and health checks
-- **Data Storage**: In-memory storage implementation with abstract interface for future database integration
-- **Session Management**: Stateless session handling with unique session identifiers
+The backend follows a Node.js/Express architecture with TypeScript support. The server implements RESTful API endpoints for guidance session management, health checks, and real-time communication. Session data is currently managed through an in-memory storage system with plans for PostgreSQL integration using Drizzle ORM. The modular storage interface allows for easy migration from memory-based to database-backed persistence.
 
-### Component Architecture
-- **Modular Design**: Reusable React components for camera feed, chat interface, device selection, and language selection
-- **Custom Hooks**: Abstracted logic for camera access, computer vision processing, text-to-speech, and toast notifications
-- **Service Layer**: Dedicated AI service for OpenAI GPT-4o integration and guidance generation
+### AI Integration
+The system integrates with OpenAI's GPT-4o model for generating contextual, multilingual guidance instructions. The AI service handles real-time translation, instruction adaptation based on user preferences (direct, gentle, detailed styles), and conversational support during device operation. Fallback mechanisms ensure functionality even without API access.
 
-### Key Features Implementation
-- **Computer Vision**: Simulated device detection system with realistic confidence scores and user action tracking
-- **Multilingual Support**: 10 Southeast Asian languages with native script support and localized device instructions
-- **Text-to-Speech**: Browser-based speech synthesis with voice preference selection (male/female/text-only)
-- **Real-time Guidance**: Step-by-step instruction generation with corrective feedback based on user actions
-- **Chat Interface**: Conversational AI assistant for answering user questions during device operation
+### Computer Vision System
+Device detection is implemented through a simulated computer vision system that mimics real-time analysis capabilities. The system provides bounding box detection, confidence scoring, and user action recognition. This simulation layer allows for development and testing while preparing for integration with actual computer vision APIs.
 
-### Data Schema Design
-- **Type Safety**: Zod schemas for runtime validation of device types, languages, guidance styles, and session data
-- **Session Management**: Comprehensive session tracking with progress indicators, completion status, and user feedback
-- **Device Instructions**: Structured data for device-specific step-by-step procedures and metadata
+### Audio System
+Text-to-speech functionality is implemented using the Web Speech API with support for multiple languages and voice preferences (male, female, text-only). The system handles voice selection based on language and user preferences, with proper error handling and fallback mechanisms.
+
+### State Management
+The application uses Zustand for centralized state management, handling user preferences, session data, chat history, and UI state. The store provides actions for session lifecycle management, preference updates, and real-time communication features.
 
 ## External Dependencies
 
-### Core Dependencies
-- **AI Integration**: OpenAI SDK for GPT-4o model integration and natural language processing
-- **Database**: Drizzle ORM with PostgreSQL support (configured for @neondatabase/serverless)
-- **Authentication**: Framework prepared for session-based authentication using connect-pg-simple
+### AI Services
+- **OpenAI API (GPT-4o)**: Powers multilingual instruction generation, real-time translation, and conversational AI features
+- **Web Speech API**: Handles text-to-speech functionality with multi-language support
 
-### UI and Styling
-- **Component Library**: Radix UI primitives for accessible, unstyled components
-- **Styling**: Tailwind CSS with custom design system and dark theme support
-- **Icons**: Lucide React for consistent iconography
+### Database & Storage
+- **Drizzle ORM**: Database abstraction layer with PostgreSQL schema definition
+- **@neondatabase/serverless**: PostgreSQL connection handling for serverless environments
 
-### Development Tools
-- **Build System**: Vite with React plugin and TypeScript support
-- **Code Quality**: ESBuild for production bundling and TypeScript compilation
-- **Development Environment**: Replit-specific plugins for cartographer and runtime error handling
+### UI Components & Styling
+- **Radix UI**: Accessible, unstyled component primitives
+- **shadcn/ui**: Pre-built component library with consistent styling
+- **Tailwind CSS**: Utility-first CSS framework for responsive design
+- **Lucide React**: Icon library for consistent iconography
 
-### Runtime Services
-- **Media Access**: Browser MediaDevices API for camera access and video streaming
-- **Speech Synthesis**: Web Speech API for text-to-speech functionality
-- **State Persistence**: Browser localStorage for user preference persistence
+### Development & Build Tools
+- **Vite**: Fast build tool and development server
+- **TypeScript**: Type safety across client and server
+- **ESBuild**: Fast JavaScript bundler for production builds
 
-### Deployment Considerations
-- **Database Migration**: Drizzle-kit for database schema management and migrations
-- **Environment Configuration**: Support for development and production environments with appropriate service configurations
-- **Static Asset Serving**: Express static file serving for production builds
+### State & API Management
+- **Zustand**: Lightweight state management for React
+- **TanStack Query**: Server state management and caching
+- **Wouter**: Minimal client-side routing
+
+### Form & Validation
+- **React Hook Form**: Performant form handling with minimal re-renders
+- **Zod**: Schema validation for type-safe data handling
+
+The architecture emphasizes modularity, type safety, and scalability while maintaining performance and user experience across diverse linguistic and cultural contexts.

@@ -159,8 +159,8 @@ export const WelcomeScreen: React.FC = () => {
 
 // Guidance Selector Component
 interface GuidanceSelectorProps {
-  guidanceStyle: any;
-  setGuidanceStyle: (style: any) => void;
+  guidanceStyle: 'direct' | 'gentle' | 'detailed';
+  setGuidanceStyle: (style: 'direct' | 'gentle' | 'detailed') => void;
 }
 
 const GuidanceSelector: React.FC<GuidanceSelectorProps> = ({ guidanceStyle, setGuidanceStyle }) => {
@@ -214,8 +214,8 @@ const GuidanceSelector: React.FC<GuidanceSelectorProps> = ({ guidanceStyle, setG
 
 // Voice Selector Component  
 interface VoiceSelectorProps {
-  voicePreference: any;
-  setVoicePreference: (voice: any) => void;
+  voicePreference: 'male' | 'female' | 'text_only';
+  setVoicePreference: (voice: 'male' | 'female' | 'text_only') => void;
 }
 
 const VoiceSelector: React.FC<VoiceSelectorProps> = ({ voicePreference, setVoicePreference }) => {
