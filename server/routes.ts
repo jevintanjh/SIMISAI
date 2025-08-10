@@ -188,6 +188,82 @@ Respond in JSON format with:
     }
   });
 
+  // AI Chat endpoint
+  app.post("/api/ai/chat", async (req, res) => {
+    try {
+      const { question, language, deviceType, context } = req.body;
+      
+      if (!question || !language || !deviceType) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      console.log('AI Chat Request:', {
+        question,
+        language,
+        deviceType,
+        context
+      });
+
+      const deviceInfo = {
+        blood_pressure_monitor: "Blood Pressure Monitor",
+        infrared_thermometer: "Infrared Thermometer", 
+        oral_thermometer: "Oral Thermometer",
+        blood_glucose_meter: "Blood Glucose Meter"
+      }[deviceType] || deviceType;
+
+      const languageNames: Record<string, string> = {
+        english: "English",
+        bahasa_indonesia: "Bahasa Indonesia",
+        bahasa_melayu: "Bahasa Melayu",
+        thai: "Thai",
+        vietnamese: "Vietnamese",
+        myanmar: "Myanmar",
+        khmer: "Khmer",
+        lao: "Lao",
+        tagalog: "Tagalog",
+        brunei_malay: "Brunei Malay"
+      };
+
+      const languageName = languageNames[language] || language;
+
+      const systemPrompt = `You are SIMIS.AI, a helpful medical device guidance assistant.
+
+You are helping with: ${deviceInfo}
+Current context: ${context || "Initial setup"}
+Answer in: ${languageName}
+
+Provide helpful, accurate, and concise answers about medical device usage. Keep responses conversational and supportive.
+Focus on safety, proper usage techniques, and addressing user concerns.
+
+Examples of good responses:
+- "The cuff should be snug but not too tight. You should be able to slip one finger underneath comfortably."
+- "For best results, sit quietly with your arm at heart level during measurement."
+- "If the device doesn't respond, check if it's properly turned on and the batteries are working."`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: question }
+        ],
+        max_tokens: 300
+      });
+
+      const answer = response.choices[0].message.content || "I'm sorry, I couldn't understand your question.";
+
+      console.log('AI Chat Response:', { answer });
+
+      res.json({ answer });
+
+    } catch (error) {
+      console.error('AI Chat error:', error);
+      res.status(500).json({ 
+        error: "Failed to process chat question",
+        answer: "I'm having trouble processing your question right now. Please try again."
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

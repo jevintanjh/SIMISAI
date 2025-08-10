@@ -333,45 +333,48 @@ export class AIService {
     deviceType: DeviceType,
     context: string
   ): Promise<string> {
-    const device = deviceInstructions[deviceType];
-    const langConfig = languageConfig[language];
+    try {
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          question,
+          language,
+          deviceType,
+          context
+        })
+      });
 
-    // If no valid API key, return fallback response
-    if (!hasValidApiKey()) {
+      if (!response.ok) {
+        throw new Error('Failed to get chat response');
+      }
+
+      const result = await response.json();
+      return result.answer;
+      
+    } catch (error) {
+      console.error('AI Chat Service error:', error);
+      
+      // Enhanced fallback responses
+      const device = deviceInstructions[deviceType];
       const fallbackResponses: Record<string, string> = {
-        "why is the cuff too loose?": "The cuff should be snug but not too tight. You should be able to slip one finger underneath comfortably.",
-        "how long should i wait?": "For an oral thermometer, wait until you hear the beep, usually 30-60 seconds.",
-        "what if it doesn't beep?": "Make sure the thermometer is turned on and the tip is properly placed under your tongue.",
-        "is this temperature normal?": "Normal oral temperature is typically 98.6°F (37°C), but can range from 97-99°F (36.1-37.2°C)."
+        "why is the cuff too loose": "The cuff should be snug but not too tight. You should be able to slip one finger underneath comfortably.",
+        "how long should i wait": "For most measurements, wait until you hear the beep or see the result display.",
+        "what if it doesn't beep": "Make sure the device is turned on and properly positioned according to the instructions.",
+        "is this normal": "If you have concerns about your readings, please consult with a healthcare professional.",
+        "how to use": `Follow the step-by-step instructions for ${device.name}. Make sure to read all steps carefully.`
       };
       
       const normalizedQuestion = question.toLowerCase();
       for (const [key, response] of Object.entries(fallbackResponses)) {
-        if (normalizedQuestion.includes(key.slice(0, -1))) { // Remove ? for partial matching
+        if (normalizedQuestion.includes(key)) {
           return response;
         }
       }
       
-      return `I'm here to help with ${device.name} usage. Common questions include: positioning, timing, and reading results.`;
-    }
-
-    try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: `You are SIMIS.AI helping with ${device.name}. Answer in ${langConfig.nativeName}. Keep responses concise and helpful. Current context: ${context}`
-          },
-          { role: "user", content: question }
-        ],
-        max_tokens: 200
-      });
-
-      return response.choices[0].message.content || "I'm sorry, I couldn't understand your question.";
-    } catch (error) {
-      console.error('AI question answering error:', error);
-      return "I'm having trouble processing your question right now. Please ensure your API key is configured.";
+      return `I'm here to help with ${device.name} usage. Please ask about specific steps, positioning, or timing.`;
     }
   }
 }
