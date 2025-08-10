@@ -143,8 +143,50 @@ export const ChatInterface: React.FC = () => {
                     : 'bg-purple-800/50 text-purple-100 border border-purple-700/50'
                 }`}
               >
-                <p className="text-sm">{message.content}</p>
-                <p className="text-xs opacity-70 mt-1">
+                <div className="text-sm space-y-2">
+                  {message.content.split('\n').map((line, lineIndex) => {
+                    // Handle numbered lists (1. 2. 3. etc.)
+                    if (line.match(/^\d+\.\s/)) {
+                      return (
+                        <div key={lineIndex} className="flex items-start gap-2 ml-2">
+                          <span className="text-purple-300 font-medium mt-0.5">{line.match(/^\d+\./)?.[0]}</span>
+                          <span className="flex-1">{line.replace(/^\d+\.\s/, '')}</span>
+                        </div>
+                      );
+                    }
+                    // Handle bullet points (• or -)
+                    if (line.match(/^[•\-]\s/)) {
+                      return (
+                        <div key={lineIndex} className="flex items-start gap-2 ml-2">
+                          <span className="text-purple-300 mt-0.5">•</span>
+                          <span className="flex-1">{line.replace(/^[•\-]\s/, '')}</span>
+                        </div>
+                      );
+                    }
+                    // Handle bold text (**text**)
+                    if (line.includes('**')) {
+                      const parts = line.split(/\*\*(.*?)\*\*/);
+                      return (
+                        <p key={lineIndex} className={line.trim() === '' ? 'h-2' : ''}>
+                          {parts.map((part, partIndex) => 
+                            partIndex % 2 === 1 ? (
+                              <strong key={partIndex} className="font-semibold text-white">{part}</strong>
+                            ) : (
+                              part
+                            )
+                          )}
+                        </p>
+                      );
+                    }
+                    // Handle empty lines as spacing
+                    if (line.trim() === '') {
+                      return <div key={lineIndex} className="h-2"></div>;
+                    }
+                    // Regular text
+                    return <p key={lineIndex}>{line}</p>;
+                  })}
+                </div>
+                <p className="text-xs opacity-70 mt-3 pt-2 border-t border-purple-600/30">
                   {message.timestamp.toLocaleTimeString()}
                 </p>
               </div>

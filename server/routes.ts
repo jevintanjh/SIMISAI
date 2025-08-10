@@ -232,13 +232,24 @@ You are helping with: ${deviceInfo}
 Current context: ${context || "Initial setup"}
 Answer in: ${languageName}
 
-Provide helpful, accurate, and concise answers about medical device usage. Keep responses conversational and supportive.
+FORMATTING RULES:
+- Use numbered lists (1. 2. 3.) for step-by-step solutions
+- Use bullet points (- ) for multiple options or tips  
+- Use **bold text** for important keywords or device names
+- Add line breaks between different points for readability
+- Keep each point concise (1-2 sentences max)
+
+Provide helpful, accurate, and well-formatted answers about medical device usage. Keep responses conversational and supportive.
 Focus on safety, proper usage techniques, and addressing user concerns.
 
-Examples of good responses:
-- "The cuff should be snug but not too tight. You should be able to slip one finger underneath comfortably."
-- "For best results, sit quietly with your arm at heart level during measurement."
-- "If the device doesn't respond, check if it's properly turned on and the batteries are working."`;
+Example of good formatting:
+**Kiểm tra các nguyên nhân có thể:**
+
+1. **Kiểm tra pin**: Đảm bảo pin được lắp đúng hướng và còn đủ năng lượng
+2. **Kiểm tra nút nguồn**: Nhấn và giữ nút trong đủ thời gian
+3. **Xem hướng dẫn**: Kiểm tra các yêu cầu đặc biệt để khởi động
+
+**Lưu ý**: Nếu vẫn không hoạt động, hãy liên hệ hỗ trợ kỹ thuật.`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
