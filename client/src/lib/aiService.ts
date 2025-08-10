@@ -77,7 +77,13 @@ export class AIService {
           bahasa_melayu: device.steps,
           thai: device.steps,
           vietnamese: device.steps,
-          filipino: device.steps,
+          filipino: [
+            "Ikabit ang cuff sa itaas ng braso",
+            "Siguraduhing tama ang pagkakakabit ng cuff",
+            "Pindutin ang START button para simulan",
+            "Mananahimik at huwag kumukyut habang sumusukat",
+            "Hintayin makumpleto at basahin ang resulta"
+          ],
           myanmar: device.steps,
           lao: device.steps,
           khmer: device.steps,
@@ -95,7 +101,13 @@ export class AIService {
           bahasa_melayu: device.steps,
           thai: device.steps,
           vietnamese: device.steps,
-          filipino: device.steps,
+          filipino: [
+            "Ilagay ang test strip sa glucometer",
+            "Linisin ang daliri gamit ng alcohol",
+            "Gamitin ang lancet para sa dugo sa daliri",
+            "Ilagay ang patak ng dugo sa test strip",
+            "Hintayin ang resulta sa screen"
+          ],
           myanmar: device.steps,
           lao: device.steps,
           khmer: device.steps,

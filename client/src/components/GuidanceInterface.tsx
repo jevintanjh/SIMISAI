@@ -88,7 +88,7 @@ export const GuidanceInterface: React.FC = () => {
             className="text-purple-200 hover:text-white hover:bg-purple-800/50"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Step 1: Wrap the cuff around your arm
+            Back to Welcome
           </Button>
         </div>
 
@@ -108,7 +108,7 @@ export const GuidanceInterface: React.FC = () => {
                 <span className="text-white text-sm font-medium">Audio Instructions</span>
               </div>
               <p className="text-purple-100 text-sm">
-                Place the cuff around your upper arm, about 1 inch above your elbow. The cuff should be snug but not too tight.
+                {currentInstruction || 'Loading instructions...'}
               </p>
             </div>
           </div>
