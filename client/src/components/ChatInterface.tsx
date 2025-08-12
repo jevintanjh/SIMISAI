@@ -110,9 +110,9 @@ export const ChatInterface: React.FC = () => {
   };
 
   return (
-    <Card className="bg-purple-900/30 border-purple-700/50 flex flex-col h-full">
+    <Card className="bg-slate-800/40 border-slate-600/50 flex flex-col h-full backdrop-blur-sm">
       {/* Header */}
-      <div className="p-4 border-b border-purple-700/50">
+      <div className="p-4 border-b border-slate-600/50">
         <h3 className="text-lg font-semibold text-white flex items-center gap-2">
           Chat with Assistant
           <span className="w-2 h-2 bg-green-400 rounded-full"></span>
@@ -122,7 +122,7 @@ export const ChatInterface: React.FC = () => {
       {/* Messages */}
       <div className="flex-1 p-4 overflow-y-auto max-h-80 space-y-4">
         {chatMessages.length === 0 ? (
-          <div className="text-center text-purple-300 py-8">
+          <div className="text-center text-slate-400 py-8">
             <p className="text-sm">
               Why is the cuff too loose?
             </p>
@@ -140,7 +140,7 @@ export const ChatInterface: React.FC = () => {
                 className={`max-w-[80%] p-3 rounded-lg ${
                   message.role === 'user'
                     ? 'bg-purple-600 text-white'
-                    : 'bg-purple-800/50 text-purple-100 border border-purple-700/50'
+                    : 'bg-slate-700/60 text-slate-100 border border-slate-600/50 backdrop-blur-sm'
                 }`}
               >
                 <div className="text-sm space-y-2">
@@ -149,7 +149,7 @@ export const ChatInterface: React.FC = () => {
                     if (line.match(/^\d+\.\s/)) {
                       return (
                         <div key={lineIndex} className="flex items-start gap-2 ml-2">
-                          <span className="text-purple-300 font-medium mt-0.5">{line.match(/^\d+\./)?.[0]}</span>
+                          <span className={`font-medium mt-0.5 ${message.role === 'user' ? 'text-blue-200' : 'text-purple-400'}`}>{line.match(/^\d+\./)?.[0]}</span>
                           <span className="flex-1">{line.replace(/^\d+\.\s/, '')}</span>
                         </div>
                       );
@@ -158,7 +158,7 @@ export const ChatInterface: React.FC = () => {
                     if (line.match(/^[•\-]\s/)) {
                       return (
                         <div key={lineIndex} className="flex items-start gap-2 ml-2">
-                          <span className="text-purple-300 mt-0.5">•</span>
+                          <span className={`mt-0.5 ${message.role === 'user' ? 'text-blue-200' : 'text-purple-400'}`}>•</span>
                           <span className="flex-1">{line.replace(/^[•\-]\s/, '')}</span>
                         </div>
                       );
@@ -186,7 +186,9 @@ export const ChatInterface: React.FC = () => {
                     return <p key={lineIndex}>{line}</p>;
                   })}
                 </div>
-                <p className="text-xs opacity-70 mt-3 pt-2 border-t border-purple-600/30">
+                <p className={`text-xs opacity-70 mt-3 pt-2 border-t ${
+                  message.role === 'user' ? 'border-blue-400/30' : 'border-slate-500/30'
+                }`}>
                   {message.timestamp.toLocaleTimeString()}
                 </p>
               </div>
@@ -196,7 +198,7 @@ export const ChatInterface: React.FC = () => {
         
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-purple-800/50 text-purple-100 border border-purple-700/50 p-3 rounded-lg">
+            <div className="bg-slate-700/60 text-slate-100 border border-slate-600/50 p-3 rounded-lg backdrop-blur-sm">
               <div className="flex space-x-2">
                 <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -210,7 +212,7 @@ export const ChatInterface: React.FC = () => {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-purple-700/50">
+      <div className="p-4 border-t border-slate-600/50">
         <div className="flex gap-2">
           <div className="flex-1 relative">
             <Input
@@ -219,7 +221,7 @@ export const ChatInterface: React.FC = () => {
               onKeyPress={handleKeyPress}
               placeholder="Chat with Assistant"
               disabled={isLoading}
-              className="bg-purple-800/30 border-purple-600 text-purple-100 placeholder-purple-400 pr-12 focus:border-purple-400"
+              className="bg-slate-700/40 border-slate-600 text-slate-100 placeholder-slate-400 pr-12 focus:border-purple-400 backdrop-blur-sm"
             />
             <Button
               size="sm"
@@ -227,8 +229,8 @@ export const ChatInterface: React.FC = () => {
               onClick={toggleListening}
               disabled={isLoading}
               className={`absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 ${
-                isListening ? 'text-red-400' : 'text-purple-400'
-              } hover:text-purple-200`}
+                isListening ? 'text-red-400' : 'text-slate-400'
+              } hover:text-slate-200`}
             >
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </Button>
