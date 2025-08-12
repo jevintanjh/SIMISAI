@@ -71,7 +71,7 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({
           )}
 
           {/* Device Detection Overlay */}
-          {lastDetection && lastDetection.deviceDetected && (
+          {lastDetection && lastDetection.deviceDetected && lastDetection.boundingBox && (
             <div 
               className="absolute border-2 border-green-400 pointer-events-none"
               style={{
