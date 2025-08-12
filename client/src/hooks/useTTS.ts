@@ -46,7 +46,7 @@ export const useTTS = (voicePreference: VoicePreference) => {
 
     let preferredVoice = null;
     
-    if (voicePreference !== 'text_only' && matchingVoices.length > 0) {
+    if (matchingVoices.length > 0) {
       if (voicePreference === 'male') {
         // Look for common male voice indicators
         preferredVoice = matchingVoices.find(voice => {

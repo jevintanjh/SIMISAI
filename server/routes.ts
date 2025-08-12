@@ -124,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isCorrectiveNeeded: data.isCorrectiveNeeded
       });
       
-      const stylePrompts = {
+      const stylePrompts: Record<"direct" | "gentle" | "detailed", string> = {
         direct: "BE DIRECT AND BRIEF. Use minimal words. No encouragement or praise. Just state what to do. Example: 'Place thermometer under tongue. Wait for beep.' Maximum 10 words per sentence.",
         gentle: "BE VERY ENCOURAGING AND SUPPORTIVE. Always start with praise like 'You're doing wonderfully!' or 'Great work!' Use caring language like 'Take your time', 'Don't worry', 'You've got this!' Make the user feel supported and confident.", 
         detailed: "BE EDUCATIONAL AND THOROUGH. Explain WHY each step is important, what sounds/sensations to expect, potential issues to watch for, and scientific reasoning. Include tips and background knowledge. Use 2-3 sentences minimum with rich context."
@@ -133,7 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const systemPrompt = `You are SIMIS.AI, a medical device guidance assistant.
 
 GUIDANCE STYLE: ${data.guidanceStyle.toUpperCase()}
-STYLE REQUIREMENT: ${stylePrompts[data.guidanceStyle]}
+STYLE REQUIREMENT: ${stylePrompts[data.guidanceStyle as keyof typeof stylePrompts]}
 
 Current device: ${data.deviceName || data.deviceType}
 Current step ${data.currentStep + 1}: ${data.currentStepInstruction || "Using medical device"}
@@ -204,12 +204,16 @@ Respond in JSON format with:
         context
       });
 
-      const deviceInfo = {
+      const deviceInfoMap: Record<
+        "blood_pressure_monitor" | "infrared_thermometer" | "oral_thermometer" | "blood_glucose_meter",
+        string
+      > = {
         blood_pressure_monitor: "Blood Pressure Monitor",
         infrared_thermometer: "Infrared Thermometer", 
         oral_thermometer: "Oral Thermometer",
         blood_glucose_meter: "Blood Glucose Meter"
-      }[deviceType] || deviceType;
+      };
+      const deviceInfo = deviceInfoMap[deviceType as keyof typeof deviceInfoMap] || deviceType;
 
       const languageNames: Record<string, string> = {
         english: "English",
