@@ -23,6 +23,11 @@ export const GuidanceInterface: React.FC = () => {
   const [currentInstruction, setCurrentInstruction] = useState<string>('');
   const [lastDetection, setLastDetection] = useState<DetectionResult | null>(null);
 
+  // Ensure page stays at top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, []);
+
   useEffect(() => {
     if (!currentSession) return;
 

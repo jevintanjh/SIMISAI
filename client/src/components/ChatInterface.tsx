@@ -25,7 +25,11 @@ export const ChatInterface: React.FC = () => {
   const { speak, isSpeaking } = useTTS(voicePreference);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'end',
+      inline: 'nearest'
+    });
   };
 
   useEffect(scrollToBottom, [chatMessages]);
@@ -120,7 +124,7 @@ export const ChatInterface: React.FC = () => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 p-4 overflow-y-auto max-h-80 space-y-4">
+      <div className="flex-1 p-4 overflow-y-auto max-h-80 space-y-4" style={{ scrollBehavior: 'smooth' }}>
         {chatMessages.length === 0 ? (
           <div className="text-center text-slate-400 py-8">
             <p className="text-sm">
