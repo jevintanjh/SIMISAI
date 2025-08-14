@@ -19,18 +19,17 @@ const languages = [
   { code: "fil", name: "Filipino" },
 ];
 
-export default function AppHeader({ currentLanguage, onLanguageChange, useMediaPipe = true, onToggleMediaPipe }: AppHeaderProps) {
-  // Updated to use radio buttons instead of dropdown - v2
+export default function AppHeaderNew({ currentLanguage, onLanguageChange, useMediaPipe = true, onToggleMediaPipe }: AppHeaderProps) {
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
   
   return (
-    <header className="px-4 py-3 shadow-lg" style={{ backgroundColor: '#211326' }}>
+    <header className="px-4 py-3 shadow-lg" style={{ backgroundColor: '#211326 !important' }}>
       <div className="flex items-center justify-between max-w-md mx-auto">
         <div className="flex items-center space-x-3">
           <div className="bg-white rounded-lg p-2">
             <Stethoscope className="text-[#9D7DAA] text-lg" />
           </div>
-          <h1 className="text-lg font-semibold text-white">SIMIS AI</h1>
+          <h1 className="text-lg font-semibold text-white" style={{ color: '#FFFFFF !important', backgroundColor: '#FF0000 !important', padding: '4px 8px', borderRadius: '4px' }}>SIMIS AI - NEW VERSION</h1>
         </div>
         
         <div className="flex items-center space-x-2">
@@ -40,6 +39,7 @@ export default function AppHeader({ currentLanguage, onLanguageChange, useMediaP
               size="sm"
               onClick={() => onToggleMediaPipe(!useMediaPipe)}
               className="hover:bg-[#4D3557] text-white border border-[#9D7DAA]"
+              style={{ backgroundColor: 'transparent !important', color: '#FFFFFF !important', borderColor: '#9D7DAA !important' }}
             >
               <Camera className="w-4 h-4 mr-1" />
               <span className="text-xs">{useMediaPipe ? 'MP' : 'STD'}</span>
@@ -52,20 +52,22 @@ export default function AppHeader({ currentLanguage, onLanguageChange, useMediaP
               size="sm"
               onClick={() => setShowLanguageSelector(!showLanguageSelector)}
               className="hover:bg-[#4D3557] text-white border border-[#9D7DAA]"
+              style={{ backgroundColor: 'transparent !important', color: '#FFFFFF !important', borderColor: '#9D7DAA !important' }}
             >
               <Globe className="w-4 h-4 mr-2" />
               <span>{languages.find(lang => lang.code === currentLanguage)?.name.slice(0, 2).toUpperCase()}</span>
             </Button>
             
             {showLanguageSelector && (
-              <div className="absolute right-0 top-full mt-2 rounded-lg shadow-lg border border-[#9D7DAA] p-4 min-w-[200px] z-50" style={{ backgroundColor: '#4D3557' }}>
+              <div className="absolute right-0 top-full mt-2 rounded-lg shadow-lg border border-[#9D7DAA] p-4 min-w-[200px] z-50" style={{ backgroundColor: '#4D3557 !important' }}>
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-medium text-white">Select Language</h3>
+                  <h3 className="text-sm font-medium text-white" style={{ color: '#FFFFFF !important' }}>Select Language</h3>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowLanguageSelector(false)}
                     className="h-6 w-6 p-0 text-[#9D7DAA] hover:text-white hover:bg-[#211326]"
+                    style={{ color: '#9D7DAA !important' }}
                   >
                     ×
                   </Button>
@@ -89,6 +91,7 @@ export default function AppHeader({ currentLanguage, onLanguageChange, useMediaP
                       <Label 
                         htmlFor={language.code} 
                         className="text-sm text-white cursor-pointer flex-1 hover:text-[#9D7DAA]"
+                        style={{ color: '#FFFFFF !important' }}
                       >
                         {language.name}
                       </Label>

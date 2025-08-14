@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
+    "@iconify/react": "^6.0.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@mediapipe/tasks-vision": "^0.10.22-rc.20250304",
     "@neondatabase/serverless": "^0.10.4",
@@ -69,6 +70,7 @@
     "react-hook-form": "^7.55.0",
     "react-icons": "^5.4.0",
     "react-resizable-panels": "^2.1.7",
+    "react-select": "^5.10.2",
     "recharts": "^2.15.2",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
@@ -80,6 +82,7 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
+    "@iconify-json/mingcute": "^1.2.5",
     "@replit/vite-plugin-cartographer": "^0.2.8",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@tailwindcss/typography": "^0.5.15",

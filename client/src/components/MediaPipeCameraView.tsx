@@ -85,27 +85,27 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
 
   return (
     <div className="w-full h-full relative">
-      <Card className="h-full">
+      <Card className="h-full shadow-lg border border-[rgba(139,92,246,0.3)]" style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', backdropFilter: 'blur(10px)' }}>
         <CardContent className="p-4 h-full">
           <div className="flex flex-col h-full space-y-4">
             
             {/* Header with status */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Camera className="w-5 h-5" />
-                <span className="font-medium">MediaPipe Thermometer Detection</span>
+                <Camera className="w-5 h-5 text-[#8B5CF6]" />
+                <span className="font-medium text-white">MediaPipe Thermometer Detection</span>
               </div>
               
               {/* Status indicators */}
               <div className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${isInitialized ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span className="text-sm text-gray-600">
+                <div className={`w-2 h-2 rounded-full ${isInitialized ? 'bg-[#10B981]' : 'bg-[#EF4444]'}`} />
+                <span className="text-sm text-[#E2E8F0]">
                   {isInitialized ? 'Ready' : 'Initializing...'}
                 </span>
                 {isDetecting && (
                   <>
-                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                    <span className="text-sm text-blue-600">Detecting</span>
+                    <div className="w-2 h-2 rounded-full bg-[#8B5CF6] animate-pulse" />
+                    <span className="text-sm text-[#8B5CF6]">Detecting</span>
                   </>
                 )}
               </div>
@@ -132,7 +132,7 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
               <div className="absolute inset-0 pointer-events-none">
                 {/* Detection count */}
                 {detections.length > 0 && (
-                  <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+                  <div className="absolute top-4 left-4 bg-[#8B5CF6] text-white px-3 py-1 rounded-full text-sm shadow-lg">
                     {detections.length} thermometer{detections.length !== 1 ? 's' : ''} detected
                   </div>
                 )}
@@ -140,13 +140,13 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
                 {/* Center crosshair for alignment */}
                 {isCameraActive && (
                   <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                    <Square className="w-8 h-8 text-white opacity-50" />
+                    <Square className="w-8 h-8 text-[#8B5CF6] opacity-50" />
                   </div>
                 )}
                 
                 {/* Error message */}
                 {error && (
-                  <div className="absolute bottom-4 left-4 right-4 bg-red-500 text-white p-3 rounded-lg text-sm">
+                  <div className="absolute bottom-4 left-4 right-4 bg-[#EF4444] text-white p-3 rounded-lg text-sm shadow-lg">
                     {error}
                   </div>
                 )}
@@ -170,7 +170,11 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
                 onClick={handleCameraToggle}
                 variant={isCameraActive ? "destructive" : "default"}
                 disabled={!isInitialized}
-                className="flex items-center space-x-2"
+                className={`flex items-center space-x-2 ${
+                  isCameraActive 
+                    ? 'bg-[#EF4444] hover:bg-[#DC2626] text-white' 
+                    : 'bg-[#8B5CF6] hover:bg-[#7C3AED] text-white'
+                } shadow-lg`}
               >
                 <Camera className="w-4 h-4" />
                 <span>{isCameraActive ? 'Stop Camera' : 'Start Camera'}</span>
@@ -181,7 +185,11 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
                   onClick={handleDetectionToggle}
                   variant={isDetecting ? "secondary" : "default"}
                   disabled={!isCameraActive}
-                  className="flex items-center space-x-2"
+                  className={`flex items-center space-x-2 ${
+                    isDetecting 
+                      ? 'bg-[rgba(139,92,246,0.2)] text-[#8B5CF6] border border-[rgba(139,92,246,0.3)]' 
+                      : 'bg-[#A78BFA] hover:bg-[#8B5CF6] text-white'
+                  } shadow-lg`}
                 >
                   {isDetecting ? (
                     <>
@@ -202,7 +210,7 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
                   onClick={() => window.location.reload()}
                   variant="outline"
                   size="sm"
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 border-[rgba(139,92,246,0.3)] text-[#A78BFA] hover:bg-[rgba(139,92,246,0.1)] shadow-lg"
                 >
                   <RotateCcw className="w-4 h-4" />
                   <span>Reset</span>
@@ -212,15 +220,15 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
 
             {/* Detection Info */}
             {detections.length > 0 && (
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h4 className="font-medium text-blue-900 mb-2">Detection Results:</h4>
+              <div className="bg-[rgba(139,92,246,0.1)] rounded-lg p-4 border border-[rgba(139,92,246,0.3)]" style={{ backdropFilter: 'blur(10px)' }}>
+                <h4 className="font-medium text-white mb-2">Detection Results:</h4>
                 <div className="space-y-2">
                   {detections.map((detection: any, index: number) => (
                     <div key={index} className="flex justify-between text-sm">
-                      <span className="text-blue-700">
+                      <span className="text-[#E2E8F0]">
                         Object {index + 1}: {detection.categories[0].categoryName}
                       </span>
-                      <span className="text-blue-600 font-medium">
+                      <span className="text-[#A78BFA] font-medium">
                         {(detection.categories[0].score * 100).toFixed(1)}% confidence
                       </span>
                     </div>
