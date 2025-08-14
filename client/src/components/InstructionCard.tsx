@@ -68,25 +68,23 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
 
   return (
     <div className="p-4 step-card">
-      <Card className="shadow-sm border border-gray-200">
+      <Card className="shadow-lg border border-[rgba(139,92,246,0.3)]" style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', backdropFilter: 'blur(10px)' }}>
         <CardContent className="p-6">
           <div className="flex items-start space-x-4">
-            <div className="medical-blue rounded-full w-10 h-10 flex items-center justify-center font-semibold text-white">
+            <div className="bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] rounded-full w-10 h-10 flex items-center justify-center font-semibold text-white shadow-lg">
               {instruction.number}
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 text-lg mb-3">
+              <h3 className="font-semibold text-white text-lg mb-3">
                 {language !== "en" && instruction.translation[language as keyof typeof instruction.translation]
                   ? instruction.translation[language as keyof typeof instruction.translation]?.title || instruction.title
                   : instruction.title}
               </h3>
-              <p className="text-gray-600 mb-4 leading-relaxed">
+              <p className="text-[#E2E8F0] mb-4 leading-relaxed">
                 {language !== "en" && instruction.translation[language as keyof typeof instruction.translation]
                   ? instruction.translation[language as keyof typeof instruction.translation]?.description || instruction.description
                   : instruction.description}
               </p>
-
-
 
               {/* Status Indicators */}
               <div className="flex items-center space-x-4 mb-4">
@@ -94,10 +92,10 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
                   <div key={checkpoint} className="flex items-center space-x-2">
                     <div className={`w-3 h-3 rounded-full ${
                       instruction.completedCheckpoints.includes(checkpoint)
-                        ? "bg-[hsl(122,39%,49%)]"
-                        : "bg-gray-300"
+                        ? "bg-[#10B981]"
+                        : "bg-[#94A3B8]"
                     }`} />
-                    <span className="text-sm text-gray-600">{checkpoint}</span>
+                    <span className="text-sm text-[#E2E8F0]">{checkpoint}</span>
                   </div>
                 ))}
               </div>
@@ -105,38 +103,38 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
               {/* Action Button */}
               <Button 
                 onClick={handleNextStep}
-                className="w-full detection-green hover:bg-[hsl(122,39%,45%)] text-white py-3 mb-4"
+                className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] hover:from-[#7C3AED] hover:to-[#8B5CF6] text-white py-3 mb-4 shadow-lg"
               >
                 Continue
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
 
               {/* Voice Guidance Controls */}
-              <div className="medical-gray rounded-lg p-4">
+              <div className="bg-[rgba(139,92,246,0.1)] rounded-lg p-4 border border-[rgba(139,92,246,0.3)]">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-2">
-                    <Volume2 className="w-4 h-4 text-[hsl(207,90%,54%)]" />
-                    <span className="text-sm font-medium text-gray-700">Voice Guidance</span>
+                    <Volume2 className="w-4 h-4 text-[#8B5CF6]" />
+                    <span className="text-sm font-medium text-white">Voice Guidance</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setIsMuted(!isMuted)}
-                      className="text-gray-500 hover:text-gray-700 p-1"
+                      className="text-[#94A3B8] hover:text-[#A78BFA] p-1"
                     >
                       <VolumeX className="w-4 h-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-gray-500 hover:text-gray-700 p-1"
+                      className="text-[#94A3B8] hover:text-[#A78BFA] p-1"
                     >
                       <Settings className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
-                <div className="text-sm text-gray-600 mb-3">
+                <div className="text-sm text-[#E2E8F0] mb-3">
                   Playing in {
                     language === 'en' ? 'English' :
                     language === 'id' ? 'Bahasa Indonesia' :
@@ -149,7 +147,7 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
                   <Button
                     onClick={handlePlayPause}
                     size="sm"
-                    className="medical-blue hover:bg-[hsl(207,90%,50%)] p-2 rounded-full"
+                    className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white p-2 rounded-full shadow-lg"
                   >
                     {isPlaying ? (
                       <Pause className="w-4 h-4" />
@@ -158,7 +156,7 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
                     )}
                   </Button>
                   <div className="flex-1">
-                    <label className="text-xs text-gray-500 block mb-1">
+                    <label className="text-xs text-[#94A3B8] block mb-1">
                       Speed: {playbackSpeed}x
                     </label>
                     <Slider
