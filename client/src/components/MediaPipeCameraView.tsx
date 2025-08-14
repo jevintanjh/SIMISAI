@@ -22,6 +22,13 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
   const [detections, setDetections] = useState<any[]>([]);
   const [isCameraActive, setIsCameraActive] = useState(false);
 
+  // Update camera active state based on initialization
+  useEffect(() => {
+    if (isInitialized && !error) {
+      setIsCameraActive(true);
+    }
+  }, [isInitialized, error]);
+
   // Mock detection functions for POC
   const startDetection = () => {
     setIsDetecting(true);
@@ -47,8 +54,13 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
       stopCamera();
       setIsCameraActive(false);
     } else {
-      await startCamera();
-      setIsCameraActive(true);
+      try {
+        await startCamera();
+        setIsCameraActive(true);
+      } catch (error) {
+        console.error("Failed to start camera:", error);
+        setIsCameraActive(false);
+      }
     }
   };
 
@@ -101,13 +113,13 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
 
             {/* Camera View */}
             <div className="flex-1 relative bg-black rounded-lg overflow-hidden">
-              {/* Video element (hidden, used for MediaPipe processing) */}
+              {/* Video element (visible for better UX) */}
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
                 muted
-                className="absolute inset-0 w-full h-full object-cover opacity-0"
+                className="absolute inset-0 w-full h-full object-cover"
               />
               
               {/* Canvas for drawing detection results */}

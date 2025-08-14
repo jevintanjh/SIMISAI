@@ -8,12 +8,34 @@ export function useWebSocket(onMessage?: (message: any) => void) {
   const connect = () => {
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/chat-ws`;
+      
+      // For macOS localhost development, try multiple connection options
+      let wsUrl: string;
+      
+      if (process.env.NODE_ENV === 'development') {
+        // In development, try localhost first, then fallback to window.location.host
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.hostname.includes('localhost');
+        
+        if (isLocalhost) {
+          // Use explicit localhost for development
+          wsUrl = `${protocol}//localhost:${window.location.port || '5000'}/chat-ws`;
+        } else {
+          // Fallback to window.location.host
+          wsUrl = `${protocol}//${window.location.host}/chat-ws`;
+        }
+      } else {
+        // Production: use window.location.host
+        wsUrl = `${protocol}//${window.location.host}/chat-ws`;
+      }
+      
+      console.log('Attempting WebSocket connection to:', wsUrl);
       
       const ws = new WebSocket(wsUrl);
       
       ws.onopen = () => {
-        console.log('WebSocket connected');
+        console.log('WebSocket connected to:', wsUrl);
         setIsConnected(true);
       };
       
@@ -26,12 +48,13 @@ export function useWebSocket(onMessage?: (message: any) => void) {
         }
       };
       
-      ws.onclose = () => {
-        console.log('WebSocket disconnected');
+      ws.onclose = (event) => {
+        console.log('WebSocket disconnected:', event.code, event.reason);
         setIsConnected(false);
         
         // Attempt to reconnect after 3 seconds
         reconnectTimeoutRef.current = setTimeout(() => {
+          console.log('Attempting to reconnect WebSocket...');
           connect();
         }, 3000);
       };

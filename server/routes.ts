@@ -11,7 +11,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup WebSocket for real-time chat on a specific path to avoid conflicts
   const wss = new WebSocketServer({ 
     server: httpServer,
-    path: '/chat-ws'
+    path: '/chat-ws',
+    // Add error handling for WebSocket server
+    handleProtocols: () => 'chat-protocol'
+  });
+  
+  // Handle WebSocket server errors
+  wss.on('error', (error: any) => {
+    console.error('WebSocket server error:', error);
+    if (error.code === 'ENOTSUP') {
+      console.log('WebSocket server binding issue detected, continuing with HTTP server...');
+    }
   });
   
   wss.on('connection', (ws) => {
@@ -68,6 +78,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     ws.on('close', () => {
       console.log('Client disconnected from chat');
+    });
+    
+    ws.on('error', (error) => {
+      console.error('WebSocket client error:', error);
     });
   });
 

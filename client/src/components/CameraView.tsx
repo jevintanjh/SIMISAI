@@ -10,7 +10,15 @@ export default function CameraView() {
   const totalSteps = 5;
 
   useEffect(() => {
-    startCamera();
+    const initializeCamera = async () => {
+      try {
+        await startCamera();
+      } catch (error) {
+        console.error("Failed to initialize camera:", error);
+      }
+    };
+    
+    initializeCamera();
     return () => stopCamera();
   }, [startCamera, stopCamera]);
 
