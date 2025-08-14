@@ -98,9 +98,21 @@ export const useSimpleMediaPipe = (): UseSimpleMediaPipeReturn => {
     setIsInitialized(false);
   };
 
-  // Cleanup on unmount
+  // Initialize camera on mount for better UX
   useEffect(() => {
+    const autoStart = async () => {
+      try {
+        await startCamera();
+      } catch (error) {
+        console.warn("Auto-start camera failed:", error);
+      }
+    };
+    
+    // Auto-start camera after a short delay
+    const timer = setTimeout(autoStart, 500);
+    
     return () => {
+      clearTimeout(timer);
       stopCamera();
     };
   }, []);
