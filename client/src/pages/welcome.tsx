@@ -24,6 +24,7 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
   const [guidanceStyle, setGuidanceStyle] = useState<string>("");
   const [voiceOption, setVoiceOption] = useState<string>("");
   const [collapsedBoxes, setCollapsedBoxes] = useState<Set<string>>(new Set());
+  const [showHowItWorks, setShowHowItWorks] = useState<boolean>(false);
 
   const languages = [
     { value: "en", label: "🇺🇸 English", flag: "🇺🇸" },
@@ -395,32 +396,65 @@ export default function Welcome({ onStartSession }: WelcomeProps) {
         </div>
 
         {/* Start Button */}
-        <div className="text-center space-y-4">
-          <Button
-            onClick={handleStart}
-            disabled={!canStart}
-            size="lg"
-            className="bg-white hover:bg-gray-100 text-background font-semibold px-12 py-4 text-xl rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border-2 border-white/20"
-          >
-            <Icon icon="mingcute:play-fill" className="w-7 h-7 mr-3 text-background" />
-            Start Session
-          </Button>
-        </div>
-
-        {/* How It Works Preview */}
-        <div className="mt-16 text-center">
-          <h3 className="text-2xl font-bold text-white mb-6">How SIMIS AI Works</h3>
-          <div className="bg-card/30 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
-            <img 
-              src={simulationImage} 
-              alt="SIMIS AI Interface Preview - Split screen showing thermometer detection with camera view and step-by-step guidance"
-              className="w-full max-w-4xl mx-auto rounded-lg shadow-lg"
-            />
-            <p className="text-white/70 text-sm mt-4 max-w-2xl mx-auto">
-              Real-time camera detection identifies your thermometer, while our AI provides step-by-step guidance in your preferred language with voice assistance.
-            </p>
+        <div className="text-center space-y-6">
+          <div className="flex justify-center space-x-8">
+            <Button
+              onClick={() => setShowHowItWorks(true)}
+              variant="outline"
+              size="lg"
+              className="bg-background hover:bg-muted/20 text-white font-semibold px-6 py-3 text-lg rounded-xl border-2 border-white/40 hover:border-white/100 transition-all duration-300"
+            >
+              How It Works
+            </Button>
+            
+            <Button
+              onClick={handleStart}
+              disabled={!canStart}
+              size="lg"
+              className="bg-white hover:bg-gray-100 text-background font-semibold px-6 py-4 text-xl rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border-2 border-white/20"
+            >
+              <Icon icon="mingcute:play-fill" className="w-8 h-8 mr-3 text-background" />
+              Start Session
+            </Button>
           </div>
         </div>
+
+        {/* How It Works Modal */}
+        {showHowItWorks && (
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setShowHowItWorks(false)}
+          >
+            <div 
+              className="bg-background border border-white/20 rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative mb-6">
+                <h2 className="text-4xl font-bold text-white text-center">How SIMIS AI Works</h2>
+                <Button
+                  onClick={() => setShowHowItWorks(false)}
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 text-white hover:bg-white/10 flex-shrink-0"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </Button>
+              </div>
+              
+              <p className="text-white/70 text-sm text-center max-w-2xl mx-auto mb-6">
+                Real-time camera detection identifies your thermometer, while our AI provides step-by-step guidance in your preferred language with voice assistance.
+              </p>
+              
+              <img 
+                src={simulationImage} 
+                alt="SIMIS AI Interface Preview - Split screen showing thermometer detection with camera view and step-by-step guidance"
+                className="w-full max-w-4xl mx-auto rounded-lg shadow-lg"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
