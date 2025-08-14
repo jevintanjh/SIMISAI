@@ -6,7 +6,10 @@ export function useCamera(videoRef: React.RefObject<HTMLVideoElement>) {
 
   const startCamera = useCallback(async () => {
     try {
-      if (!videoRef.current) return;
+      if (!videoRef.current) {
+        console.warn("Video element not available");
+        return;
+      }
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -20,10 +23,16 @@ export function useCamera(videoRef: React.RefObject<HTMLVideoElement>) {
       videoRef.current.srcObject = stream;
       streamRef.current = stream;
       setIsActive(true);
+      console.log("Camera started successfully with back camera");
     } catch (error) {
-      console.error("Error accessing camera:", error);
+      console.error("Error accessing back camera:", error);
       // Fallback to front camera if back camera fails
       try {
+        if (!videoRef.current) {
+          console.warn("Video element not available for fallback");
+          return;
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: "user",
@@ -33,13 +42,31 @@ export function useCamera(videoRef: React.RefObject<HTMLVideoElement>) {
           audio: false
         });
 
-        if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setIsActive(true);
+        console.log("Camera started successfully with front camera");
+      } catch (fallbackError) {
+        console.error("Error accessing front camera:", fallbackError);
+        // Try basic video constraints as final fallback
+        try {
+          if (!videoRef.current) {
+            console.warn("Video element not available for basic fallback");
+            return;
+          }
+
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+          });
+
           videoRef.current.srcObject = stream;
           streamRef.current = stream;
           setIsActive(true);
+          console.log("Camera started successfully with basic constraints");
+        } catch (basicError) {
+          console.error("All camera access attempts failed:", basicError);
         }
-      } catch (fallbackError) {
-        console.error("Error accessing front camera:", fallbackError);
       }
     }
   }, [videoRef]);

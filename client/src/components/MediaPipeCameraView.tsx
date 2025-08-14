@@ -47,8 +47,13 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
       stopCamera();
       setIsCameraActive(false);
     } else {
-      await startCamera();
-      setIsCameraActive(true);
+      try {
+        await startCamera();
+        setIsCameraActive(true);
+      } catch (error) {
+        console.error("Failed to start camera:", error);
+        setIsCameraActive(false);
+      }
     }
   };
 
