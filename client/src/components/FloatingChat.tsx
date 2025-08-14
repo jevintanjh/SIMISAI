@@ -62,9 +62,14 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
     const languageMap: Record<string, string> = {
       'en': 'en-US',
       'id': 'id-ID',
+      'ms': 'ms-MY',
       'th': 'th-TH',
       'vi': 'vi-VN',
-      'fil': 'fil-PH'
+      'fil': 'fil-PH',
+      'my': 'my-MM',
+      'lo': 'lo-LA',
+      'km': 'km-KH',
+      'bn': 'ms-BN'
     };
     
     recognition.lang = languageMap[language] || 'en-US';
@@ -100,9 +105,9 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
   };
 
   return (
-    <div className="fixed bottom-20 right-4 z-40">
+    <div className="fixed bottom-28 right-4 z-50">
       {isOpen && (
-        <Card className="w-80 mb-4 shadow-xl border border-gray-200">
+        <Card className="w-80 mb-6 shadow-xl border border-gray-200">
           <CardHeader className="medical-blue text-white p-4 rounded-t-xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
