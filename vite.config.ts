@@ -29,9 +29,21 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    host: '0.0.0.0', // Allow external access for localhost
+    port: 3000, // Default Vite port
+    strictPort: false, // Allow fallback to next available port
     fs: {
       strict: true,
       deny: ["**/.*"],
     },
+    // macOS localhost specific settings
+    hmr: {
+      host: 'localhost',
+      port: 24678, // Default HMR port
+    },
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 4173,
   },
 });
