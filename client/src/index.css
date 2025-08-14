@@ -2,34 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    font-family: "apparat", sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "apparat", sans-serif;
+    font-weight: 700;
+  }
+  
+  h2 {
+    font-size: 1.5rem; /* 24px - larger than text-xl (1.25rem) */
+    line-height: 2rem;
+  }
+  
+  .font-bold {
+    font-weight: 700;
+  }
+}
+
 :root {
-  --background: hsl(260, 30%, 8%);
-  --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(260, 20%, 18%);
-  --muted-foreground: hsl(0, 0%, 65%);
-  --popover: hsl(260, 25%, 12%);
-  --popover-foreground: hsl(0, 0%, 95%);
-  --card: hsl(260, 25%, 12%);
-  --card-foreground: hsl(0, 0%, 95%);
-  --border: hsl(260, 15%, 25%);
-  --input: hsl(260, 15%, 20%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(0, 0%, 98%);
-  --secondary: hsl(260, 20%, 18%);
-  --secondary-foreground: hsl(0, 0%, 85%);
-  --accent: hsl(260, 20%, 18%);
-  --accent-foreground: hsl(0, 0%, 95%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(207, 90%, 54%);
+  /* Brand Colors */
+  --primary-purple: #8B5CF6;
+  --secondary-purple: #A78BFA;
+  --deep-purple: #6D28D9;
+  
+  /* Backgrounds */
+  --bg-gradient: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #6D28D9 100%);
+  --bg-subtle: linear-gradient(135deg, #1E1B4B 0%, #2D2A5F 100%);
+  --card-bg: rgba(139, 92, 246, 0.1);
+  
+  /* Text */
+  --text-primary: #FFFFFF;
+  --text-secondary: #E2E8F0;
+  --text-muted: #94A3B8;
+  --text-accent: #A78BFA;
+  
+  /* Status Colors */
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+  
+  /* Shadows */
+  --shadow-card: 0 10px 25px rgba(139, 92, 246, 0.2);
+  --shadow-button: 0 4px 15px rgba(139, 92, 246, 0.3);
+  
+  /* Legacy support - keeping some existing variables for compatibility */
+  --background: #1E1B4B;
+  --foreground: #FFFFFF;
+  --muted: #312E81;
+  --muted-foreground: #94A3B8;
+  --popover: #312E81;
+  --popover-foreground: #FFFFFF;
+  --card: #312E81;
+  --card-foreground: #FFFFFF;
+  --border: rgba(139, 92, 246, 0.3);
+  --input: rgba(255, 255, 255, 0.1);
+  --primary: #8B5CF6;
+  --primary-foreground: #FFFFFF;
+  --secondary: rgba(139, 92, 246, 0.2);
+  --secondary-foreground: #A78BFA;
+  --accent: #A78BFA;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --ring: #8B5CF6;
   --radius: 0.75rem;
   
   /* SIMIS AI Custom Colors */
-  --simis-purple: hsl(260, 30%, 8%);
-  --simis-card: hsl(260, 25%, 12%);
-  --detection-green: hsl(122, 39%, 49%);
-  --interactive-orange: hsl(36, 100%, 50%);
-  --sidebar-purple: hsl(260, 20%, 15%);
+  --simis-purple: #1E1B4B;
+  --simis-card: #312E81;
+  --detection-green: #8B5CF6;
+  --interactive-orange: #A78BFA;
+  --sidebar-purple: #312E81;
 }
 
 .dark {
@@ -67,30 +113,30 @@
 
 @layer components {
   .medical-blue {
-    @apply bg-[hsl(207,90%,54%)] text-white;
+    @apply bg-[#8B5CF6] text-white;
   }
   
   .detection-green {
-    @apply bg-[hsl(122,39%,49%)] text-white;
+    @apply bg-[#8B5CF6] text-white;
   }
   
   .interactive-orange {
-    @apply bg-[hsl(36,100%,50%)] text-white;
+    @apply bg-[#A78BFA] text-white;
   }
   
   .medical-gray {
-    @apply bg-[hsl(0,0%,96%)];
+    @apply bg-[rgba(139,92,246,0.1)];
   }
   
   .camera-overlay {
-    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
   }
   
-  .detection-box {
-    border: 3px solid hsl(122, 39%, 49%);
+  .device-detection {
+    border: 2px solid #8B5CF6;
     border-radius: 8px;
-    box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
-    animation: pulse-green 2s infinite;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    animation: pulse-purple 2s infinite;
   }
   
   .component-label {
@@ -100,24 +146,66 @@
   
   .step-card {
     transition: all 0.3s ease;
+    margin-bottom: 1rem;
   }
   
   .step-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-card);
   }
   
   .chat-bubble {
     animation: slideInRight 0.3s ease-out;
   }
+  
+  /* Ensure proper spacing for bottom navigation */
+  .bottom-nav-safe-area {
+    padding-bottom: 5rem;
+  }
+  
+  /* Prevent overlaps in camera view */
+  .camera-view-container {
+    margin-bottom: 1rem;
+  }
+  
+  /* Main App Background */
+  .app-background {
+    background: var(--bg-gradient);
+    min-height: 100vh;
+  }
+  
+  /* Primary Button */
+  .btn-primary {
+    background: var(--primary-purple);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-button);
+  }
+  
+  /* Progress Bar */
+  .progress-bar {
+    background: var(--primary-purple);
+  }
+  
+  /* Chat Interface */
+  .ai-message {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+  }
+  
+  /* Device Detection Box */
+  .device-detection {
+    border: 2px solid var(--primary-purple);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+  }
 }
 
-@keyframes pulse-green {
+@keyframes pulse-purple {
   0%, 100% { 
-    box-shadow: 0 0 20px rgba(76, 175, 80, 0.3); 
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); 
   }
   50% { 
-    box-shadow: 0 0 30px rgba(76, 175, 80, 0.5); 
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.5); 
   }
 }
 
