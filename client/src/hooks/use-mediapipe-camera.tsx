@@ -80,6 +80,11 @@ export const useMediaPipeCamera = (): UseMediaPipeCameraReturn => {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
 
+      if (!videoRef.current) {
+        setError("Video element not available");
+        return;
+      }
+
       // Get camera with mobile-friendly constraints
       const constraints: MediaStreamConstraints = {
         video: {
@@ -94,17 +99,24 @@ export const useMediaPipeCamera = (): UseMediaPipeCameraReturn => {
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       streamRef.current = stream;
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current?.play();
-        };
-      }
+      videoRef.current.srcObject = stream;
+      videoRef.current.onloadedmetadata = () => {
+        videoRef.current?.play().catch(playError => {
+          console.warn("Auto-play blocked:", playError);
+        });
+      };
 
       console.log('Camera started successfully');
     } catch (err) {
+      console.warn('Back camera failed, trying front camera:', err);
+      
       // Fallback to front camera if back camera fails
       try {
+        if (!videoRef.current) {
+          setError("Video element not available for fallback");
+          return;
+        }
+
         const fallbackConstraints: MediaStreamConstraints = {
           video: {
             facingMode: 'user',
@@ -116,18 +128,40 @@ export const useMediaPipeCamera = (): UseMediaPipeCameraReturn => {
         const stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
         streamRef.current = stream;
 
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current?.play();
-          };
-        }
+        videoRef.current.srcObject = stream;
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play().catch(playError => {
+            console.warn("Auto-play blocked:", playError);
+          });
+        };
 
         console.log('Camera started with front camera fallback');
       } catch (fallbackErr) {
-        const errorMessage = `Camera access failed: ${fallbackErr instanceof Error ? fallbackErr.message : 'Unknown error'}`;
-        console.error(errorMessage);
-        setError(errorMessage);
+        console.error('Front camera failed, trying basic constraints:', fallbackErr);
+        
+        // Final fallback with basic video
+        try {
+          if (!videoRef.current) {
+            setError("Video element not available for basic fallback");
+            return;
+          }
+
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          streamRef.current = stream;
+
+          videoRef.current.srcObject = stream;
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current?.play().catch(playError => {
+              console.warn("Auto-play blocked:", playError);
+            });
+          };
+
+          console.log('Camera started with basic constraints');
+        } catch (basicErr) {
+          const errorMessage = `All camera access attempts failed: ${basicErr instanceof Error ? basicErr.message : 'Unknown error'}`;
+          console.error(errorMessage);
+          setError(errorMessage);
+        }
       }
     }
   }, []);
