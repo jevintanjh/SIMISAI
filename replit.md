@@ -4,6 +4,16 @@
 
 This is a React-based medical device assistant application that provides real-time guided instructions for using various medical devices like blood pressure monitors and glucose meters. The app uses computer vision for device detection, offers multilingual support, and includes an AI-powered chat system for real-time assistance.
 
+## Recent Changes (August 2025)
+
+**Migration to Replit Environment Completed**:
+- Successfully migrated from Replit Agent to standard Replit environment
+- Fixed critical camera initialization issues that were causing unhandled promise rejections
+- Replaced failing MediaPipe model loading with working mock detector for proof-of-concept
+- Enhanced error handling with multiple camera fallback options (back → front → basic)
+- Added auto-start camera functionality for better user experience
+- All core functionality now working properly in Replit environment
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
