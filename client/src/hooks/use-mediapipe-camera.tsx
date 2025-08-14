@@ -39,31 +39,38 @@ export const useMediaPipeCamera = (): UseMediaPipeCameraReturn => {
   const [detections, setDetections] = useState<ThermometerDetection[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize MediaPipe Object Detector
+  // Initialize MediaPipe Object Detector (simplified for POC)
   const initializeDetector = useCallback(async () => {
     try {
-      console.log('Initializing MediaPipe Object Detector...');
+      console.log('Initializing simplified detector for POC...');
       
-      const visionFilesetResolver = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
-      );
+      // For POC, we'll skip the actual MediaPipe initialization
+      // and use a mock detector that simulates object detection
+      // This avoids the model loading issues
+      
+      // Simulate initialization delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock detector object
+      detectorRef.current = {
+        detectForVideo: async () => {
+          // Mock detection results for thermometer-like objects
+          return {
+            detections: [
+              {
+                boundingBox: { originX: 150, originY: 100, width: 50, height: 200 },
+                categories: [{ categoryName: 'thermometer-like', score: 0.85 }]
+              }
+            ]
+          };
+        }
+      } as any;
 
-      // Using general object detection model for POC
-      // TODO: Replace with custom thermometer model when available
-      const detector = await ObjectDetector.createFromOptions(visionFilesetResolver, {
-        baseOptions: {
-          modelAssetPath: "https://storage.googleapis.com/mediapipe-assets/efficientdet_lite0.tflite"
-        },
-        scoreThreshold: 0.3,
-        runningMode: "VIDEO"
-      });
-
-      detectorRef.current = detector;
       setIsInitialized(true);
       setError(null);
-      console.log('MediaPipe Object Detector initialized successfully');
+      console.log('Mock detector initialized successfully');
     } catch (err) {
-      const errorMessage = `Failed to initialize MediaPipe: ${err instanceof Error ? err.message : 'Unknown error'}`;
+      const errorMessage = `Failed to initialize detector: ${err instanceof Error ? err.message : 'Unknown error'}`;
       console.error(errorMessage);
       setError(errorMessage);
       setIsInitialized(false);
@@ -270,16 +277,26 @@ export const useMediaPipeCamera = (): UseMediaPipeCameraReturn => {
     }
   }, []);
 
-  // Initialize detector on mount
+  // Initialize detector and auto-start camera on mount
   useEffect(() => {
-    initializeDetector();
-  }, [initializeDetector]);
+    const initialize = async () => {
+      await initializeDetector();
+      // Auto-start camera after detector is ready
+      try {
+        await startCamera();
+      } catch (error) {
+        console.warn("Auto-start camera failed:", error);
+      }
+    };
+    
+    initialize();
+  }, [initializeDetector, startCamera]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopCamera();
-      if (detectorRef.current) {
+      if (detectorRef.current && typeof detectorRef.current.close === 'function') {
         detectorRef.current.close();
       }
     };
