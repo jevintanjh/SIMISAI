@@ -18,9 +18,14 @@ export function useVoice() {
     const languageMap: Record<string, string> = {
       'en': 'en-US',
       'id': 'id-ID',
+      'ms': 'ms-MY',
       'th': 'th-TH',
       'vi': 'vi-VN',
-      'fil': 'fil-PH'
+      'fil': 'fil-PH',
+      'my': 'my-MM',
+      'lo': 'lo-LA',
+      'km': 'km-KH',
+      'bn': 'ms-BN'
     };
     
     utterance.lang = languageMap[language] || 'en-US';

@@ -15,17 +15,17 @@ export default function BottomNavigation({ currentTab, onTabChange }: BottomNavi
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 max-w-md mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 bg-[#1E1B4B] border-t border-[rgba(139,92,246,0.3)] max-w-md mx-auto h-20 z-50 shadow-lg">
       <div className="flex">
         {tabs.map(({ id, icon: Icon, label }) => (
           <Button
             key={id}
             variant="ghost"
             onClick={() => onTabChange(id)}
-            className={`flex-1 flex-col space-y-1 p-4 h-auto ${
+            className={`flex-1 flex-col space-y-1 p-4 h-auto transition-all duration-200 ${
               currentTab === id
-                ? "text-[hsl(207,90%,54%)]"
-                : "text-gray-400 hover:text-gray-600"
+                ? "text-[#8B5CF6] bg-[rgba(139,92,246,0.1)]"
+                : "text-[#94A3B8] hover:text-[#A78BFA] hover:bg-[rgba(139,92,246,0.05)]"
             }`}
           >
             <Icon className="w-5 h-5" />

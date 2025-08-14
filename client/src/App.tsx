@@ -35,7 +35,7 @@ function Router() {
   };
 
   if (currentView === 'welcome') {
-    return <Welcome onStartSession={handleStartSession} />;
+    return <Welcome onStartSession={handleStartSession} onGoToHome={handleGoToHome} />;
   }
 
   if (currentView === 'guidance' && sessionConfig) {
