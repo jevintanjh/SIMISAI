@@ -58,7 +58,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Main container with white border */}
-      <div className="w-full max-w-7xl mx-auto bg-background border-2 border-white/20 rounded-2xl p-6 m-4">
+      <div className="w-full max-w-9xl h-screen mx-auto bg-background p-6">
         
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -70,25 +70,19 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
               className="text-white hover:bg-white/10"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Step 1: Wrap the cuff around your arm
+              Back
             </Button>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span className="text-white text-sm">REC 0:08:41</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+        <div className="grid grid-cols-4 gap-6 h-[calc(100vh-200px)]">
           
-          {/* Left: Camera View */}
-          <div className="col-span-2">
-            <Card className="bg-black border-border h-full relative overflow-hidden">
-              <CardContent className="p-0 h-full">
-                <MediaPipeCameraView onThermometerDetected={(detection) => {
-                  console.log('Thermometer detected in guidance:', detection);
-                }} />
+          {/* Left: Camera View - Now takes 3 columns instead of 2 */}
+          <div className="col-span-3">
+            <div className="bg-card rounded-2xl border border-border h-full relative overflow-hidden">
+              <MediaPipeCameraView onThermometerDetected={(detection) => {
+                console.log('Thermometer detected in guidance:', detection);
+              }} />
                 
                 {/* Detection overlays */}
                 <div className="absolute inset-4 pointer-events-none">
@@ -104,48 +98,8 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                     <span className="text-yellow-400 text-xs font-medium">Too loose</span>
                   </div>
                 </div>
-                
-                {/* Camera controls */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-4">
-                  <Button size="sm" variant="secondary" className="rounded-full w-10 h-10 p-0">
-                    <Camera className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="secondary" className="rounded-full w-10 h-10 p-0">
-                    <Mic className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="secondary" className="rounded-full w-10 h-10 p-0">
-                    <Settings className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="destructive" className="rounded-full w-10 h-10 p-0">
-                    <Phone className="w-4 h-4" />
-                  </Button>
-                </div>
-                
-                {/* Audio instruction bar */}
-                <div className="absolute bottom-16 left-4 right-4">
-                  <Card className="bg-card/90 border-border">
-                    <CardContent className="p-3">
-                      <div className="flex items-center space-x-3">
-                        <Button size="sm" variant="ghost" className="rounded-full w-8 h-8 p-0">
-                          <Volume2 className="w-4 h-4" />
-                        </Button>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-1 mb-1">
-                            {[...Array(40)].map((_, i) => (
-                              <div key={i} className={`w-1 rounded-full ${i < 15 ? 'bg-blue-500 h-2' : 'bg-gray-400 h-1'}`} />
-                            ))}
-                          </div>
-                          <p className="text-card-foreground text-sm">
-                            {instruction.audioDescription}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </div>
 
           {/* Right: Sidebar */}
           <div className="col-span-1 space-y-6">
