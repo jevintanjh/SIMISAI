@@ -4,6 +4,7 @@ import { WebSocketServer } from "ws";
 import { storage } from "./storage";
 import { insertChatMessageSchema, insertGuidanceSessionSchema } from "@shared/schema";
 import { z } from "zod";
+import { cvService } from "./cv-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -173,6 +174,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(messages);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch chat messages' });
+    }
+  });
+
+  // CV Detection Routes
+  app.post('/api/cv/detect', async (req, res) => {
+    try {
+      const { imageData } = req.body;
+      
+      if (!imageData) {
+        return res.status(400).json({ error: 'Image data is required' });
+      }
+
+      console.log('CV detection request received');
+      console.log('Image data length:', imageData.length);
+      
+      const result = await cvService.detectObjectsFromBase64(imageData);
+      
+      console.log('CV detection completed');
+      console.log('Detections found:', result.detections.length);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('CV detection error:', error);
+      res.status(500).json({ 
+        error: 'Failed to process image',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+    }
+  });
+
+  app.get('/api/cv/health', async (req, res) => {
+    try {
+      console.log('CV health check requested');
+      
+      const isHealthy = await cvService.healthCheck();
+      const modelInfo = cvService.getModelInfo();
+      
+      console.log('CV health check result:', { isHealthy, modelInfo });
+      
+      res.json({
+        healthy: isHealthy,
+        model_info: modelInfo,
+        timestamp: new Date().toISOString(),
+        environment: {
+          NODE_ENV: process.env.NODE_ENV,
+          CV_MODEL_PATH: process.env.CV_MODEL_PATH,
+          HUGGINGFACE_TOKEN: process.env.HUGGINGFACE_TOKEN ? 'SET' : 'NOT_SET'
+        }
+      });
+    } catch (error) {
+      console.error('CV health check error:', error);
+      res.status(500).json({ 
+        error: 'CV service health check failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post('/api/cv/stream', async (req, res) => {
+    try {
+      const { imageData } = req.body;
+      
+      if (!imageData) {
+        return res.status(400).json({ error: 'Image data is required' });
+      }
+
+      // For real-time streaming, you might want to implement WebSocket
+      // This is a placeholder for future real-time detection
+      const result = await cvService.detectObjectsFromBase64(imageData);
+      res.json(result);
+    } catch (error) {
+      console.error('CV stream error:', error);
+      res.status(500).json({ 
+        error: 'Failed to process stream',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

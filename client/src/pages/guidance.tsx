@@ -73,11 +73,11 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
               Step 1: Wrap the cuff around your arm
             </Button>
           </div>
-          
+{/*           
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
             <span className="text-white text-sm">REC 0:08:41</span>
-          </div>
+          </div> */}
         </div>
 
         <div className="grid grid-cols-3 gap-6 h-[calc(100vh-200px)]">
@@ -91,19 +91,19 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 }} />
                 
                 {/* Detection overlays */}
-                <div className="absolute inset-4 pointer-events-none">
+                {/* <div className="absolute inset-4 pointer-events-none"> */}
                   {/* Green bounding box for "Cuff" */}
-                  <div className="absolute top-20 left-20 w-48 h-32 border-2 border-green-400 rounded">
+                  {/* <div className="absolute top-20 left-20 w-48 h-32 border-2 border-green-400 rounded">
                     <div className="bg-green-400 text-black px-2 py-1 text-xs font-medium rounded -mt-6">
                       Cuff
                     </div>
-                  </div>
+                  </div> */}
                   
                   {/* Yellow warning circle */}
-                  <div className="absolute top-32 left-32 w-16 h-16 border-2 border-yellow-400 rounded-full flex items-center justify-center">
+                  {/* <div className="absolute top-32 left-32 w-16 h-16 border-2 border-yellow-400 rounded-full flex items-center justify-center">
                     <span className="text-yellow-400 text-xs font-medium">Too loose</span>
                   </div>
-                </div>
+                </div> */}
                 
                 {/* Camera controls */}
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-4">
