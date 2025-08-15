@@ -105,9 +105,9 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
   };
 
   return (
-    <div className="fixed bottom-28 right-4 z-50">
+    <div className="relative">
       {isOpen && (
-        <Card className="w-80 mb-6 shadow-xl border border-gray-200">
+        <Card className="w-full mb-4 shadow-xl border border-gray-200">
           <CardHeader className="medical-blue text-white p-4 rounded-t-xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -166,25 +166,27 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ask a question..."
-                  className="flex-1 text-sm"
+                  className="flex-1 text-sm rounded-lg"
                 />
-                <Button
-                  onClick={handleSend}
-                  disabled={!message.trim() || !isConnected}
-                  size="sm"
-                  className="medical-blue hover:bg-[hsl(207,90%,50%)]"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
-                <Button
-                  onClick={handleVoiceInput}
-                  disabled={isListening}
-                  size="sm"
-                  variant="outline"
-                  className={`${isListening ? 'bg-red-100 border-red-300' : 'bg-gray-100'}`}
-                >
-                  <Mic className={`w-4 h-4 ${isListening ? 'text-red-600' : 'text-gray-600'}`} />
-                </Button>
+                <div className="flex space-x-1 flex-shrink-0">
+                  <Button
+                    onClick={handleSend}
+                    disabled={!message.trim() || !isConnected}
+                    size="sm"
+                    className="medical-blue hover:bg-[hsl(207,90%,50%)] rounded-lg"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={handleVoiceInput}
+                    disabled={isListening}
+                    size="sm"
+                    variant="outline"
+                    className={`rounded-lg ${isListening ? 'bg-red-100 border-red-300' : 'bg-gray-100'}`}
+                  >
+                    <Mic className={`w-4 h-4 ${isListening ? 'text-red-600' : 'text-gray-600'}`} />
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -194,9 +196,10 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
       {/* Chat Toggle Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="medical-blue hover:bg-[hsl(207,90%,50%)] text-white p-4 rounded-full shadow-lg"
+        className="w-full medical-blue hover:bg-[hsl(207,90%,50%)] text-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
       >
-        <MessageCircle className="w-6 h-6" />
+        <MessageCircle className="w-5 h-5 mr-2" />
+        <span>Chat with Assistant</span>
       </Button>
     </div>
   );
