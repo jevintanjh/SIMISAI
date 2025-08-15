@@ -135,7 +135,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            image: base64Data,
+            imageData: base64Data,
             sessionId: sessionId || 'default-session'
           }),
         });
@@ -297,13 +297,6 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
             <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full bg-black/50 text-white text-sm flex items-center space-x-2 z-10">
               <div className="w-3 h-3 rounded-full bg-primary"></div>
               <span>{detections.length} thermometer{detections.length !== 1 ? 's' : ''} detected</span>
-            </div>
-          )}
-          
-          {/* Center crosshair for alignment */}
-          {isCameraActive && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-              <Square className="w-8 h-8 text-primary opacity-50" />
             </div>
           )}
           
