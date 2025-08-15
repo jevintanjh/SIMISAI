@@ -1,8 +1,7 @@
 import { useRef, useEffect } from "react";
 import { useCamera } from "@/hooks/use-camera";
 import { Button } from "@/components/ui/button";
-import { Camera, Plus, CheckCircle, Tv, Play } from "lucide-react";
-import InstructionCard from "@/components/InstructionCard";
+import { Camera, Plus, CheckCircle, Tv, Play, ArrowLeft } from "lucide-react";
 
 interface CameraViewProps {
   language?: string;
@@ -30,79 +29,85 @@ export default function CameraView({ language = "en", sessionId = "default" }: C
     <div className="relative w-full h-full">
       <div className="h-full flex flex-col">
         
-        {/* Camera View with Overlay Controls - Full Width/Height */}
-        <div className="relative overflow-hidden camera-overlay mb-4 flex-1 min-h-[600px]">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="w-full h-full object-cover"
-          />
-          
-          {/* Mock Detection Overlay - in production this would be replaced with actual CV detection */}
-          <div className="absolute inset-4">
-            {/* Detection Bounding Box */}
-            <div className="detection-box absolute top-8 left-4 right-4 bottom-16 bg-transparent"></div>
-            
-            {/* Detection Status */}
-            <div className="absolute top-4 left-4 component-label">
-              <div className="px-3 py-2 rounded-lg text-sm font-medium flex items-center border border-border bg-secondary text-foreground backdrop-blur-sm">
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Blood Pressure Monitor Detected
+        {/* Camera View - Fixed Height */}
+        <div className="h-[600px] relative overflow-hidden bg-card backdrop-blur-md">
+          {/* Camera Feed Placeholder */}
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
+            <div className="text-center text-foreground">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                <Camera className="w-8 h-8 text-muted-foreground" />
               </div>
+              <p className="text-lg mb-2">Camera Ready</p>
+              <p className="text-sm opacity-75">Point camera at medical device</p>
             </div>
+          </div>
 
-            {/* Component Labels */}
-            <div className="absolute top-20 right-8 component-label">
-              <div className="px-3 py-1 rounded-md text-xs font-medium flex items-center border border-border bg-secondary text-foreground backdrop-blur-sm">
-                <Tv className="w-3 h-3 mr-1" />
-                Display
-              </div>
-            </div>
+          {/* Back Button - Top Left */}
+          <div className="absolute top-4 left-4 z-10">
+            <Button 
+              size="sm"
+              variant="secondary"
+              className="bg-black/50 hover:bg-black/70 text-white border-white/30"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+          </div>
 
-            <div className="absolute bottom-24 left-8 component-label">
-              <div className="px-3 py-1 rounded-md text-xs font-medium flex items-center border border-border bg-secondary text-foreground backdrop-blur-sm">
-                <Play className="w-3 h-3 mr-1" />
-                Start Button
+          {/* Progress Indicator - Top Right */}
+          <div className="absolute top-4 right-4 z-10">
+            <div className="px-4 py-3 rounded-2xl shadow-lg border border-border bg-card backdrop-blur-md">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                <span className="text-sm font-medium text-foreground">Ready</span>
               </div>
             </div>
           </div>
 
-          {/* Camera Controls Overlay - Bottom Center */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-10">
-            {/* Camera Button */}
-            <Button 
-              size="icon"
-              className="bg-black/50 hover:bg-black/70 text-white rounded-full shadow-lg w-12 h-12"
-            >
-              <Camera className="w-5 h-5" />
-            </Button>
-
-            {/* Zoom Control */}
-            <Button 
-              size="icon"
-              className="bg-black/50 hover:bg-black/70 text-white rounded-full shadow-lg w-12 h-12"
-            >
-              <Plus className="w-5 h-5" />
-            </Button>
+          {/* Component Labels - Overlay on Camera */}
+          <div className="absolute inset-4 pointer-events-none">
+            <div className="grid grid-cols-3 gap-4 h-full">
+              <div className="flex flex-col justify-start">
+                <div className="px-3 py-2 rounded-lg text-sm font-medium flex items-center border border-border bg-secondary text-foreground backdrop-blur-sm">
+                  <div className="w-2 h-2 rounded-full bg-success mr-2" />
+                  Cuff Position
+                </div>
+              </div>
+              
+              <div className="flex flex-col justify-center">
+                <div className="px-3 py-2 rounded-lg text-sm font-medium flex items-center border border-border bg-secondary text-foreground backdrop-blur-sm">
+                  <div className="w-2 h-2 rounded-full bg-warning mr-2" />
+                  Tightness Check
+                </div>
+              </div>
+              
+              <div className="flex flex-col justify-end">
+                <div className="px-3 py-2 rounded-lg text-sm font-medium flex items-center border border-border bg-secondary text-foreground backdrop-blur-sm">
+                  <div className="w-2 h-2 rounded-full bg-muted mr-2" />
+                  Alignment
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Instructions - Outside the box, after the camera */}
-        <div className="text-left px-4 pt-4">
-          <h3 className="text-xl font-semibold text-foreground mb-2">Ready to Scan!</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Point your camera at your medical device to get instant, step-by-step guidance.
-          </p>
-        </div>
+        {/* Camera Controls - Below Camera */}
+        <div className="flex items-center justify-center space-x-4 py-4 px-4 bg-card border-t border-border">
+          <Button 
+            size="sm"
+            variant="secondary"
+            className="rounded-full w-10 h-10 p-0"
+          >
+            <Camera className="w-4 h-4" />
+          </Button>
 
-        {/* Instruction Card - Below Instructions */}
-        <div className="px-4 pb-4">
-          <InstructionCard 
-            language={language}
-            sessionId={sessionId}
-          />
+          <Button 
+            size="sm"
+            variant="secondary"
+            className="rounded-full w-10 h-10 p-0"
+          >
+            <Plus className="w-4 h-4" />
+          </Button>
         </div>
       </div>
     </div>

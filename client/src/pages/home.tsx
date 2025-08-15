@@ -143,29 +143,53 @@ export default function Home({ onBack, sessionConfig }: HomeProps) {
         </div>
       </header>
       
-      <main className="max-w-md mx-auto min-h-screen relative pb-20 bottom-nav-safe-area">
+      <main className="max-w-md mx-auto min-h-screen relative pb-24 bottom-nav-safe-area">
         {currentTab === "scan" && (
           <div className="space-y-6">
-            {useMediaPipe ? (
-              <div className="mx-4 mb-4 camera-view-container">
-                <MediaPipeCameraView 
-                  onThermometerDetected={(detection) => {
-                    setThermometerDetected(detection);
-                    console.log('Thermometer detected:', detection);
-                  }}
-                  sessionConfig={sessionConfig}
-                  language={currentLanguage}
-                  sessionId={currentSession || undefined}
-                />
+            {/* Two-Panel Layout: Camera View + Instructions */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mx-4 min-h-[600px]">
+              {/* Left Panel: Camera View (2/3 width) */}
+              <div className="lg:col-span-2">
+                {useMediaPipe ? (
+                  <div className="camera-view-container h-full min-h-[600px]">
+                    <MediaPipeCameraView 
+                      onThermometerDetected={(detection) => {
+                        setThermometerDetected(detection);
+                        console.log('Thermometer detected:', detection);
+                      }}
+                      sessionConfig={sessionConfig}
+                      language={currentLanguage}
+                      sessionId={currentSession || undefined}
+                    />
+                  </div>
+                ) : (
+                  <div className="camera-view-container h-full min-h-[600px]">
+                    <CameraView 
+                      language={currentLanguage}
+                      sessionId={currentSession || undefined}
+                    />
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="mx-4 mb-4 camera-view-container">
-                <CameraView 
-                  language={currentLanguage}
-                  sessionId={currentSession || undefined}
-                />
+              
+              {/* Right Panel: Instructions (1/3 width) */}
+              <div className="lg:col-span-1">
+                <div className="bg-card border border-border rounded-lg shadow-lg p-4 h-full min-h-[600px]">
+                  <InstructionCard 
+                    language={currentLanguage}
+                    sessionId={currentSession || "default"}
+                  />
+                  
+                  {/* Floating Chat positioned below InstructionCard */}
+                  <div className="mt-4">
+                    <FloatingChat 
+                      sessionId={currentSession || "default"}
+                      language={currentLanguage}
+                    />
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         )}
         
@@ -296,10 +320,6 @@ export default function Home({ onBack, sessionConfig }: HomeProps) {
           </div>
         )}
         
-        <FloatingChat 
-          sessionId={currentSession || "default"}
-          language={currentLanguage}
-        />
       </main>
       
       <BottomNavigation 
