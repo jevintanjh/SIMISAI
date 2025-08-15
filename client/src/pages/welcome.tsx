@@ -149,7 +149,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
   }, [openPopover]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/10 flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-[#1E1B4B] to-[#312E81] flex flex-col items-center justify-center">
       {/* Hero Section */}
       <div className="flex justify-center pt-16">
         <div className="text-center">
@@ -160,15 +160,15 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
         </div>
       </div>
 
-      {/* Configuration Container - Centered vertically and horizontally */}
+      {/* Configuration Container */}
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-full max-w-6xl bg-background border border-border rounded-3xl px-12 py-20 mx-auto">
+        <div className="w-full max-w-6xl border border-border rounded-3xl px-12 py-20 mx-auto">
           <h2 className="text-3xl font-bold text-white mb-8 text-center">Configure session</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 mb-6">
             {/* Device Selection */}
             <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
-              <CardContent className="p-4">
+              <CardContent className="px-6 py-3">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
                   data-option-box="device"
@@ -244,7 +244,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
 
             {/* Language Selection */}
             <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
-              <CardContent className="p-4">
+              <CardContent className="px-6 py-3">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
                   data-option-box="language"
@@ -316,7 +316,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
 
             {/* Guidance Style */}
             <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
-              <CardContent className="p-4">
+              <CardContent className="px-6 py-3">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
                   data-option-box="guidance"
@@ -397,7 +397,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
 
             {/* Voice Options */}
             <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
-              <CardContent className="p-4">
+              <CardContent className="px-6 py-3">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
                   data-option-box="voice"
@@ -472,7 +472,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 onClick={() => setShowHowItWorks(true)}
                 variant="outline"
                 size="lg"
-                className="bg-background hover:bg-muted/20 text-white font-semibold px-6 py-3 text-md rounded-xl border border-border hover:border-white/60 transition-all duration-300"
+                className="bg-transparent text-white font-semibold px-6 py-3 text-md rounded-xl border border-border hover:border-white/60 transition-all duration-300"
               >
                 How It Works
               </Button>

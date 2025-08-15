@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Camera, Square, Play, Pause, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { useSimpleMediaPipe } from '@/hooks/use-simple-mediapipe';
-import InstructionCard from '@/components/InstructionCard';
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Camera, Play, Pause, RotateCcw, Square } from "lucide-react";
+import { useSimpleMediaPipe } from "@/hooks/use-simple-mediapipe";
+import { Icon } from "@iconify/react";
 
 interface MediaPipeCameraViewProps {
   onThermometerDetected?: (detection: any) => void;
@@ -115,22 +114,24 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
           
           {/* Status Indicators - Top Right with increased padding */}
           <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
-            <div className={`w-2 h-2 rounded-full ${isInitialized ? 'bg-success' : 'bg-destructive'}`} />
-            <span className="text-xs text-white bg-black/50 px-4 py-2 rounded-full">
-              {isInitialized ? 'Ready' : 'Initializing...'}
-            </span>
-            {isDetecting && (
-              <>
+            {isDetecting ? (
+              <div className="text-xs text-white bg-black/50 px-4 py-2 rounded-full flex items-center space-x-2">
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-xs text-white bg-black/50 px-4 py-2 rounded-full">Detecting</span>
-              </>
+                <span>Detecting</span>
+              </div>
+            ) : (
+              <div className="text-xs text-white bg-black/50 px-4 py-2 rounded-full flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${isInitialized ? 'bg-green-500' : 'bg-destructive'}`} />
+                <span>{isInitialized ? 'Ready' : 'Initializing...'}</span>
+              </div>
             )}
           </div>
           
-          {/* Detection Results - Bottom Left */}
+          {/* Detection Results - Center Above Camera Controls */}
           {detections.length > 0 && (
-            <div className="absolute bottom-4 left-4 px-3 py-2 rounded-lg text-sm shadow-lg bg-secondary text-foreground border border-border backdrop-blur-sm">
-              {detections.length} thermometer{detections.length !== 1 ? 's' : ''} detected
+            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full bg-black/50 text-white text-sm flex items-center space-x-2 z-10">
+              <div className="w-3 h-3 rounded-full bg-primary"></div>
+              <span>{detections.length} thermometer{detections.length !== 1 ? 's' : ''} detected</span>
             </div>
           )}
           
@@ -160,14 +161,46 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
               </div>
             </div>
           )}
+          
+          {/* Camera Controls Overlay - Bottom Center */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-10">
+            {/* Camera Start/Stop Button */}
+            <Button
+              onClick={handleCameraToggle}
+              variant="ghost"
+              size="icon"
+              className={`rounded-full shadow-lg w-12 h-12 ${
+                isCameraActive 
+                  ? 'bg-white text-black hover:bg-gray-200' 
+                  : 'bg-black/50 hover:bg-black/70 text-white'
+              }`}
+            >
+              <Icon 
+                icon={isCameraActive ? "mingcute:camera-2-off-line" : "mingcute:camera-2-line"} 
+                className="w-5 h-5" 
+              />
+            </Button>
+            
+            {/* Detection Start/Stop Button - Only show when camera is active */}
+            {isCameraActive && (
+              <Button
+                onClick={handleDetectionToggle}
+                variant="ghost"
+                size="icon"
+                className={`rounded-full shadow-lg w-12 h-12 ${
+                  isDetecting 
+                    ? 'bg-white text-black hover:bg-gray-200' 
+                    : 'bg-black/50 hover:bg-black/70 text-white'
+                }`}
+              >
+                <Icon 
+                  icon={isDetecting ? "mingcute:stop-line" : "mingcute:play-line"} 
+                  className="w-5 h-5" 
+                />
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
-      {/* Instruction Card */}
-      <div className="px-4 pb-4">
-        <InstructionCard
-          language={language || sessionConfig?.language || "en"}
-          sessionId={sessionId || "default"}
-        />
       </div>
     </div>
   );
