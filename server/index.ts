@@ -57,9 +57,9 @@ app.use((req, res, next) => {
       serveStatic(app);
     }
 
-    // For macOS localhost development, bind to localhost
+    // Bind to all interfaces in development to avoid IPv4/IPv6 localhost issues on Windows
     const port = parseInt(process.env.PORT || '3001', 10);
-    const host = process.env.NODE_ENV === 'development' ? '127.0.0.1' : '0.0.0.0';
+    const host = process.env.NODE_ENV === 'development' ? '0.0.0.0' : '0.0.0.0';
     
     // Start the server
     server.listen({
@@ -76,10 +76,10 @@ app.use((req, res, next) => {
     });
 
     // Handle server errors gracefully
-    server.on('error', (err) => {
-      if (err.code === 'EADDRINUSE') {
+    server.on('error', (err: any) => {
+      if ((err as any).code === 'EADDRINUSE') {
         log(`❌ Port ${port} is already in use. Please try a different port.`);
-      } else if (err.code === 'ENOTSUP') {
+      } else if ((err as any).code === 'ENOTSUP') {
         log(`❌ Socket operation not supported. Trying alternative configuration...`);
         // Try binding without reusePort
         server.listen({
