@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { ArrowRight, Languages, VolumeX, Settings, Play, Pause, Volume2 } from "lucide-react";
 import { useVoice } from "@/hooks/use-voice";
+import { Icon } from "@iconify/react";
 
 interface InstructionCardProps {
   language: string;
@@ -67,25 +68,27 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
   };
 
   return (
-    <div className="p-4 step-card">
-      <Card className="shadow-lg border border-[rgba(139,92,246,0.3)]" style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', backdropFilter: 'blur(10px)' }}>
-        <CardContent className="p-6">
-          <div className="flex items-start space-x-4">
-            <div className="bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] rounded-full w-10 h-10 flex items-center justify-center font-semibold text-white shadow-lg">
-              {instruction.number}
-            </div>
+    <div className="step-card h-full">
+      <Card className="shadow-lg border border-[rgba(139,92,246,0.3)] h-full" style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', backdropFilter: 'blur(10px)' }}>
+        <CardContent className="p-6 flex flex-col h-full">
+          {/* Step Progress - Big H2 at the top, left-aligned */}
+          <h2 className="text-2xl font-bold text-white mb-4 text-left">
+            Step {instruction.number} of 5
+          </h2>
+          
+          <div className="flex-1 flex flex-col">
             <div className="flex-1">
               <h3 className="font-semibold text-white text-lg mb-3">
                 {language !== "en" && instruction.translation[language as keyof typeof instruction.translation]
                   ? instruction.translation[language as keyof typeof instruction.translation]?.title || instruction.title
                   : instruction.title}
               </h3>
-              <p className="text-[#E2E8F0] mb-4 leading-relaxed">
+              <p className="text-white mb-4 leading-relaxed">
                 {language !== "en" && instruction.translation[language as keyof typeof instruction.translation]
                   ? instruction.translation[language as keyof typeof instruction.translation]?.description || instruction.description
                   : instruction.description}
               </p>
-
+              
               {/* Status Indicators */}
               <div className="flex items-center space-x-4 mb-4">
                 {instruction.checkpoints.map((checkpoint) => (
@@ -95,79 +98,59 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
                         ? "bg-[#10B981]"
                         : "bg-[#94A3B8]"
                     }`} />
-                    <span className="text-sm text-[#E2E8F0]">{checkpoint}</span>
+                    <span className="text-white text-sm">{checkpoint}</span>
                   </div>
                 ))}
               </div>
-
+              
               {/* Action Button */}
               <Button 
                 onClick={handleNextStep}
                 className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] hover:from-[#7C3AED] hover:to-[#8B5CF6] text-white py-3 mb-4 shadow-lg"
               >
                 Continue
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <Icon icon="mingcute:large-arrow-right-fill" className="w-4 h-4 ml-2" />
               </Button>
-
-              {/* Voice Guidance Controls */}
-              <div className="bg-[rgba(139,92,246,0.1)] rounded-lg p-4 border border-[rgba(139,92,246,0.3)]">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <Volume2 className="w-4 h-4 text-[#8B5CF6]" />
-                    <span className="text-sm font-medium text-white">Voice Guidance</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsMuted(!isMuted)}
-                      className="text-[#94A3B8] hover:text-[#A78BFA] p-1"
-                    >
-                      <VolumeX className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-[#94A3B8] hover:text-[#A78BFA] p-1"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="text-sm text-[#E2E8F0] mb-3">
-                  Playing in {
-                    language === 'en' ? 'English' :
-                    language === 'id' ? 'Bahasa Indonesia' :
-                    language === 'th' ? 'ไทย' :
-                    language === 'vi' ? 'Tiếng Việt' :
-                    language === 'fil' ? 'Filipino' : 'English'
-                  }
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Button
-                    onClick={handlePlayPause}
-                    size="sm"
-                    className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white p-2 rounded-full shadow-lg"
-                  >
-                    {isPlaying ? (
-                      <Pause className="w-4 h-4" />
-                    ) : (
-                      <Play className="w-4 h-4" />
-                    )}
-                  </Button>
-                  <div className="flex-1">
-                    <label className="text-xs text-[#94A3B8] block mb-1">
-                      Speed: {playbackSpeed}x
-                    </label>
-                    <Slider
-                      value={[playbackSpeed]}
-                      onValueChange={(value) => setPlaybackSpeed(value[0])}
-                      min={0.5}
-                      max={2}
-                      step={0.1}
-                      className="w-full"
-                    />
-                  </div>
+            </div>
+            
+            {/* Voice Guidance Controls */}
+            <div className="bg-[rgba(139,92,246,0.1)] rounded-lg p-4 border border-[rgba(139,92,246,0.3)]">
+              <div className="mb-3">
+                <span className="text-sm font-bold text-white">Voice Guidance</span>
+              </div>
+              <div className="text-white text-sm mb-3">
+                Playing in {
+                  language === 'en' ? 'English' :
+                  language === 'id' ? 'Bahasa Indonesia' :
+                  language === 'th' ? 'ไทย' :
+                  language === 'vi' ? 'Tiếng Việt' :
+                  language === 'fil' ? 'Filipino' : 'English'
+                }
+              </div>
+              <div className="flex items-center space-x-3">
+                <Button
+                  onClick={handlePlayPause}
+                  size="sm"
+                  className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white p-2 rounded-full shadow-lg"
+                >
+                  {isPlaying ? (
+                    <Icon icon="mingcute:pause-fill" className="w-4 h-4" />
+                  ) : (
+                    <Icon icon="mingcute:play-fill" className="w-4 h-4" />
+                  )}
+                </Button>
+                <div className="flex-1">
+                  <label className="text-white text-xs block mb-1">
+                    Speed: {playbackSpeed}x
+                  </label>
+                  <Slider
+                    value={[playbackSpeed]}
+                    onValueChange={(value) => setPlaybackSpeed(value[0])}
+                    min={0.5}
+                    max={2}
+                    step={0.1}
+                    className="w-full"
+                  />
                 </div>
               </div>
             </div>
