@@ -7,3 +7,4 @@ vite.config.ts.*
 cv_model/data
 cv_model/models
 yolov8l.pt
+.env

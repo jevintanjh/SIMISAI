@@ -11,7 +11,7 @@ export default function Home() {
   const [currentTab, setCurrentTab] = useState<"scan" | "devices" | "history" | "settings">("scan");
   const [currentLanguage, setCurrentLanguage] = useState("en");
   const [currentSession, setCurrentSession] = useState<string | null>(null);
-  const [useMediaPipe, setUseMediaPipe] = useState(true); // Toggle for MediaPipe vs old camera
+  const [useMediaPipe, setUseMediaPipe] = useState(true); // Toggle for MediaPipe vs old camera (default to MediaPipe)
   const [thermometerDetected, setThermometerDetected] = useState<any>(null);
 
   return (

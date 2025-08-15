@@ -1,0 +1,23 @@
+{
+  "model_type": "yolov8",
+  "task": "object-detection",
+  "framework": "ultralytics",
+  "model_name": "simisai1.0",
+  "description": "YOLOv8 model for oral thermometer detection and state recognition",
+  "classes": [
+    "thermometer (Lo error)",
+    "thermometer (measuring)",
+    "thermometer (no display found)",
+    "thermometer (off)",
+    "thermometer button",
+    "thermometer in ear",
+    "thermometer in mouth",
+    "thermometer in nose",
+    "thermometer on face"
+  ],
+  "model_file": "best.pt",
+  "input_size": [640, 640],
+  "confidence_threshold": 0.5,
+  "nms_threshold": 0.45,
+  "num_classes": 9
+}
