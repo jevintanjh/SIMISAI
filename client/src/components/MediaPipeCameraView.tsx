@@ -31,53 +31,117 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
     stopCamera
   } = useSimpleMediaPipe();
 
+  // Separate overlay canvas for drawing bounding boxes
+  const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
+
   const [isDetecting, setIsDetecting] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [detections, setDetections] = useState<DetectionResult[]>([]);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [imageSize, setImageSize] = useState<[number, number]>([640, 480]);
   const lastRunRef = useRef<number>(0);
-  const DETECTION_INTERVAL = 2000; // ms
+  const DETECTION_INTERVAL = 1000; // ms - 1 second for better responsiveness
 
-  // Update camera active state based on initialization
+  // Color mapping for different classes
+  const getClassColor = (className: string): string => {
+    const colors: Record<string, string> = {
+      'thermometer (Lo error)': '#EF4444',        // Red
+      'thermometer (measuring)': '#3B82F6',       // Blue
+      'thermometer (no display found)': '#F59E0B', // Amber
+      'thermometer (off)': '#6B7280',             // Gray
+      'thermometer button': '#10B981',            // Green
+      'thermometer in ear': '#8B5CF6',            // Purple
+      'thermometer in mouth': '#EC4899',          // Pink
+      'thermometer in nose': '#6366F1',           // Indigo
+      'thermometer on face': '#F97316',           // Orange
+    };
+    return colors[className] || '#8B5CF6'; // Default purple
+  };
+
+  // Initialize canvas dimensions
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const overlayCanvas = overlayCanvasRef.current;
+    
+    if (canvas && overlayCanvas) {
+      const fixedWidth = 640;
+      const fixedHeight = 480;
+      
+      canvas.width = fixedWidth;
+      canvas.height = fixedHeight;
+      overlayCanvas.width = fixedWidth;
+      overlayCanvas.height = fixedHeight;
+    }
+  }, []);
+
+  // Update camera active state based on initialization and auto-start detection
   useEffect(() => {
     if (isInitialized && !error) {
       setIsCameraActive(true);
+      // Auto-start detection when camera is ready
+      setIsDetecting(true);
     }
   }, [isInitialized, error]);
 
-  const drawDetections = useCallback((ctx: CanvasRenderingContext2D, width: number, height: number, dets: DetectionResult[]) => {
-    ctx.clearRect(0, 0, width, height);
+  const drawDetections = useCallback((dets: DetectionResult[], imageSize?: [number, number]) => {
+    const overlayCanvas = overlayCanvasRef.current;
+    if (!overlayCanvas) return;
+    
+    const ctx = overlayCanvas.getContext('2d');
+    if (!ctx) return;
 
-    // Slightly transparent dark overlay to make boxes readable
-    ctx.fillStyle = 'rgba(0,0,0,0.1)';
-    ctx.fillRect(0, 0, width, height);
+    // Clear the overlay canvas
+    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
+    // Only draw if we have detections
+    if (dets.length === 0) return;
+
+    console.log('Drawing detections:', dets.length, 'boxes');
+
+    // Fixed canvas dimensions
+    const fixedWidth = 640;
+    const fixedHeight = 480;
+
+    // Draw bounding boxes and labels
     for (const det of dets) {
       const [x, y, w, h] = det.bbox;
-      // Pick a color per class (simple hash)
-      const color = '#8B5CF6';
+      console.log('Drawing box:', det.class, 'at', x, y, w, h);
+      
+      // Scale bounding box coordinates to fixed canvas size
+      const originalWidth = imageSize?.[0] || 640;
+      const originalHeight = imageSize?.[1] || 480;
+      const scaleX = fixedWidth / originalWidth;
+      const scaleY = fixedHeight / originalHeight;
+      
+      const scaledX = x * scaleX;
+      const scaledY = y * scaleY;
+      const scaledW = w * scaleX;
+      const scaledH = h * scaleY;
+      
+      // Get color for this class
+      const color = getClassColor(det.class);
       ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(x, y, w, h);
+      ctx.lineWidth = 3;
+      ctx.strokeRect(scaledX, scaledY, scaledW, scaledH);
 
       // Label background
       const label = `${det.class} ${(det.confidence * 100).toFixed(0)}%`;
-      ctx.font = '12px sans-serif';
+      ctx.font = 'bold 14px sans-serif';
       const metrics = ctx.measureText(label);
-      const labelW = metrics.width + 8;
-      const labelH = 18;
-      ctx.fillStyle = 'rgba(139,92,246,0.9)';
-      ctx.fillRect(x, Math.max(0, y - labelH), labelW, labelH);
+      const labelW = metrics.width + 12;
+      const labelH = 20;
+      ctx.fillStyle = color + 'DD'; // Add transparency
+      ctx.fillRect(scaledX, Math.max(0, scaledY - labelH), labelW, labelH);
 
       // Label text
       ctx.fillStyle = 'white';
-      ctx.fillText(label, x + 4, Math.max(12, y - 6));
+      ctx.fillText(label, scaledX + 6, Math.max(16, scaledY - 6));
     }
   }, []);
 
   // Capture current frame and call CV API
   const captureAndDetect = useCallback(async () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current || !overlayCanvasRef.current) return;
     if (isProcessing) return;
 
     const now = Date.now();
@@ -85,18 +149,28 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
     lastRunRef.current = now;
 
     const canvas = canvasRef.current;
+    const overlayCanvas = overlayCanvasRef.current;
     const video = videoRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Size canvas to the video feed
-    if (video.videoWidth && video.videoHeight) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+    // Set fixed canvas dimensions only once to prevent size changes
+    const fixedWidth = 640;
+    const fixedHeight = 480;
+    
+    // Only set dimensions if they haven't been set yet
+    if (canvas.width !== fixedWidth || canvas.height !== fixedHeight) {
+      canvas.width = fixedWidth;
+      canvas.height = fixedHeight;
+    }
+    
+    if (overlayCanvas.width !== fixedWidth || overlayCanvas.height !== fixedHeight) {
+      overlayCanvas.width = fixedWidth;
+      overlayCanvas.height = fixedHeight;
     }
 
-    // Draw current frame
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Draw current frame to the main canvas (scaled to fit)
+    ctx.drawImage(video, 0, 0, fixedWidth, fixedHeight);
 
     const imageData = canvas.toDataURL('image/jpeg', 0.8);
 
@@ -112,10 +186,13 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
         return;
       }
       const result: CVResponse = await res.json();
+      console.log('Detection results:', result.detections);
       setDetections(result.detections || []);
-
-      // Draw immediately
-      drawDetections(ctx, canvas.width, canvas.height, result.detections || []);
+      
+      // Store image size for scaling
+      if (result.image_size) {
+        setImageSize(result.image_size);
+      }
 
       // Notify parent with best detection
       if (result.detections && result.detections.length > 0 && onThermometerDetected) {
@@ -130,11 +207,29 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
   // Detection loop control
   useEffect(() => {
     if (!isDetecting) return;
+    
+    console.log('Starting detection loop');
+    
     // Run once immediately
     captureAndDetect();
-    const id = setInterval(captureAndDetect, DETECTION_INTERVAL);
-    return () => clearInterval(id);
+    const id = setInterval(() => {
+      console.log('Detection interval triggered');
+      captureAndDetect();
+    }, DETECTION_INTERVAL);
+    
+    return () => {
+      console.log('Clearing detection interval');
+      clearInterval(id);
+    };
   }, [isDetecting, captureAndDetect, DETECTION_INTERVAL]);
+
+  // Redraw detections when they change
+  useEffect(() => {
+    if (detections.length > 0) {
+      console.log('Detections changed, redrawing:', detections.length);
+      drawDetections(detections, imageSize);
+    }
+  }, [detections, drawDetections, imageSize]);
 
   // Handle camera toggle
   const handleCameraToggle = async () => {
@@ -143,14 +238,21 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
       setIsCameraActive(false);
       setIsDetecting(false);
       setDetections([]);
+      // Clear both canvases
       if (canvasRef.current) {
         const ctx = canvasRef.current.getContext('2d');
         if (ctx) ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      }
+      if (overlayCanvasRef.current) {
+        const ctx = overlayCanvasRef.current.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, overlayCanvasRef.current.width, overlayCanvasRef.current.height);
       }
     } else {
       try {
         await startCamera();
         setIsCameraActive(true);
+        // Auto-start detection when camera starts
+        setIsDetecting(true);
       } catch (e) {
         console.error('Failed to start camera:', e);
         setIsCameraActive(false);
@@ -166,9 +268,9 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
   // Reset button clears detections and overlay
   const handleReset = () => {
     setDetections([]);
-    if (canvasRef.current) {
-      const ctx = canvasRef.current.getContext('2d');
-      if (ctx) ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    if (overlayCanvasRef.current) {
+      const ctx = overlayCanvasRef.current.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, overlayCanvasRef.current.width, overlayCanvasRef.current.height);
     }
   };
 
@@ -176,7 +278,7 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
     <div className="w-full h-full relative">
       <Card className="h-full shadow-lg border border-[rgba(139,92,246,0.3)]" style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', backdropFilter: 'blur(10px)' }}>
         <CardContent className="p-4 h-full">
-          <div className="flex flex-col h-full space-y-4">
+          <div className="flex flex-col h-full space-y-4" style={{ minHeight: '600px' }}>
             {/* Header with status */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -198,17 +300,24 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
             </div>
 
             {/* Camera View */}
-            <div className="flex-1 relative bg-black rounded-lg overflow-hidden">
+            <div className="relative bg-black rounded-lg overflow-hidden flex-shrink-0" style={{ height: '400px', width: '100%' }}>
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
                 muted
                 className="absolute inset-0 w-full h-full object-cover"
+                style={{ width: '100%', height: '100%' }}
               />
               <canvas
                 ref={canvasRef}
                 className="absolute inset-0 w-full h-full object-cover"
+                style={{ width: '100%', height: '100%' }}
+              />
+              <canvas
+                ref={overlayCanvasRef}
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                style={{ width: '100%', height: '100%' }}
               />
 
               {/* Overlay UI */}
@@ -235,11 +344,6 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
                   </div>
                 )}
 
-                {/* {isCameraActive && (
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                    <Square className="w-8 h-8 text-[#8B5CF6] opacity-50" />
-                  </div>
-                )} */}
               </div>
             </div>
 
@@ -303,10 +407,16 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
                 <h4 className="font-medium text-white mb-2">Detection Results:</h4>
                 <div className="space-y-2">
                   {detections.map((detection: DetectionResult, index: number) => (
-                    <div key={index} className="flex justify-between text-sm">
-                      <span className="text-[#E2E8F0]">
-                        Object {index + 1}: {detection.class}
-                      </span>
+                    <div key={index} className="flex justify-between text-sm items-center">
+                      <div className="flex items-center space-x-2">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: getClassColor(detection.class) }}
+                        />
+                        <span className="text-[#E2E8F0]">
+                          {detection.class}
+                        </span>
+                      </div>
                       <span className="text-[#A78BFA] font-medium">
                         {(detection.confidence * 100).toFixed(1)}% confidence
                       </span>
