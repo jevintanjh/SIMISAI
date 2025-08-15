@@ -4,3 +4,6 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+cv_model/data
+cv_model/models
+yolov8l.pt
