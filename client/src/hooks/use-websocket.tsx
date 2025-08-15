@@ -8,25 +8,25 @@ export function useWebSocket(onMessage?: (message: any) => void) {
   const connect = () => {
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      
-      // For macOS localhost development, try multiple connection options
+
+      // Prefer explicit base URL when provided via Vite env
+      const explicitBase = (import.meta as any).env?.VITE_WS_BASE_URL as string | undefined;
+
+      // For macOS localhost development, try explicit base first, then sensible defaults
       let wsUrl: string;
-      
-      if (process.env.NODE_ENV === 'development') {
-        // In development, try localhost first, then fallback to window.location.host
+      if (explicitBase) {
+        wsUrl = `${explicitBase.replace(/\/$/, '')}/chat-ws`;
+      } else if (process.env.NODE_ENV === 'development') {
         const isLocalhost = window.location.hostname === 'localhost' || 
-                           window.location.hostname === '127.0.0.1' ||
-                           window.location.hostname.includes('localhost');
-        
+                            window.location.hostname === '127.0.0.1' ||
+                            window.location.hostname.includes('localhost');
         if (isLocalhost) {
-          // Use explicit localhost for development
-          wsUrl = `${protocol}//localhost:${window.location.port || '5000'}/chat-ws`;
+          // API runs on 3001 by default in dev
+          wsUrl = `${protocol}//localhost:3001/chat-ws`;
         } else {
-          // Fallback to window.location.host
           wsUrl = `${protocol}//${window.location.host}/chat-ws`;
         }
       } else {
-        // Production: use window.location.host
         wsUrl = `${protocol}//${window.location.host}/chat-ws`;
       }
       

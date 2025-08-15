@@ -182,6 +182,7 @@ export default function Home() {
         <FloatingChat 
           sessionId={currentSession || "default"}
           language={currentLanguage}
+          deviceHint={thermometerDetected ? { type: 'thermometer', label: 'Thermometer', confidence: thermometerDetected?.confidence || 0.9 } : undefined}
         />
       </main>
       

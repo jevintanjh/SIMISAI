@@ -50,8 +50,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           });
           
-          // Generate AI response (simplified)
-          const aiResponse = generateAIResponse(message.content, message.language);
+          // Generate AI response via Sealion AI (with safe fallback)
+          const aiResponse = await generateSealionResponse({
+            sessionId: message.sessionId,
+            userMessage: message.content,
+            language: message.language || 'en'
+          });
           const aiMessage = await storage.createChatMessage({
             sessionId: message.sessionId,
             message: aiResponse,
@@ -86,6 +90,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // API Routes
+  app.post('/api/chat/ask', async (req, res) => {
+    try {
+      const { sessionId, question, language = 'en', deviceHint } = req.body || {};
+      const sid: string = sessionId || 'default';
+
+      // Save user message
+      const savedUser = await storage.createChatMessage({
+        sessionId: sid,
+        message: String(question || ''),
+        isUser: true,
+        language
+      });
+
+      // Build extra context from device hint
+      let extraContext = '';
+      if (deviceHint && typeof deviceHint === 'object') {
+        const parts: string[] = [];
+        if (deviceHint.type) parts.push(`Detected device type: ${deviceHint.type}`);
+        if (deviceHint.label) parts.push(`Label: ${deviceHint.label}`);
+        if (deviceHint.confidence) parts.push(`Confidence: ${deviceHint.confidence}`);
+        if (parts.length) extraContext = parts.join('\n');
+      }
+
+      const answer = await generateSealionResponse({
+        sessionId: sid,
+        userMessage: savedUser.message,
+        language,
+        extraContext
+      });
+
+      const savedAi = await storage.createChatMessage({
+        sessionId: sid,
+        message: answer,
+        isUser: false,
+        language
+      });
+
+      res.json({ ok: true, message: savedAi });
+    } catch (err) {
+      console.error('[chat] /api/chat/ask failed:', err);
+      res.status(500).json({ ok: false, error: 'Chat failed' });
+    }
+  });
+  app.get('/api/debug/sealion', async (_req, res) => {
+    const configured = Boolean(process.env.SEALION_API_KEY && (process.env.SEALION_API_URL || process.env.OPENAI_BASE_URL));
+    const details = {
+      configured,
+      apiBaseUrl: (process.env.SEALION_API_URL || process.env.OPENAI_BASE_URL) ? 'present' : 'missing',
+      model: process.env.SEALION_MODEL || 'sealion-v3.5-8b-instruct',
+      env: process.env.NODE_ENV
+    };
+    res.json(details);
+  });
   app.get('/api/devices', async (req, res) => {
     try {
       const devices = await storage.getDevices();
@@ -179,51 +236,134 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
-function generateAIResponse(userMessage: string, language: string): string {
+async function generateSealionResponse(args: { sessionId: string; userMessage: string; language: string; extraContext?: string }): Promise<string> {
+  const { sessionId, userMessage, language, extraContext } = args;
+
+  const apiKey = process.env.SEALION_API_KEY;
+  const apiBaseUrl = process.env.SEALION_API_URL || process.env.OPENAI_BASE_URL;
+  const model = process.env.SEALION_MODEL || "sealion-v3.5-8b-instruct";
+
+  if (!apiKey || !apiBaseUrl) {
+    console.log('[chat] Sealion not configured. Using fallback.');
+    return generateFallbackResponse(userMessage, language);
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+
+    const history = (await storage.getChatMessages(sessionId)).slice(-8);
+    // Try to enrich context using the user's current session and device instructions when available
+    let deviceContext = '';
+    try {
+      const session = await storage.getGuidanceSession(sessionId);
+      if (session?.deviceId) {
+        const steps = await storage.getInstructionsByDevice(session.deviceId);
+        const current = session.currentStep ?? 1;
+        const nearby = steps
+          .filter(s => Math.abs(s.stepNumber - current) <= 2)
+          .map(s => `Step ${s.stepNumber}: ${s.title} — ${s.description}`)
+          .join('\n');
+        if (nearby) deviceContext = `Relevant device steps (around current step ${current}):\n${nearby}`;
+      }
+    } catch {}
+
+    const messages = [
+      {
+        role: "system",
+        content: [
+          "You are SIMIS AI, a multilingual medical device assistant.",
+          `- Answer strictly in the user's language (ISO code: ${language}). Do not switch languages.`,
+          "- Explain step-by-step, short and clear.",
+          "- If safety-critical, recommend checking the device manual and consulting a clinician.",
+          "- Keep responses under 120 words.",
+          deviceContext ? `\n${deviceContext}` : '',
+          extraContext ? `\n${extraContext}` : ''
+        ].filter(Boolean).join('\n')
+      },
+      ...history.map(m => ({ role: m.isUser ? "user" : "assistant", content: m.message })),
+      { role: "user", content: userMessage }
+    ];
+
+    const endpoint = `${apiBaseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+    console.log('[chat] Calling Sealion:', { endpoint, model });
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature: 0.2,
+        max_tokens: 400,
+        chat_template_kwargs: {
+          thinking_mode: "off"
+        },
+        cache: {
+          "no-cache": true
+        }
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      console.error("[chat] Sealion API error:", res.status, text);
+      return generateFallbackResponse(userMessage, language);
+    }
+
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content?.trim();
+    console.log('[chat] Sealion success');
+    return content || generateFallbackResponse(userMessage, language);
+  } catch (error) {
+    console.error("[chat] Sealion API request failed:", error);
+    return generateFallbackResponse(userMessage, language);
+  }
+}
+
+function generateFallbackResponse(userMessage: string, language: string): string {
   const responses = {
     en: {
-      cuff: "The cuff should be snug but not tight. You should be able to slip one finger underneath it comfortably.",
-      tight: "If the cuff feels too tight, loosen it slightly. It should be secure but not cutting off circulation.",
-      position: "Make sure the cuff is positioned about 1 inch above your elbow, with the tube facing down your arm.",
-      default: "I can help you with your blood pressure monitoring. What specific step are you having trouble with?"
+      cuff: "The cuff should be snug, not tight. You should be able to slide one finger under it.",
+      tight: "If it feels too tight, loosen slightly. It must be secure without restricting blood flow.",
+      position: "Position the cuff ~1 inch above the elbow with the tube pointing down your arm.",
+      default: "I can help with your device. What step are you on, or what seems unclear?"
     },
     id: {
-      cuff: "Manset harus pas tetapi tidak ketat. Anda harus bisa menyelipkan satu jari di bawahnya dengan nyaman.",
-      tight: "Jika manset terasa terlalu ketat, longgarkan sedikit. Harus aman tetapi tidak memotong sirkulasi.",
-      position: "Pastikan manset diposisikan sekitar 1 inci di atas siku Anda, dengan selang menghadap ke bawah lengan.",
-      default: "Saya dapat membantu Anda dengan pemantauan tekanan darah. Langkah spesifik apa yang Anda kesulitan?"
+      cuff: "Manset harus pas, tidak terlalu ketat. Harus bisa menyelipkan satu jari di bawahnya.",
+      tight: "Jika terlalu ketat, longgarkan sedikit. Harus aman tanpa menghambat aliran darah.",
+      position: "Posisikan manset ~1 inci di atas siku dengan selang mengarah ke bawah lengan.",
+      default: "Saya dapat membantu. Anda berada di langkah berapa atau bagian mana yang kurang jelas?"
     },
     th: {
-      cuff: "ข้อมือควรพอดีแต่ไม่แน่น คุณควรจะสามารถสอดนิ้วหนึ่งเข้าไปข้างใต้ได้อย่างสบาย",
-      tight: "หากข้อมือรู้สึกแน่นเกินไป ให้คลายออกเล็กน้อย ควรมั่นคงแต่ไม่ขัดการไหลเวียนของเลือด",
-      position: "ตรวจสอบให้แน่ใจว่าข้อมือวางอยู่ประมาณ 1 นิ้วเหนือข้อศอกของคุณ โดยท่อหันหน้าลงตามแขน",
-      default: "ฉันสามารถช่วยคุณเรื่องการตรวจวัดความดันโลหิตได้ คุณมีปัญหาขั้นตอนไหนเป็นพิเศษ?"
+      cuff: "ข้อมือควรพอดี ไม่แน่นเกินไป ควรสอดนิ้วเข้าไปได้หนึ่งนิ้ว",
+      tight: "หากแน่นเกินไป ให้คลายเล็กน้อย ควรมั่นคงแต่ไม่รบกวนการไหลเวียนเลือด",
+      position: "วางข้อมือประมาณ 1 นิ้วเหนือข้อศอก โดยให้ท่อหันลงตามแขน",
+      default: "ฉันช่วยได้ คุณอยู่ขั้นตอนไหน หรือส่วนไหนที่ยังไม่ชัดเจน?"
     },
     vi: {
-      cuff: "Vòng bít phải vừa khít nhưng không chặt. Bạn có thể luồn một ngón tay xuống dưới một cách thoải mái.",
-      tight: "Nếu vòng bít cảm thấy quá chặt, hãy nới lỏng một chút. Nó phải chắc chắn nhưng không cắt đứt tuần hoàn.",
-      position: "Đảm bảo vòng bít được định vị cách khuỷu tay khoảng 1 inch, với ống hướng xuống cánh tay của bạn.",
-      default: "Tôi có thể giúp bạn theo dõi huyết áp. Bạn gặp khó khăn ở bước nào cụ thể?"
+      cuff: "Vòng bít phải vừa khít, không quá chặt. Có thể luồn một ngón tay vào bên dưới.",
+      tight: "Nếu quá chặt, hãy nới lỏng một chút. Phải chắc nhưng không cản trở máu lưu thông.",
+      position: "Đặt vòng bít cách khuỷu tay ~1 inch, ống hướng xuống cánh tay.",
+      default: "Tôi có thể giúp. Bạn đang ở bước nào, hoặc phần nào chưa rõ?"
     },
     fil: {
-      cuff: "Ang cuff ay dapat makasya ngunit hindi masyadong mahigpit. Dapat mong maipasok ang isang daliri sa ilalim nito nang komportable.",
-      tight: "Kung ang cuff ay masyadong mahigpit, medyo kaluwagin. Dapat itong secure ngunit hindi nakakapigil sa daloy ng dugo.",
-      position: "Siguraduhin na ang cuff ay nakaposisyon mga 1 pulgada sa itaas ng inyong siko, at ang tubo ay nakaharap pababa sa braso.",
-      default: "Maaari kitang tulungan sa blood pressure monitoring. Anong specific na step ang inyong pinagkakaabala?"
+      cuff: "Ang cuff ay dapat sakto lang, hindi masyadong mahigpit. Dapat maisuot ang isang daliri sa ilalim.",
+      tight: "Kung masyadong mahigpit, luwagan nang bahagya. Dapat ligtas ngunit hindi humahadlang sa daloy ng dugo.",
+      position: "Iposisyon ang cuff ~1 pulgada sa itaas ng siko, ang tubo ay pababa sa braso.",
+      default: "Makakatulong ako. Nasa anong hakbang ka o anong bahagi ang hindi malinaw?"
     }
-  };
+  } as const;
 
-  const langResponses = responses[language as keyof typeof responses] || responses.en;
-  
-  if (userMessage.toLowerCase().includes('cuff') || userMessage.toLowerCase().includes('manset')) {
-    return langResponses.cuff;
-  }
-  if (userMessage.toLowerCase().includes('tight') || userMessage.toLowerCase().includes('ketat')) {
-    return langResponses.tight;
-  }
-  if (userMessage.toLowerCase().includes('position') || userMessage.toLowerCase().includes('posisi')) {
-    return langResponses.position;
-  }
-  
-  return langResponses.default;
+  const lang = (responses as any)[language] || responses.en;
+  const text = userMessage.toLowerCase();
+  if (text.includes('cuff') || text.includes('manset')) return lang.cuff;
+  if (text.includes('tight') || text.includes('ketat')) return lang.tight;
+  if (text.includes('position') || text.includes('posisi')) return lang.position;
+  return lang.default;
 }
