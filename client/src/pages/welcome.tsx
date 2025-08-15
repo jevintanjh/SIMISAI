@@ -162,12 +162,12 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
 
       {/* Configuration Container - Centered vertically and horizontally */}
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-full max-w-6xl bg-background border border-white/10 rounded-3xl px-12 py-20 mx-auto">
+        <div className="w-full max-w-6xl bg-background border border-border rounded-3xl px-12 py-20 mx-auto">
           <h2 className="text-3xl font-bold text-white mb-8 text-center">Configure session</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {/* Device Selection */}
-            <Card className="bg-card/50 border-white/20 backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
+            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
               <CardContent className="p-4">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
@@ -194,7 +194,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 {/* Device Popover */}
                 {openPopover === 'device' && (
                   <div 
-                    className="absolute z-50 mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-white/20 overflow-hidden"
+                    className="absolute z-50 mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                     data-popover="device"
                   >
                     <div className="relative">
@@ -243,7 +243,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             </Card>
 
             {/* Language Selection */}
-            <Card className="bg-card/50 border-white/20 backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
+            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
               <CardContent className="p-4">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
@@ -270,7 +270,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 {/* Language Popover */}
                 {openPopover === 'language' && (
                   <div 
-                    className="absolute z-50 mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-white/20 overflow-hidden"
+                    className="absolute z-50 mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                     data-popover="language"
                   >
                     <div className="relative">
@@ -315,7 +315,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             </Card>
 
             {/* Guidance Style */}
-            <Card className="bg-card/50 border-white/20 backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
+            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
               <CardContent className="p-4">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
@@ -342,7 +342,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 {/* Guidance Popover */}
                 {openPopover === 'guidance' && (
                   <div 
-                    className="absolute z-50 mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-white/20 overflow-hidden"
+                    className="absolute z-50 mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                     data-popover="guidance"
                   >
                     <div className="relative">
@@ -374,7 +374,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                               
                               {/* Hover Tooltip */}
                               {hoveredGuidance === style.value && (
-                                <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 w-64 bg-background border border-white/20 rounded-lg p-3 shadow-lg z-50">
+                                <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 w-64 bg-background border border-border rounded-lg p-3 shadow-lg z-50">
                                   <p className="text-white/80 text-sm">{style.description}</p>
                                 </div>
                               )}
@@ -396,7 +396,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             </Card>
 
             {/* Voice Options */}
-            <Card className="bg-card/50 border-white/20 backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
+            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
               <CardContent className="p-4">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
@@ -422,7 +422,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
 
                 {/* Voice Popover */}
                 {openPopover === 'voice' && (
-                  <div className="absolute z-50 mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-white/20 overflow-hidden">
+                  <div className="absolute z-50 mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden">
                     <div className="relative">
                       <div className="p-4 max-h-48 overflow-y-auto">
                         <div className="space-y-0.5">
@@ -472,7 +472,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 onClick={() => setShowHowItWorks(true)}
                 variant="outline"
                 size="lg"
-                className="bg-background hover:bg-muted/20 text-white font-semibold px-6 py-3 text-md rounded-xl border border-white/20 hover:border-white/60 transition-all duration-300"
+                className="bg-background hover:bg-muted/20 text-white font-semibold px-6 py-3 text-md rounded-xl border border-border hover:border-white/60 transition-all duration-300"
               >
                 How It Works
               </Button>
@@ -496,7 +496,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
               onClick={() => setShowHowItWorks(false)}
             >
               <div 
-                className="bg-background border border-white/20 rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+                className="bg-background border border-border rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="relative mb-6">
