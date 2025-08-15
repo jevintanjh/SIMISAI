@@ -149,11 +149,13 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
   }, [openPopover]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/10">
-      {/* Hero Section - Centered in the top portion */}
-      <div className="flex items-center justify-center pt-16 pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/10 flex flex-col items-center justify-center">
+      {/* Hero Section */}
+      <div className="flex justify-center pt-16">
         <div className="text-center">
-          <h1 className="text-5xl font-bold text-white mb-6">Welcome to SIMIS AI</h1>
+          <h1 className="text-5xl font-bold mb-6">
+            Welcome to <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">SIMIS AI</span>
+          </h1>
           <p className="text-white/70 text-lg mb-4">Your AI-powered medical device guidance assistant</p>
         </div>
       </div>
@@ -470,7 +472,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 onClick={() => setShowHowItWorks(true)}
                 variant="outline"
                 size="lg"
-                className="bg-background hover:bg-muted/20 text-white font-semibold px-6 py-4 text-lg rounded-xl border border-white/20 hover:border-white/60 transition-all duration-300"
+                className="bg-background hover:bg-muted/20 text-white font-semibold px-6 py-3 text-md rounded-xl border border-white/20 hover:border-white/60 transition-all duration-300"
               >
                 How It Works
               </Button>
@@ -479,10 +481,10 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 onClick={handleStart}
                 disabled={!canStart}
                 size="lg"
-                className="bg-primary hover:bg-primary/80 text-white font-semibold px-6 py-4 text-lg rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-300 border-2 border-primary/20"
+                className="bg-primary hover:bg-white text-white hover:text-primary font-semibold px-6 py-3 text-md rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-200 border border-primary hover:border-white items-center"
               >
-                <Icon icon="mingcute:play-fill" className="w-8 h-8 mr-3 text-white" />
-                Start Session
+                Start
+                <Icon icon="mingcute:play-fill" className="w-8 h-8 ml-1" />
               </Button>
             </div>
           </div>
