@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Camera, Mic, Settings, Phone, Volume2 } from "lucide-react";
+import { ArrowLeft, Camera, Mic, Settings, Phone, Volume2, Bot, User, Send } from "lucide-react";
 import { MediaPipeCameraView } from "@/components/MediaPipeCameraView";
 
 interface GuidanceProps {
@@ -21,6 +21,17 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   const [progress, setProgress] = useState(25);
   const [userQuestion, setUserQuestion] = useState("");
   const [chatMessages, setChatMessages] = useState<Array<{id: number, type: 'user' | 'ai', content: string}>>([]);
+  const [isSending, setIsSending] = useState(false);
+  const [deviceHint, setDeviceHint] = useState<{ type?: string; label?: string; confidence?: number } | null>(null);
+  const sessionId = `guidance-${Date.now().toString(36)}`;
+
+  const introByLang: Record<string, string> = {
+    en: "Hi! I’m SIMIS AI. Ask me anything about the medical device you’re using. Tips: describe the step you’re on, what you’re seeing, or what’s unclear. I’ll answer briefly with step‑by‑step guidance.",
+    id: "Hai! Saya SIMIS AI. Tanyakan apa saja tentang perangkat medis yang Anda gunakan. Tips: jelaskan langkah yang sedang Anda lakukan, apa yang Anda lihat, atau yang belum jelas. Saya akan menjawab singkat dan bertahap.",
+    th: "สวัสดีครับ/ค่ะ ฉันคือ SIMIS AI ถามได้ทุกอย่างเกี่ยวกับอุปกรณ์ทางการแพทย์ของคุณ เคล็ดลับ: บอกขั้นตอนที่ทำอยู่ สิ่งที่เห็น หรือส่วนที่ยังไม่ชัดเจน ฉันจะตอบแบบสั้นและเป็นขั้นตอน",
+    vi: "Xin chào! Tôi là SIMIS AI. Hãy hỏi bất cứ điều gì về thiết bị y tế bạn đang dùng. Gợi ý: mô tả bước bạn đang làm, những gì bạn thấy hoặc điều chưa rõ. Tôi sẽ trả lời ngắn gọn theo từng bước.",
+    fil: "Hi! Ako si SIMIS AI. Magtanong tungkol sa medical device na gamit mo. Tip: ilahad ang kasalukuyang hakbang, nakikita mo, o hindi malinaw. Sasagot ako nang maikli at sunod‑sunod na hakbang."
+  };
 
   // Mock instruction based on step
   const getInstructionForStep = (step: number) => {
@@ -28,7 +39,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
       1: {
         title: "Wrap the cuff around your arm",
         description: "Place the cuff around your upper arm, about 1 inch above your elbow. The cuff should be snug but not too tight.",
-        audioDescription: "Pasangkan manset di sekitar lengan atas Anda, sekitar 2,5 cm di atas siku. Manset harus pas, tetapi tidak terlalu ketat."
+        audioDescription: "Place the cuff around your upper arm, about 1 inch above your elbow. The cuff should be snug but not too tight."
       }
     };
     return instructions[step as keyof typeof instructions] || instructions[1];
@@ -36,22 +47,31 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
 
   const instruction = getInstructionForStep(currentStep);
 
-  const handleSendMessage = () => {
-    if (userQuestion.trim()) {
-      const newUserMessage = {
-        id: Date.now(),
-        type: 'user' as const,
-        content: userQuestion
-      };
-      
-      const aiResponse = {
-        id: Date.now() + 1,
-        type: 'ai' as const,
-        content: "Manset harus pas tetapi tidak ketat. Anda harus bisa menyelipkan satu jari di bawahnya dengan nyaman."
-      };
-
-      setChatMessages(prev => [...prev, newUserMessage, aiResponse]);
-      setUserQuestion("");
+  const handleSendMessage = async () => {
+    const question = userQuestion.trim();
+    if (!question) return;
+    const newUserMessage = { id: Date.now(), type: 'user' as const, content: question };
+    setChatMessages(prev => [...prev, newUserMessage]);
+    setUserQuestion("");
+    setIsSending(true);
+    try {
+      const res = await fetch('/api/chat/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          question,
+          language: config.language || 'en',
+          deviceHint: deviceHint || { type: config.device }
+        })
+      });
+      const data = await res.json();
+      const answer: string = data?.message?.message || data?.message?.content || data?.answer || 'Sorry, I could not generate a response.';
+      setChatMessages(prev => [...prev, { id: Date.now() + 1, type: 'ai', content: answer }]);
+    } catch {
+      setChatMessages(prev => [...prev, { id: Date.now() + 2, type: 'ai', content: 'Sorry, there was a problem. Please try again.' }]);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -87,7 +107,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
             <Card className="bg-black border-border h-full relative overflow-hidden">
               <CardContent className="p-0 h-full">
                 <MediaPipeCameraView onThermometerDetected={(detection) => {
-                  console.log('Thermometer detected in guidance:', detection);
+                  setDeviceHint({ type: 'thermometer', label: 'Thermometer', confidence: detection?.confidence || 0.9 });
                 }} />
                 
                 {/* Detection overlays */}
@@ -170,57 +190,60 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
             <Card className="bg-card border-border flex-1">
               <CardContent className="p-6">
                 <div className="mb-4">
-                  <h4 className="text-white font-medium mb-3">Messages</h4>
-                  <span className="text-muted-foreground text-sm">You</span>
+                  <h4 className="text-white font-semibold flex items-center gap-2">
+                    <Bot className="w-4 h-4" /> Assistant
+                  </h4>
                 </div>
-                
-                <div className="bg-secondary rounded-lg p-3 mb-4">
-                  <p className="text-white font-medium text-sm">Why is the cuff too loose?</p>
-                </div>
-                
-                <div className="space-y-2 mb-4 max-h-32 overflow-y-auto">
+                <div className="space-y-3 mb-4 max-h-80 overflow-y-auto pr-1">
+                  {/* Intro bubble */}
+                  <div className="flex items-start gap-2 mr-6">
+                    <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                      <Bot className="w-4 h-4" />
+                    </div>
+                    <div className="p-3 rounded-md text-sm leading-relaxed bg-white/10 text-white border border-white/15 shadow-sm prose prose-invert">
+                      <p>{introByLang[config.language] || introByLang.en}</p>
+                    </div>
+                  </div>
                   {chatMessages.map((message) => (
-                    <div 
-                      key={message.id} 
-                      className={`p-2 rounded text-sm ${
-                        message.type === 'user' 
-                          ? 'bg-primary text-primary-foreground ml-4' 
-                          : 'bg-secondary text-secondary-foreground mr-4'
-                      }`}
-                    >
-                      {message.content}
+                    <div key={message.id} className={`flex items-start gap-2 ${message.type === 'user' ? 'justify-end' : ''}`}>
+                      {message.type !== 'user' && (
+                        <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                          <Bot className="w-4 h-4" />
+                        </div>
+                      )}
+                      <div className={`p-3 rounded-md text-sm leading-relaxed max-w-[90%] ${
+                        message.type === 'user'
+                          ? 'bg-primary/90 text-primary-foreground ml-6 rounded-tr-none'
+                          : 'bg-white/10 text-white border border-white/15 shadow-sm mr-6 rounded-tl-none prose prose-invert whitespace-pre-wrap'
+                      }`}>
+                        {message.content}
+                      </div>
+                      {message.type === 'user' && (
+                        <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                          <User className="w-4 h-4" />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
-                
-                <p className="text-card-foreground text-sm mb-4">
-                  Manset harus pas tetapi tidak ketat. Anda harus bisa menyelipkan satu jari di bawahnya dengan nyaman.
-                </p>
-                
+
                 <div className="mt-auto">
-                  <div className="flex space-x-2">
+                  <div className="flex items-center gap-2">
                     <input
                       type="text"
                       value={userQuestion}
                       onChange={(e) => setUserQuestion(e.target.value)}
-                      placeholder="Chat with Assistant"
-                      className="flex-1 bg-input border-border rounded px-3 py-2 text-sm text-card-foreground placeholder:text-muted-foreground"
+                      placeholder="Ask a question about your device"
+                      className="flex-1 bg-input border border-border rounded-lg px-4 py-3 text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
                       onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                     />
-                    <Button 
-                      size="sm" 
-                      onClick={handleSendMessage}
-                      className="bg-primary hover:bg-primary/80"
-                    >
-                      <Mic className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      size="sm"
-                      className="bg-primary hover:bg-primary/80"
-                    >
-                      →
+                    <Button size="sm" onClick={handleSendMessage} className="bg-primary hover:bg-primary/80 w-10 h-10 rounded-lg" disabled={isSending}>
+                      <Send className="w-4 h-4" />
                     </Button>
                   </div>
+                  {deviceHint && (
+                    <p className="mt-2 text-[10px] text-muted-foreground">Context: {deviceHint.type || deviceHint.label} {deviceHint.confidence ? `(${Math.round((deviceHint.confidence||0)*100)}%)` : ''}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
