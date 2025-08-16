@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MediaPipeCameraView } from "@/components/MediaPipeCameraView";
 import InstructionCard from "@/components/InstructionCard";
 import FloatingChat from "@/components/FloatingChat";
+import { Icon } from "@iconify/react";
 
 interface GuidanceProps {
   config: SessionConfig;
@@ -191,10 +192,10 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 <div className="mt-4 flex-shrink-0">
                   <Button 
                     onClick={toggleInstructions}
-                    className="w-full bg-primary text-white hover:bg-white hover:text-primary transition-colors border border-primary hover:border-primary/20"
+                    className="w-full bg-primary text-white hover:bg-primary transition-colors text-base font-semibold py-4"
                   >
                     Chat with Assistant
-                    <Icon icon="mingcute:chat-4-fill" className="w-6 h-6" />
+                    <Icon icon="mingcute:chat-4-fill" className="w-5 h-5" />
                   </Button>
                 </div>
               </div>
@@ -204,9 +205,9 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 <div className="mb-4 flex-shrink-0">
                   <Button 
                     onClick={toggleInstructions}
-                    className="w-full bg-primary text-white hover:bg-white hover:text-primary transition-colors border border-primary hover:border-primary/20"
+                    className="w-full bg-primary text-white hover:bg-primary transition-colors text-base font-semibold py-4"
                   >
-                    <Icon icon="mingcute:list-expansion-fill" className="w-4 h-4 mr-2" />
+                    <Icon icon="mingcute:list-expansion-fill" className="w-5 h-5" />
                     View Instructions
                   </Button>
                 </div>
@@ -216,14 +217,18 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                   {/* Chat Header */}
                   <div className="mb-4 flex-shrink-0">
                     <div className="flex items-center space-x-2 mb-2">
-                      <Icon icon="mingcute:chat-4-fill" className="w-5 h-5 text-primary" />
                       <h3 className="text-xl font-semibold text-foreground">Chat with Assistant</h3>
+                      <Icon icon="mingcute:chat-4-fill" className="w-6 h-6 mb-1 text-primary" />
                     </div>
-                    <p className="text-sm text-muted-foreground">Hello! I'm here to help you with your medical device setup. Feel free to ask me any questions!</p>
                   </div>
                   
                   {/* Chat Messages - Takes up remaining space */}
                   <div className="flex-1 overflow-y-auto mb-4 space-y-3 min-h-0">
+                    {/* Assistant greeting message */}
+                    <div className="bg-background text-foreground mr-4 p-3 rounded-lg border border-border">
+                      <p className="text-sm">Hello! I'm here to help you with your medical device setup. Feel free to ask me any questions!</p>
+                    </div>
+                    
                     {chatMessages.map((message) => (
                       <div 
                         key={message.id} 

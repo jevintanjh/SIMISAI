@@ -302,59 +302,59 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
           
           {/* Error message */}
           {error && (
-            <div className="absolute bottom-4 left-4 right-4 p-3 rounded-lg text-sm shadow-lg bg-destructive/20 text-destructive-foreground border border-destructive/40 backdrop-blur-sm">
-              {error}
-            </div>
-          )}
-          
-          {/* No camera message */}
-          {!isCameraActive && !error && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center text-foreground">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                  <div className="w-8 h-8 rounded-full bg-muted-foreground opacity-50"></div>
+              <div className="text-center text-foreground max-w-sm mx-auto px-6">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-destructive/20 flex items-center justify-center">
+                  <Icon icon="mingcute:alert-fill" className="w-8 h-8 text-destructive" />
                 </div>
-                <p className="text-lg mb-2">Camera Off</p>
-                <p className="text-sm opacity-75">Click "Start Camera" to begin detection</p>
+                <p className="text-sm opacity-75 leading-relaxed mb-4">
+                  {error}
+                </p>
               </div>
             </div>
           )}
           
-          {/* Camera Controls Overlay - Bottom Center */}
+          {/* No camera message - only show when no error and camera is off */}
+          {!isCameraActive && !error && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center text-foreground">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Icon icon="mingcute:camera-2-off-line" className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-bold mb-2">Camera Off</h3>
+                <p className="text-sm opacity-75">Click the play button to begin detection</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Camera Controls */}
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-10">
             {/* Camera Start/Stop Button */}
             <Button
               onClick={handleCameraToggle}
               variant="ghost"
               size="icon"
-              className={`rounded-full shadow-lg w-12 h-12 ${
+              className={`rounded-full shadow-lg w-12 h-12 transition-opacity duration-200 ${
                 isCameraActive 
-                  ? 'bg-white text-black hover:bg-gray-200' 
-                  : 'bg-black/50 hover:bg-black/70 text-white'
+                  ? 'bg-white text-black opacity-60 hover:opacity-100' 
+                  : 'bg-black/50 text-white opacity-60 hover:opacity-100'
               }`}
             >
-              <Icon 
-                icon={isCameraActive ? "mingcute:camera-2-off-line" : "mingcute:camera-2-line"} 
-                className="w-5 h-5" 
-              />
+              <Icon icon={isCameraActive ? "mingcute:camera-2-off-line" : "mingcute:camera-2-line"} className="w-5 h-5" />
             </Button>
-            
-            {/* Detection Start/Stop Button - Only show when camera is active */}
+
+            {/* Detection Start/Stop Button */}
             {isCameraActive && (
               <Button
-                onClick={handleDetectionToggle}
-                variant="ghost"
-                size="icon"
-                className={`rounded-full shadow-lg w-12 h-12 ${
+                  onClick={handleDetectionToggle}
+
+                className={`rounded-full shadow-lg w-12 h-12 transition-opacity duration-200 ${
                   isDetecting 
-                    ? 'bg-white text-black hover:bg-gray-200' 
-                    : 'bg-black/50 hover:bg-black/70 text-white'
+                    ? 'bg-white text-black opacity-60 hover:opacity-100' 
+                    : 'bg-black/50 text-white opacity-60 hover:opacity-100'
                 }`}
               >
-                <Icon 
-                  icon={isDetecting ? "mingcute:stop-line" : "mingcute:play-line"} 
-                  className="w-5 h-5" 
-                />
+                <Icon icon={isDetecting ? "mingcute:stop-line" : "mingcute:play-line"} className="w-5 h-5" />
               </Button>
             )}
 
@@ -364,9 +364,9 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
                 onClick={handleReset}
                 variant="ghost"
                 size="icon"
-                className="rounded-full shadow-lg w-12 h-12 bg-black/50 hover:bg-black/70 text-white"
+                className="rounded-full shadow-lg w-12 h-12 bg-black/50 text-white opacity-60 hover:opacity-100"
               >
-                <RotateCcw className="w-5 h-5" />
+                <Icon icon="mingcute:refresh-anticlockwise-1-fill" className="w-5 h-5" />
               </Button>
             )}
           </div>
