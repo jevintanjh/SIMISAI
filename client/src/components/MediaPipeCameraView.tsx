@@ -322,7 +322,10 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
                   <Icon icon="mingcute:camera-2-off-line" className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="text-lg font-bold mb-2">Camera Off</h3>
-                <p className="text-sm opacity-75">Click the play button to begin detection</p>
+                <div className="flex items-center justify-center space-x-2 text-sm opacity-75">
+                  <Icon icon="mingcute:camera-2-line" className="w-4 h-4 text-primary" />
+                  <span>Click the camera button to enable the camera</span>
+                </div>
               </div>
             </div>
           )}
