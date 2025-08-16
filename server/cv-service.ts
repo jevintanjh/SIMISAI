@@ -33,7 +33,7 @@ export class CVService {
       console.log(`Using Hugging Face model: ${modelPath}`);
     } else {
       // Use local model
-      this.modelPath = path.resolve(process.cwd(), 'cv_model/models/poc1/weights/best.pt');
+      this.modelPath = path.resolve(process.cwd(), 'cv_model/models/poc2/best.pt');
       console.log(`Using local model: ${this.modelPath}`);
     }
     
