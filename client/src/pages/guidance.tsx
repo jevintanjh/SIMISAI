@@ -6,6 +6,23 @@ import InstructionCard from "@/components/InstructionCard";
 import FloatingChat from "@/components/FloatingChat";
 import { Icon } from "@iconify/react";
 
+interface Instruction {
+  id: string;
+  deviceId: string;
+  stepNumber: number;
+  title: string;
+  description: string;
+  translations: {
+    [key: string]: {
+      title: string;
+      description: string;
+    };
+  } | null;
+  audioUrl: string | null;
+  imageUrl: string | null;
+  checkpoints: string[] | null;
+}
+
 interface GuidanceProps {
   config: SessionConfig;
   onBack: () => void;
@@ -24,20 +41,91 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   const [userQuestion, setUserQuestion] = useState("");
   const [chatMessages, setChatMessages] = useState<Array<{id: number, type: 'user' | 'ai', content: string}>>([]);
   const [showInstructions, setShowInstructions] = useState(true);
+  const [instructions, setInstructions] = useState<Instruction[]>([]);
+  const [currentInstruction, setCurrentInstruction] = useState<Instruction | null>(null);
+  const [totalSteps, setTotalSteps] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Mock instruction based on step
-  const getInstructionForStep = (step: number) => {
-    const instructions = {
-      1: {
-        title: "Wrap the cuff around your arm",
-        description: "Place the cuff around your upper arm, about 1 inch above your elbow. The cuff should be snug but not too tight.",
-        audioDescription: "Pasangkan manset di sekitar lengan atas Anda, sekitar 2,5 cm di atas siku. Manset harus pas, tetapi tidak terlalu ketat."
+  // Fetch instructions from server
+  useEffect(() => {
+    const fetchInstructions = async () => {
+      try {
+        setLoading(true);
+        
+        // First, get all devices to find the thermometer
+        const devicesResponse = await fetch('/api/devices');
+        if (devicesResponse.ok) {
+          const devices = await devicesResponse.json();
+          const thermometerDevice = devices.find((device: any) => device.type === 'thermometer');
+          
+          if (thermometerDevice) {
+            // Now fetch instructions for the thermometer device
+            const instructionsResponse = await fetch(`/api/devices/${thermometerDevice.id}/instructions`);
+            if (instructionsResponse.ok) {
+              const data = await instructionsResponse.json();
+              setInstructions(data);
+              setTotalSteps(data.length);
+              if (data.length > 0) {
+                setCurrentInstruction(data[0]); // Start with first step
+              }
+            }
+          } else {
+            console.error('Thermometer device not found');
+            setInstructions([]);
+            setTotalSteps(0);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch instructions:', error);
+        // Fallback to mock data if API fails
+        setInstructions([]);
+        setTotalSteps(0);
+      } finally {
+        setLoading(false);
       }
     };
-    return instructions[step as keyof typeof instructions] || instructions[1];
+
+    fetchInstructions();
+  }, []);
+
+  // Update current instruction when step changes
+  useEffect(() => {
+    if (instructions.length > 0) {
+      const instruction = instructions.find(inst => inst.stepNumber === currentStep);
+      if (instruction) {
+        setCurrentInstruction(instruction);
+        setProgress((currentStep / totalSteps) * 100);
+      }
+    }
+  }, [currentStep, instructions, totalSteps]);
+
+  // Get instruction for current step
+  const getInstructionForStep = (step: number) => {
+    if (!currentInstruction) return null;
+    
+    const language = config.language || 'en';
+    const translation = currentInstruction.translations?.[language];
+    
+    return {
+      title: translation?.title || currentInstruction.title,
+      description: translation?.description || currentInstruction.description,
+      checkpoints: currentInstruction.checkpoints || []
+    };
   };
 
   const instruction = getInstructionForStep(currentStep);
+
+  const handleNextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
 
   const handleSendMessage = () => {
     if (userQuestion.trim()) {
@@ -68,15 +156,18 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
       <header className="bg-transparent text-white p-6 relative">
         {/* Back Button and Session Configuration Container - Left Aligned */}
         <div className="flex items-center gap-4">
-          <Button
-            onClick={onBack}
-            variant="ghost"
-            size="sm"
-            className="text-white hover:bg-white/10 flex items-center gap-2 border border-white/20 rounded-lg px-4 py-3"
-          >
-            <Icon icon="mingcute:arrow-to-left-fill" className="w-5 h-5" />
-            Back
-          </Button>
+          <Card className="bg-card/50 border-border backdrop-blur-sm cursor-pointer hover:bg-white/10 transition-colors" onClick={onBack}>
+            <CardContent className="px-6 py-2">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Icon icon="mingcute:arrow-to-left-fill" className="w-7 h-7 text-white/70" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-white">Back</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           
           {/* Session Configuration */}
           <div className="flex gap-4">
@@ -182,10 +273,32 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
               <div className="bg-card border border-border rounded-lg shadow-lg p-4 h-full min-h-[600px] flex flex-col">
                 {/* Instruction Card */}
                 <div className="flex-1">
-                  <InstructionCard 
-                    language={config.language}
-                    sessionId="guidance-session"
-                  />
+                  {loading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                        <p className="text-sm text-muted-foreground">Loading instructions...</p>
+                      </div>
+                    </div>
+                  ) : instruction ? (
+                    <InstructionCard 
+                      language={config.language}
+                      sessionId="guidance-session"
+                      currentStep={currentStep}
+                      totalSteps={totalSteps}
+                      title={instruction.title}
+                      description={instruction.description}
+                      checkpoints={instruction.checkpoints}
+                      onNextStep={handleNextStep}
+                      onPreviousStep={handlePreviousStep}
+                      canGoNext={currentStep < totalSteps}
+                      canGoPrevious={currentStep > 1}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-sm text-muted-foreground">No instructions available</p>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Toggle to Chat Button */}
