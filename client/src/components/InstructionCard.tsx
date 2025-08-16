@@ -13,9 +13,9 @@ interface InstructionCardProps {
 }
 
 export default function InstructionCard({ language, sessionId }: InstructionCardProps) {
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1.2);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   
   const { speak, stop } = useVoice();
@@ -78,19 +78,19 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
           
           <div className="flex-1 flex flex-col">
             <div className="flex-1">
-              <h3 className="font-semibold text-white text-lg mb-3">
+              <h3 className="font-semibold text-white text-xl mb-4 leading-relaxed">
                 {language !== "en" && instruction.translation[language as keyof typeof instruction.translation]
                   ? instruction.translation[language as keyof typeof instruction.translation]?.title || instruction.title
                   : instruction.title}
               </h3>
-              <p className="text-white mb-4 leading-relaxed">
+              <p className="text-white/90 text-base leading-relaxed mb-6">
                 {language !== "en" && instruction.translation[language as keyof typeof instruction.translation]
                   ? instruction.translation[language as keyof typeof instruction.translation]?.description || instruction.description
                   : instruction.description}
               </p>
               
               {/* Status Indicators */}
-              <div className="flex items-center space-x-4 mb-4">
+              <div className="flex items-center space-x-4 mb-6">
                 {instruction.checkpoints.map((checkpoint) => (
                   <div key={checkpoint} className="flex items-center space-x-2">
                     <div className={`w-3 h-3 rounded-full ${
@@ -98,7 +98,7 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
                         ? "bg-[#10B981]"
                         : "bg-[#94A3B8]"
                     }`} />
-                    <span className="text-white text-sm">{checkpoint}</span>
+                    <span className="text-white/80 text-sm font-medium">{checkpoint}</span>
                   </div>
                 ))}
               </div>
@@ -106,32 +106,23 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
               {/* Action Button */}
               <Button 
                 onClick={handleNextStep}
-                className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] hover:from-[#7C3AED] hover:to-[#8B5CF6] text-white py-3 mb-4 shadow-lg"
+                className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] hover:from-[#8B5CF6] hover:to-[#A78BFA] text-white py-4 mb-6 shadow-lg text-base font-semibold"
               >
                 Continue
-                <Icon icon="mingcute:large-arrow-right-fill" className="w-6 h-6" />
+                <Icon icon="mingcute:large-arrow-right-fill" className="w-5 h-5 ml-2" />
               </Button>
             </div>
             
             {/* Voice Guidance Controls */}
             <div className="bg-[rgba(139,92,246,0.1)] rounded-lg p-4 border border-[rgba(139,92,246,0.3)]">
-              <div className="mb-3">
+              <div className="mb-4">
                 <span className="text-sm font-bold text-white">Voice Guidance</span>
-              </div>
-              <div className="text-white text-sm mb-3">
-                Playing in {
-                  language === 'en' ? 'English' :
-                  language === 'id' ? 'Bahasa Indonesia' :
-                  language === 'th' ? 'ไทย' :
-                  language === 'vi' ? 'Tiếng Việt' :
-                  language === 'fil' ? 'Filipino' : 'English'
-                }
               </div>
               <div className="flex items-center space-x-3">
                 <Button
                   onClick={handlePlayPause}
                   size="sm"
-                  className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white p-2 rounded-full shadow-lg"
+                  className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white p-2 rounded-full shadow-lg w-8 h-8"
                 >
                   {isPlaying ? (
                     <Icon icon="mingcute:pause-fill" className="w-4 h-4" />
@@ -140,9 +131,12 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
                   )}
                 </Button>
                 <div className="flex-1 flex flex-col justify-center">
-                  <label className="text-white text-xs block mb-1">
-                    Speed: {playbackSpeed}x
-                  </label>
+                  <div className="flex items-center justify-between text-xs text-white mb-2">
+                    <span>0.5x</span>
+                    <span>1.0x</span>
+                    <span>1.5x</span>
+                    <span>2.0x</span>
+                  </div>
                   <Slider
                     value={[playbackSpeed]}
                     onValueChange={(value) => setPlaybackSpeed(value[0])}
@@ -151,6 +145,15 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
                     step={0.1}
                     className="w-full"
                   />
+                  <div className="text-center text-xs text-white mt-3">
+                    <span className="font-semibold">
+                      {language === 'en' ? 'English' : 
+                       language === 'id' ? 'Bahasa Indonesia' :
+                       language === 'th' ? 'ไทย' :
+                       language === 'vi' ? 'Tiếng Việt' :
+                       language === 'fil' ? 'Filipino' : 'English'}
+                    </span> • <span className="font-semibold">{playbackSpeed === 1 ? 'Normal' : `${playbackSpeed}x`}</span>
+                  </div>
                 </div>
               </div>
             </div>
