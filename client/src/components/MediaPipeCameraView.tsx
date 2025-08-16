@@ -296,7 +296,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
           {detections.length > 0 && (
             <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full bg-black/50 text-white text-sm flex items-center space-x-2 z-10">
               <div className="w-3 h-3 rounded-full bg-primary"></div>
-              <span>{detections.length} thermometer{detections.length !== 1 ? 's' : ''} detected</span>
+              <span>{detections.length} detection{detections.length !== 1 ? 's' : ''} found</span>
             </div>
           )}
           
