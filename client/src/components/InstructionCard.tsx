@@ -109,7 +109,7 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
                 className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] hover:from-[#7C3AED] hover:to-[#8B5CF6] text-white py-3 mb-4 shadow-lg"
               >
                 Continue
-                <Icon icon="mingcute:large-arrow-right-fill" className="w-4 h-4 ml-2" />
+                <Icon icon="mingcute:large-arrow-right-fill" className="w-6 h-6" />
               </Button>
             </div>
             
@@ -139,7 +139,7 @@ export default function InstructionCard({ language, sessionId }: InstructionCard
                     <Icon icon="mingcute:play-fill" className="w-4 h-4" />
                   )}
                 </Button>
-                <div className="flex-1">
+                <div className="flex-1 flex flex-col justify-center">
                   <label className="text-white text-xs block mb-1">
                     Speed: {playbackSpeed}x
                   </label>
