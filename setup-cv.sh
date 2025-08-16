@@ -37,16 +37,16 @@ echo "📚 Installing Python dependencies..."
 pip install -r cv_model/requirements.txt
 
 # Check if model file exists
-if [ ! -f "cv_model/models/poc1/weights/best.pt" ]; then
-    echo "⚠️ Warning: Model file not found at cv_model/models/poc1/weights/best.pt"
+if [ ! -f "cv_model/models/poc2/best.pt" ]; then
+    echo "⚠️ Warning: Model file not found at cv_model/models/poc2/best.pt"
     echo "Please ensure your YOLOv8 model is in the correct location."
 else
-    echo "✅ Model file found: cv_model/models/poc1/weights/best.pt"
+    echo "✅ Model file found: cv_model/models/poc2/best.pt"
 fi
 
 # Test the detection script
 echo "🧪 Testing detection script..."
-python cv_model/detect_screen.py --model cv_model/models/poc1/weights/best.pt --help
+python cv_model/detect_screen.py --model cv_model/models/poc2/best.pt --help
 
 echo "🎉 CV environment setup complete!"
 echo ""
@@ -54,7 +54,7 @@ echo "To activate the environment in the future, run:"
 echo "source cv_model/venv/bin/activate"
 echo ""
 echo "To test the model, run:"
-echo "python cv_model/detect_screen.py --model cv_model/models/poc1/weights/best.pt --image path/to/test/image.jpg"
+echo "python cv_model/detect_screen.py --model cv_model/models/poc2/best.pt --image path/to/test/image.jpg"
 echo ""
 echo "To start the development server, run:"
 echo "npm run dev"
