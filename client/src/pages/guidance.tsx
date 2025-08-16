@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Camera, Mic, Settings, Phone, Volume2 } from "lucide-react";
 import { MediaPipeCameraView } from "@/components/MediaPipeCameraView";
 import InstructionCard from "@/components/InstructionCard";
 import FloatingChat from "@/components/FloatingChat";
@@ -74,7 +73,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
             size="sm"
             className="text-white hover:bg-white/10 flex items-center gap-2 border border-white/20 rounded-lg px-4 py-3"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <Icon icon="mingcute:arrow-to-left-fill" className="w-5 h-5" />
             Back
           </Button>
           
@@ -85,7 +84,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
               <CardContent className="px-6 py-2">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Camera className="w-7 h-7 text-white/70" />
+                    <Icon icon="mingcute:cellphone-vibration-line" className="w-7 h-7 text-white/70" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-white">
@@ -105,7 +104,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
               <CardContent className="px-6 py-2">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Settings className="w-7 h-7 text-white/80" />
+                    <Icon icon="mingcute:world-2-line" className="w-7 h-7 text-white/80" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-white">
@@ -120,12 +119,12 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
               </CardContent>
             </Card>
 
-            {/* Guidance Option Box */}
+            {/* Guidance Style Option Box */}
             <Card className="bg-card/50 border-border backdrop-blur-sm">
               <CardContent className="px-6 py-2">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Settings className="w-7 h-7 text-white/80" />
+                    <Icon icon="mingcute:settings-1-line" className="w-7 h-7 text-white/80" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-white">
@@ -143,7 +142,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
               <CardContent className="px-6 py-2">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Mic className="w-7 h-7 text-white/80" />
+                    <Icon icon="mingcute:mic-ai-line" className="w-7 h-7 text-white/80" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-white">
@@ -194,8 +193,8 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                     onClick={toggleInstructions}
                     className="w-full bg-primary text-white hover:bg-white hover:text-primary transition-colors border border-primary hover:border-primary/20"
                   >
-                    <Mic className="w-4 h-4 mr-2" />
                     Chat with Assistant
+                    <Icon icon="mingcute:chat-4-fill" className="w-6 h-6" />
                   </Button>
                 </div>
               </div>
@@ -207,7 +206,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                     onClick={toggleInstructions}
                     className="w-full bg-primary text-white hover:bg-white hover:text-primary transition-colors border border-primary hover:border-primary/20"
                   >
-                    <Settings className="w-4 h-4 mr-2" />
+                    <Icon icon="mingcute:list-expansion-fill" className="w-4 h-4 mr-2" />
                     View Instructions
                   </Button>
                 </div>
@@ -217,7 +216,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                   {/* Chat Header */}
                   <div className="mb-4 flex-shrink-0">
                     <div className="flex items-center space-x-2 mb-2">
-                      <Mic className="w-5 h-5 text-primary" />
+                      <Icon icon="mingcute:chat-4-fill" className="w-5 h-5 text-primary" />
                       <h3 className="text-xl font-semibold text-foreground">Chat with Assistant</h3>
                     </div>
                     <p className="text-sm text-muted-foreground">Hello! I'm here to help you with your medical device setup. Feel free to ask me any questions!</p>
@@ -255,7 +254,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                         onClick={handleSendMessage}
                         className="bg-primary hover:bg-primary/80 text-primary-foreground flex-shrink-0"
                       >
-                        <Phone className="w-4 h-4" />
+                        <Icon icon="mingcute:send-fill" className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
