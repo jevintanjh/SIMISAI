@@ -4,7 +4,7 @@ import glob
 import time
 
 # === Config ===
-save_folder = '/data/thermometer_poc1'
+save_folder = 'data/thermometer_poc2'  # Changed from absolute to relative path
 camera_index = 0   # 0 = default webcam. Try 1/2 if you have multiple cameras.
 width, height = 1280, 720  # set to None,None to skip forcing resolution
 

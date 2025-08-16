@@ -23,15 +23,15 @@ def upload_model_to_hf():
         print("Preparing model files...")
         
         # Copy the model weights
-        shutil.copy("models/poc1/weights/best.pt", upload_dir / "best.pt")
+        shutil.copy("models/poc2/weights/best.pt", upload_dir / "best.pt")
         
         # Copy config files
         shutil.copy("config.json", upload_dir / "config.json")
         shutil.copy("README.md", upload_dir / "README.md")
         
         # Copy training args if available
-        if os.path.exists("models/poc1/args.yaml"):
-            shutil.copy("models/poc1/args.yaml", upload_dir / "args.yaml")
+        if os.path.exists("models/poc2/args.yaml"):
+            shutil.copy("models/poc2/args.yaml", upload_dir / "args.yaml")
         
         # Initialize Hugging Face API
         api = HfApi()

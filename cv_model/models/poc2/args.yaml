@@ -1,7 +1,7 @@
 task: detect
 mode: train
 model: yolov8l.pt
-data: data/thermometer_poc1_yolo/dataset.yaml
+data: data/thermometer_poc2_yolo/dataset.yaml
 epochs: 15
 time: null
 patience: 100
@@ -13,7 +13,7 @@ cache: false
 device: null
 workers: 8
 project: models/
-name: poc1
+name: poc2
 exist_ok: false
 pretrained: true
 optimizer: auto
@@ -104,4 +104,4 @@ erasing: 0.4
 crop_fraction: 1.0
 cfg: null
 tracker: botsort.yaml
-save_dir: models/poc1
+save_dir: models/poc2
