@@ -197,12 +197,25 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
           <h1 className="text-5xl font-bold mb-6">
             Welcome to <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">SIMIS AI</span>
           </h1>
-          <p className="text-white/70 text-lg mb-4">Your AI-powered medical device guidance assistant</p>
+          <p className="text-white/70 text-lg mb-10">Your AI-powered medical device guidance assistant</p>
+          <div className="mb-12">
+            <Button
+              onClick={() => setShowHowItWorks(true)}
+              variant="outline"
+              size="lg"
+              className="bg-transparent text-white font-semibold px-6 py-3 text-md rounded-xl border-2 border-purple-400 hover:border-purple-300 transition-all duration-300 shadow-[0_0_15px_rgba(139,92,246,0.4)] hover:shadow-[0_0_25px_rgba(139,92,246,0.7)] relative z-10"
+              style={{
+                animation: 'glow 1.5s ease-in-out infinite alternate'
+              }}
+            >
+              How It Works
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Configuration Container */}
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex items-center justify-center min-h-[40vh]">
         <div className="w-full max-w-6xl border border-border rounded-3xl px-12 py-20 mx-auto">
           <h2 className="text-3xl font-bold text-white mb-8 text-center">Configure session</h2>
           
@@ -508,26 +521,15 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
 
           {/* Start Button */}
           <div className="text-center space-y-4">
-            <div className="flex justify-center space-x-8">
-              <Button
-                onClick={() => setShowHowItWorks(true)}
-                variant="outline"
-                size="lg"
-                className="bg-transparent text-white font-semibold px-6 py-3 text-md rounded-xl border border-border hover:border-white/60 transition-all duration-300"
-              >
-                How It Works
-              </Button>
-              
-              <Button
-                onClick={handleStart}
-                disabled={!canStart}
-                size="lg"
-                className="bg-primary hover:bg-white text-white hover:text-primary font-semibold px-6 py-3 text-md rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-200 border border-primary hover:border-white items-center"
-              >
-                Start
-                <Icon icon="mingcute:play-fill" className="w-8 h-8 ml-1" />
-              </Button>
-            </div>
+            <Button
+              onClick={handleStart}
+              disabled={!canStart}
+              size="lg"
+              className="bg-primary hover:bg-white text-white hover:text-primary font-semibold px-6 py-3 text-md rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-200 border border-primary hover:border-white items-center"
+            >
+              Start
+              <Icon icon="mingcute:play-fill" className="w-8 h-8 ml-1" />
+            </Button>
           </div>
 
           {/* How It Works Modal */}
