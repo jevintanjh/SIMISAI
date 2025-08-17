@@ -22,8 +22,16 @@ export interface CVResponse {
 export class CVService {
   private modelPath: string;
   private pythonScript: string;
+  private remoteCvUrl: string | undefined;
 
   constructor() {
+    // Optional remote CV endpoint (e.g., Hugging Face Space)
+    this.remoteCvUrl = (process.env.CV_REMOTE_URL || '').trim() || undefined;
+    if (this.remoteCvUrl) {
+      // Normalize by removing trailing slash
+      this.remoteCvUrl = this.remoteCvUrl.replace(/\/$/, '');
+      console.log(`CV Service configured to use remote URL: ${this.remoteCvUrl}`);
+    }
     // Use environment variable to choose model source
     const modelPath = process.env.CV_MODEL_PATH;
     
@@ -44,6 +52,7 @@ export class CVService {
     console.log(`- Model path: ${this.modelPath}`);
     console.log(`- Python script: ${this.pythonScript}`);
     console.log(`- Environment: ${process.env.NODE_ENV}`);
+    console.log(`- Mode: ${this.remoteCvUrl ? 'REMOTE' : 'LOCAL_PYTHON'}`);
   }
 
   /**
@@ -51,6 +60,17 @@ export class CVService {
    * This is where you implement your CV logic
    */
   async detectObjects(imagePath: string): Promise<CVResponse> {
+    // If configured, call remote CV service instead of local Python
+    if (this.remoteCvUrl) {
+      try {
+        const fileBuffer = fs.readFileSync(imagePath);
+        const b64 = fileBuffer.toString('base64');
+        return this.detectRemoteFromBase64(b64);
+      } catch (e) {
+        return Promise.reject(new Error(`Failed to read image for remote CV: ${e instanceof Error ? e.message : String(e)}`));
+      }
+    }
+
     return new Promise((resolve, reject) => {
       const startTime = Date.now();
       
@@ -112,6 +132,11 @@ export class CVService {
    * Process base64 image data
    */
   async detectObjectsFromBase64(base64Data: string): Promise<CVResponse> {
+    // If configured, proxy to remote CV
+    if (this.remoteCvUrl) {
+      return this.detectRemoteFromBase64(base64Data.replace(/^data:image\/[a-z]+;base64,/, ''));
+    }
+
     // Remove data URL prefix if present
     const base64Image = base64Data.replace(/^data:image\/[a-z]+;base64,/, '');
     
@@ -165,6 +190,19 @@ export class CVService {
    */
   async healthCheck(): Promise<boolean> {
     try {
+      // If using remote CV, check remote health endpoint
+      if (this.remoteCvUrl) {
+        try {
+          const res = await fetch(`${this.remoteCvUrl}/health`, { method: 'GET' });
+          if (!res.ok) return false;
+          const json = await res.json().catch(() => undefined as any);
+          return Boolean(json && (json.healthy === true || json.status === 'ok'));
+        } catch (e) {
+          console.warn('Remote CV health check failed:', e);
+          return false;
+        }
+      }
+
       // For Hugging Face models, we can't check if file exists locally
       if (this.modelPath.includes('/') && !this.modelPath.includes('cv_model')) {
         console.log('Hugging Face model detected, skipping local file check');
@@ -193,6 +231,35 @@ export class CVService {
       console.error('CV service health check failed:', error);
       return false;
     }
+  }
+
+  /**
+   * Call remote CV service with base64 image data
+   */
+  private async detectRemoteFromBase64(base64Image: string): Promise<CVResponse> {
+    if (!this.remoteCvUrl) {
+      throw new Error('Remote CV URL is not configured');
+    }
+    const start = Date.now();
+    const endpoint = `${this.remoteCvUrl}/detect`;
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ imageData: base64Image })
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => '');
+      throw new Error(`Remote CV error ${res.status}: ${txt}`);
+    }
+    const data = await res.json();
+    const processingTime = Date.now() - start;
+    return {
+      detections: Array.isArray(data?.detections) ? data.detections : [],
+      processing_time: typeof data?.processing_time === 'number' ? data.processing_time : processingTime,
+      image_size: Array.isArray(data?.image_size) ? data.image_size : [0, 0]
+    };
   }
 }
 
