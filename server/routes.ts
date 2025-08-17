@@ -247,8 +247,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('CV detection request received');
       console.log('Image data length:', imageData.length);
       
-      // Use Hugging Face service if HF_SPACES_URL is set, otherwise use local service
-      const service = process.env.HF_SPACES_URL ? cvServiceHF : cvService;
+      // Prefer CV_REMOTE_URL if present, otherwise HF_SPACES_URL, else local service
+      const service = process.env.CV_REMOTE_URL
+        ? cvServiceHF
+        : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
       const result = await service.detectObjectsFromBase64(imageData);
       
       console.log('CV detection completed');
