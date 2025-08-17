@@ -1,13 +1,16 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { useCamera } from "@/hooks/use-camera";
 import { Button } from "@/components/ui/button";
-import { Camera, Plus, CheckCircle, Tv, Play } from "lucide-react";
+import { Camera, Plus, CheckCircle, Tv, Play, ArrowLeft } from "lucide-react";
 
-export default function CameraView() {
+interface CameraViewProps {
+  language?: string;
+  sessionId?: string;
+}
+
+export default function CameraView({ language = "en", sessionId = "default" }: CameraViewProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { isActive, startCamera, stopCamera } = useCamera(videoRef);
-  const [currentStep, setCurrentStep] = useState(2);
-  const totalSteps = 5;
 
   useEffect(() => {
     const initializeCamera = async () => {
@@ -22,88 +25,89 @@ export default function CameraView() {
     return () => stopCamera();
   }, [startCamera, stopCamera]);
 
-  const progressSteps = Array.from({ length: totalSteps }, (_, i) => i + 1);
-
   return (
-    <div className="relative">
-      {/* Camera View */}
-      <div className="relative h-96 bg-gray-900 overflow-hidden camera-overlay">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className="w-full h-full object-cover"
-        />
+    <div className="relative w-full h-full">
+      <div className="h-full flex flex-col">
         
-        {/* Mock Detection Overlay - in production this would be replaced with actual CV detection */}
-        <div className="absolute inset-4">
-          {/* Detection Bounding Box */}
-          <div className="detection-box absolute top-8 left-4 right-4 bottom-16 bg-transparent"></div>
-          
-          {/* Detection Status */}
-          <div className="absolute top-4 left-4 component-label">
-            <div className="detection-green px-3 py-2 rounded-lg text-sm font-medium flex items-center">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Blood Pressure Monitor Detected
+        {/* Camera View - Fixed Height */}
+        <div className="h-[600px] relative overflow-hidden bg-card backdrop-blur-md">
+          {/* Camera Feed Placeholder */}
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
+            <div className="text-center text-foreground">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                <Camera className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <p className="text-lg mb-2">Camera Ready</p>
+              <p className="text-sm opacity-75">Point camera at medical device</p>
             </div>
           </div>
 
-          {/* Component Labels */}
-          <div className="absolute top-20 right-8 component-label">
-            <div className="medical-blue bg-opacity-90 px-3 py-1 rounded-md text-xs font-medium flex items-center">
-              <Tv className="w-3 h-3 mr-1" />
-              Display
+          {/* Back Button - Top Left */}
+          <div className="absolute top-4 left-4 z-10">
+            <Button 
+              size="sm"
+              variant="secondary"
+              className="bg-black/50 hover:bg-black/70 text-white border-white/30"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+          </div>
+
+          {/* Progress Indicator - Top Right */}
+          <div className="absolute top-4 right-4 z-10">
+            <div className="px-4 py-3 rounded-2xl shadow-lg border border-border bg-card backdrop-blur-md">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                <span className="text-sm font-medium text-foreground">Ready</span>
+              </div>
             </div>
           </div>
 
-          <div className="absolute bottom-24 left-8 component-label">
-            <div className="interactive-orange bg-opacity-90 px-3 py-1 rounded-md text-xs font-medium flex items-center">
-              <Play className="w-3 h-3 mr-1" />
-              Start Button
+          {/* Component Labels - Overlay on Camera */}
+          <div className="absolute inset-4 pointer-events-none">
+            <div className="grid grid-cols-3 gap-4 h-full">
+              <div className="flex flex-col justify-start">
+                <div className="px-3 py-2 rounded-lg text-sm font-medium flex items-center border border-border bg-secondary text-foreground backdrop-blur-sm">
+                  <div className="w-2 h-2 rounded-full bg-success mr-2" />
+                  Cuff Position
+                </div>
+              </div>
+              
+              <div className="flex flex-col justify-center">
+                <div className="px-3 py-2 rounded-lg text-sm font-medium flex items-center border border-border bg-secondary text-foreground backdrop-blur-sm">
+                  <div className="w-2 h-2 rounded-full bg-warning mr-2" />
+                  Tightness Check
+                </div>
+              </div>
+              
+              <div className="flex flex-col justify-end">
+                <div className="px-3 py-2 rounded-lg text-sm font-medium flex items-center border border-border bg-secondary text-foreground backdrop-blur-sm">
+                  <div className="w-2 h-2 rounded-full bg-muted mr-2" />
+                  Alignment
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Camera Controls */}
-        <div className="absolute top-4 left-4 flex flex-col space-y-3">
+        {/* Camera Controls - Below Camera */}
+        <div className="flex items-center justify-center space-x-4 py-4 px-4 bg-card border-t border-border">
           <Button 
-            size="icon"
-            className="bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full"
+            size="sm"
+            variant="secondary"
+            className="rounded-full w-10 h-10 p-0"
           >
-            <Camera className="w-5 h-5" />
+            <Camera className="w-4 h-4" />
           </Button>
-        </div>
 
-        {/* Zoom Control */}
-        <div className="absolute top-4 right-4">
           <Button 
-            size="icon"
-            className="bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full"
+            size="sm"
+            variant="secondary"
+            className="rounded-full w-10 h-10 p-0"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
           </Button>
-        </div>
-      </div>
-
-      {/* Progress Indicator */}
-      <div className="medical-blue text-white px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium">Step {currentStep} of {totalSteps}</span>
-          </div>
-          <div className="flex space-x-1">
-            {progressSteps.map((step) => (
-              <div
-                key={step}
-                className={`w-12 h-1 rounded-full transition-all ${
-                  step <= currentStep 
-                    ? "bg-white" 
-                    : "bg-white bg-opacity-30"
-                }`}
-              />
-            ))}
-          </div>
         </div>
       </div>
     </div>

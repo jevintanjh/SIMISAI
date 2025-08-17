@@ -1,14 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Camera, Square, Play, Pause, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useSimpleMediaPipe } from '@/hooks/use-simple-mediapipe';
+import { Icon } from "@iconify/react";
 
 interface MediaPipeCameraViewProps {
   onThermometerDetected?: (detection: any) => void;
+  sessionConfig?: {
+    language: string;
+    device: string;
+    guidanceStyle: string;
+    voiceOption: string;
+  };
+  language?: string;
+  sessionId?: string;
 }
 
-export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraViewProps) {
+interface DetectionResult {
+  class: string;
+  confidence: number;
+  bbox: [number, number, number, number];
+  class_id: number;
+}
+
+interface CVResponse {
+  detections: DetectionResult[];
+  processing_time: number;
+  image_size: [number, number];
+}
+
+export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, language, sessionId }: MediaPipeCameraViewProps) {
   const {
     videoRef,
     canvasRef,
@@ -18,227 +40,369 @@ export function MediaPipeCameraView({ onThermometerDetected }: MediaPipeCameraVi
     stopCamera
   } = useSimpleMediaPipe();
 
-  const [isDetecting, setIsDetecting] = useState(false);
-  const [detections, setDetections] = useState<any[]>([]);
-  const [isCameraActive, setIsCameraActive] = useState(false);
+  // Separate overlay canvas for drawing bounding boxes
+  const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Update camera active state based on initialization
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [detections, setDetections] = useState<DetectionResult[]>([]);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [imageSize, setImageSize] = useState<[number, number]>([640, 480]);
+  const lastRunRef = useRef<number>(0);
+  const DETECTION_INTERVAL = 2000; // ms - 2 seconds to reduce server load while keeping video smooth
+
+  // Color mapping for different classes
+  const getClassColor = (className: string): string => {
+    const colors: Record<string, string> = {
+      'thermometer (Lo error)': '#EF4444',        // Red
+      'thermometer (measuring)': '#3B82F6',       // Blue
+      'thermometer (no display found)': '#F59E0B', // Amber
+      'thermometer (off)': '#6B7280',             // Gray
+      'thermometer button': '#10B981',            // Green
+      'thermometer in ear': '#8B5CF6',            // Purple
+      'thermometer in mouth': '#EC4899',          // Pink
+      'thermometer in nose': '#6366F1',           // Indigo
+      'thermometer on face': '#F97316',           // Orange
+    };
+    return colors[className] || '#8B5CF6'; // Default purple
+  };
+
+  // Initialize canvas dimensions
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const overlayCanvas = overlayCanvasRef.current;
+    
+    if (canvas && overlayCanvas) {
+      const fixedWidth = 640;
+      const fixedHeight = 480;
+      
+      canvas.width = fixedWidth;
+      canvas.height = fixedHeight;
+      overlayCanvas.width = fixedWidth;
+      overlayCanvas.height = fixedHeight;
+    }
+  }, []);
+
+  // Update camera active state based on initialization and auto-start detection
   useEffect(() => {
     if (isInitialized && !error) {
       setIsCameraActive(true);
+      // Auto-start detection after camera is ready
+      setTimeout(() => {
+        setIsDetecting(true);
+      }, 1000);
     }
   }, [isInitialized, error]);
 
-  // Mock detection functions for POC
-  const startDetection = () => {
-    setIsDetecting(true);
-    // Simulate detection after 3 seconds for demo
-    setTimeout(() => {
-      const mockDetection = {
-        boundingBox: { originX: 100, originY: 100, width: 200, height: 300 },
-        categories: [{ categoryName: 'thermometer-like object', score: 0.8 }]
-      };
-      setDetections([mockDetection]);
-      if (onThermometerDetected) onThermometerDetected(mockDetection);
-    }, 3000);
-  };
+  // Separate video rendering loop (runs at 60fps for smooth video)
+  useEffect(() => {
+    if (!isCameraActive || !videoRef.current || !canvasRef.current) return;
 
-  const stopDetection = () => {
-    setIsDetecting(false);
-    setDetections([]);
-  };
+    const renderFrame = () => {
+      const canvas = canvasRef.current;
+      const video = videoRef.current;
+      
+      if (!canvas || !video) return;
 
-  // Handle camera toggle
-  const handleCameraToggle = async () => {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Clear canvas and draw current video frame
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    };
+
+    // Run at 60fps for smooth video
+    const renderInterval = setInterval(renderFrame, 1000 / 60);
+    return () => clearInterval(renderInterval);
+  }, [isCameraActive]);
+
+  // Separate detection loop (runs at lower frequency)
+  useEffect(() => {
+    if (!isDetecting || !isCameraActive || !videoRef.current) return;
+
+    const detectFrame = async () => {
+      const now = Date.now();
+      if (now - lastRunRef.current < DETECTION_INTERVAL) return;
+      lastRunRef.current = now;
+
+      if (isProcessing) return;
+      setIsProcessing(true);
+
+      try {
+        const canvas = canvasRef.current;
+        const video = videoRef.current;
+        
+        if (!canvas || !video) {
+          setIsProcessing(false);
+          return;
+        }
+
+        // Create a temporary canvas for detection (don't interfere with video rendering)
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        if (!tempCtx) {
+          setIsProcessing(false);
+          return;
+        }
+
+        // Draw current video frame to temporary canvas
+        tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+        // Get image data as base64
+        const imageData = tempCanvas.toDataURL('image/jpeg', 0.8);
+        const base64Data = imageData.split(',')[1];
+
+        // Call CV API
+        const response = await fetch('/api/cv/detect', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageData: base64Data,
+            sessionId: sessionId || 'default-session'
+          }),
+        });
+
+        if (response.ok) {
+          const result: CVResponse = await response.json();
+          
+          if (result.detections && result.detections.length > 0) {
+            setDetections(result.detections);
+            
+            // Call the callback with detection results
+            if (onThermometerDetected) {
+              onThermometerDetected(result.detections);
+            }
+
+            // Draw bounding boxes (this will persist until next detection)
+            drawBoundingBoxes(result.detections);
+          } else {
+            setDetections([]);
+            clearBoundingBoxes();
+          }
+        } else {
+          console.error('CV API error:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Detection error:', error);
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
+    const interval = setInterval(detectFrame, DETECTION_INTERVAL);
+    return () => clearInterval(interval);
+  }, [isDetecting, isCameraActive, onThermometerDetected, sessionId]);
+
+  // Draw bounding boxes on overlay canvas
+  const drawBoundingBoxes = useCallback((detections: DetectionResult[]) => {
+    const overlayCanvas = overlayCanvasRef.current;
+    if (!overlayCanvas) return;
+
+    const ctx = overlayCanvas.getContext('2d');
+    if (!ctx) return;
+
+    // Clear previous drawings
+    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+    detections.forEach((detection) => {
+      const [x, y, width, height] = detection.bbox;
+      const color = getClassColor(detection.class);
+      
+      // Draw bounding box
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x, y, width, height);
+      
+      // Draw label background
+      const label = `${detection.class} (${(detection.confidence * 100).toFixed(1)}%)`;
+      const labelWidth = ctx.measureText(label).width + 10;
+      const labelHeight = 20;
+      
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y - labelHeight, labelWidth, labelHeight);
+      
+      // Draw label text
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '12px Arial';
+      ctx.fillText(label, x + 5, y - 5);
+    });
+  }, []);
+
+  // Clear bounding boxes
+  const clearBoundingBoxes = useCallback(() => {
+    const overlayCanvas = overlayCanvasRef.current;
+    if (!overlayCanvas) return;
+
+    const ctx = overlayCanvas.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    }
+  }, []);
+
+  const handleCameraToggle = useCallback(() => {
     if (isCameraActive) {
       stopCamera();
       setIsCameraActive(false);
+      setIsDetecting(false);
+      setDetections([]);
+      clearBoundingBoxes();
     } else {
-      try {
-        await startCamera();
-        setIsCameraActive(true);
-      } catch (error) {
-        console.error("Failed to start camera:", error);
-        setIsCameraActive(false);
-      }
+      startCamera();
+      setIsCameraActive(true);
+      // Auto-start detection after camera starts
+      setTimeout(() => {
+        setIsDetecting(true);
+      }, 1000);
     }
-  };
+  }, [isCameraActive, startCamera, stopCamera, clearBoundingBoxes]);
 
-  // Handle detection toggle
-  const handleDetectionToggle = () => {
-    if (isDetecting) {
-      stopDetection();
-    } else {
-      startDetection();
+  const handleDetectionToggle = useCallback(() => {
+    setIsDetecting(!isDetecting);
+    if (!isDetecting) {
+      setDetections([]);
+      clearBoundingBoxes();
     }
-  };
+  }, [isDetecting, clearBoundingBoxes]);
 
-  // Notify parent component when thermometer is detected
-  useEffect(() => {
-    if (detections.length > 0 && onThermometerDetected) {
-      const bestDetection = detections.reduce((best: any, current: any) => 
-        current.categories[0].score > best.categories[0].score ? current : best
-      );
-      onThermometerDetected(bestDetection);
+  const handleReset = useCallback(() => {
+    setDetections([]);
+    if (overlayCanvasRef.current) {
+      const ctx = overlayCanvasRef.current.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, overlayCanvasRef.current.width, overlayCanvasRef.current.height);
     }
-  }, [detections, onThermometerDetected]);
+  }, []);
 
   return (
-    <div className="w-full h-full relative">
-      <Card className="h-full shadow-lg border border-[rgba(139,92,246,0.3)]" style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', backdropFilter: 'blur(10px)' }}>
-        <CardContent className="p-4 h-full">
-          <div className="flex flex-col h-full space-y-4">
-            
-            {/* Header with status */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Camera className="w-5 h-5 text-[#8B5CF6]" />
-                <span className="font-medium text-white">MediaPipe Thermometer Detection</span>
+    <div className="w-full h-full">
+      <div className="h-full flex flex-col">
+        
+        {/* Camera View with Overlay Controls - Full Width/Height */}
+        <div className="flex-1 relative overflow-hidden bg-card backdrop-blur-md">
+          {/* Video element */}
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          
+          {/* Canvas for drawing detection results */}
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          
+          {/* Overlay canvas for bounding boxes */}
+          <canvas
+            ref={overlayCanvasRef}
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          />
+          
+          {/* Status Indicators - Top Right with increased padding */}
+          <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
+            {isDetecting ? (
+              <div className="text-xs text-white bg-black/50 px-4 py-2 rounded-full flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${isProcessing ? 'bg-yellow-500 animate-pulse' : 'bg-primary'}`} />
+                <span>{isProcessing ? 'Processing...' : 'Detecting'}</span>
               </div>
-              
-              {/* Status indicators */}
-              <div className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${isInitialized ? 'bg-[#10B981]' : 'bg-[#EF4444]'}`} />
-                <span className="text-sm text-[#E2E8F0]">
-                  {isInitialized ? 'Ready' : 'Initializing...'}
-                </span>
-                {isDetecting && (
-                  <>
-                    <div className="w-2 h-2 rounded-full bg-[#8B5CF6] animate-pulse" />
-                    <span className="text-sm text-[#8B5CF6]">Detecting</span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Camera View */}
-            <div className="flex-1 relative bg-black rounded-lg overflow-hidden">
-              {/* Video element (visible for better UX) */}
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              
-              {/* Canvas for drawing detection results */}
-              <canvas
-                ref={canvasRef}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              
-              {/* Overlay UI */}
-              <div className="absolute inset-0 pointer-events-none">
-                {/* Detection count */}
-                {detections.length > 0 && (
-                  <div className="absolute top-4 left-4 bg-[#8B5CF6] text-white px-3 py-1 rounded-full text-sm shadow-lg">
-                    {detections.length} thermometer{detections.length !== 1 ? 's' : ''} detected
-                  </div>
-                )}
-                
-                {/* Center crosshair for alignment */}
-                {isCameraActive && (
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                    <Square className="w-8 h-8 text-[#8B5CF6] opacity-50" />
-                  </div>
-                )}
-                
-                {/* Error message */}
-                {error && (
-                  <div className="absolute bottom-4 left-4 right-4 bg-[#EF4444] text-white p-3 rounded-lg text-sm shadow-lg">
-                    {error}
-                  </div>
-                )}
-                
-                {/* No camera message */}
-                {!isCameraActive && !error && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <Camera className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-lg mb-2">Camera Off</p>
-                      <p className="text-sm opacity-75">Click "Start Camera" to begin detection</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Controls */}
-            <div className="flex items-center justify-center space-x-4">
-              <Button
-                onClick={handleCameraToggle}
-                variant={isCameraActive ? "destructive" : "default"}
-                disabled={!isInitialized}
-                className={`flex items-center space-x-2 ${
-                  isCameraActive 
-                    ? 'bg-[#EF4444] hover:bg-[#DC2626] text-white' 
-                    : 'bg-[#8B5CF6] hover:bg-[#7C3AED] text-white'
-                } shadow-lg`}
-              >
-                <Camera className="w-4 h-4" />
-                <span>{isCameraActive ? 'Stop Camera' : 'Start Camera'}</span>
-              </Button>
-              
-              {isCameraActive && (
-                <Button
-                  onClick={handleDetectionToggle}
-                  variant={isDetecting ? "secondary" : "default"}
-                  disabled={!isCameraActive}
-                  className={`flex items-center space-x-2 ${
-                    isDetecting 
-                      ? 'bg-[rgba(139,92,246,0.2)] text-[#8B5CF6] border border-[rgba(139,92,246,0.3)]' 
-                      : 'bg-[#A78BFA] hover:bg-[#8B5CF6] text-white'
-                  } shadow-lg`}
-                >
-                  {isDetecting ? (
-                    <>
-                      <Pause className="w-4 h-4" />
-                      <span>Pause Detection</span>
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-4 h-4" />
-                      <span>Start Detection</span>
-                    </>
-                  )}
-                </Button>
-              )}
-              
-              {detections.length > 0 && (
-                <Button
-                  onClick={() => window.location.reload()}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center space-x-2 border-[rgba(139,92,246,0.3)] text-[#A78BFA] hover:bg-[rgba(139,92,246,0.1)] shadow-lg"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  <span>Reset</span>
-                </Button>
-              )}
-            </div>
-
-            {/* Detection Info */}
-            {detections.length > 0 && (
-              <div className="bg-[rgba(139,92,246,0.1)] rounded-lg p-4 border border-[rgba(139,92,246,0.3)]" style={{ backdropFilter: 'blur(10px)' }}>
-                <h4 className="font-medium text-white mb-2">Detection Results:</h4>
-                <div className="space-y-2">
-                  {detections.map((detection: any, index: number) => (
-                    <div key={index} className="flex justify-between text-sm">
-                      <span className="text-[#E2E8F0]">
-                        Object {index + 1}: {detection.categories[0].categoryName}
-                      </span>
-                      <span className="text-[#A78BFA] font-medium">
-                        {(detection.categories[0].score * 100).toFixed(1)}% confidence
-                      </span>
-                    </div>
-                  ))}
-                </div>
+            ) : (
+              <div className="text-xs text-white bg-black/50 px-4 py-2 rounded-full flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${isInitialized ? 'bg-green-500' : 'bg-destructive'}`} />
+                <span>{isInitialized ? 'Ready' : 'Initializing...'}</span>
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+          
+          {/* Detection Results - Center Above Camera Controls */}
+          {detections.length > 0 && (
+            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full bg-black/50 text-white text-sm flex items-center space-x-2 z-10">
+              <div className="w-3 h-3 rounded-full bg-primary"></div>
+              <span>{detections.length} detection{detections.length !== 1 ? 's' : ''} found</span>
+            </div>
+          )}
+          
+          {/* Error message */}
+          {error && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center text-foreground max-w-sm mx-auto px-6">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-destructive/20 flex items-center justify-center">
+                  <Icon icon="mingcute:alert-fill" className="w-8 h-8 text-destructive" />
+                </div>
+                <p className="text-sm opacity-75 leading-relaxed mb-4">
+                  {error}
+                </p>
+              </div>
+            </div>
+          )}
+          
+          {/* No camera message - only show when no error and camera is off */}
+          {!isCameraActive && !error && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center text-foreground">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Icon icon="mingcute:camera-2-off-line" className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-bold mb-2">Camera Off</h3>
+                <div className="flex items-center justify-center space-x-2 text-sm opacity-75">
+                  <Icon icon="mingcute:camera-2-line" className="w-4 h-4 text-primary" />
+                  <span>Click the camera button to enable the camera</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Camera Controls */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-10">
+            {/* Camera Start/Stop Button */}
+            <Button
+              onClick={handleCameraToggle}
+              variant="ghost"
+              size="icon"
+              className={`rounded-full shadow-lg w-12 h-12 transition-opacity duration-200 ${
+                isCameraActive 
+                  ? 'bg-white text-black opacity-60 hover:opacity-100' 
+                  : 'bg-black/50 text-white opacity-60 hover:opacity-100'
+              }`}
+            >
+              <Icon icon={isCameraActive ? "mingcute:camera-2-off-line" : "mingcute:camera-2-line"} className="w-5 h-5" />
+            </Button>
+
+            {/* Detection Start/Stop Button */}
+            {isCameraActive && (
+              <Button
+                  onClick={handleDetectionToggle}
+
+                className={`rounded-full shadow-lg w-12 h-12 transition-opacity duration-200 ${
+                  isDetecting 
+                    ? 'bg-white text-black opacity-60 hover:opacity-100' 
+                    : 'bg-black/50 text-white opacity-60 hover:opacity-100'
+                }`}
+              >
+                <Icon icon={isDetecting ? "mingcute:stop-line" : "mingcute:play-line"} className="w-5 h-5" />
+              </Button>
+            )}
+
+            {/* Reset Button - Only show when there are detections */}
+            {detections.length > 0 && (
+              <Button
+                onClick={handleReset}
+                variant="ghost"
+                size="icon"
+                className="rounded-full shadow-lg w-12 h-12 bg-black/50 text-white opacity-60 hover:opacity-100"
+              >
+                <Icon icon="mingcute:refresh-anticlockwise-1-fill" className="w-5 h-5" />
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

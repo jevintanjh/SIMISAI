@@ -1,8 +1,27 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Camera, Mic, Settings, Phone, Volume2, Bot, User, Send } from "lucide-react";
 import { MediaPipeCameraView } from "@/components/MediaPipeCameraView";
+import InstructionCard from "@/components/InstructionCard";
+import FloatingChat from "@/components/FloatingChat";
+import { Icon } from "@iconify/react";
+
+interface Instruction {
+  id: string;
+  deviceId: string;
+  stepNumber: number;
+  title: string;
+  description: string;
+  translations: {
+    [key: string]: {
+      title: string;
+      description: string;
+    };
+  } | null;
+  audioUrl: string | null;
+  imageUrl: string | null;
+  checkpoints: string[] | null;
+}
 
 interface GuidanceProps {
   config: SessionConfig;
@@ -21,235 +40,372 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   const [progress, setProgress] = useState(25);
   const [userQuestion, setUserQuestion] = useState("");
   const [chatMessages, setChatMessages] = useState<Array<{id: number, type: 'user' | 'ai', content: string}>>([]);
-  const [isSending, setIsSending] = useState(false);
-  const [deviceHint, setDeviceHint] = useState<{ type?: string; label?: string; confidence?: number } | null>(null);
-  const sessionId = `guidance-${Date.now().toString(36)}`;
+  const [showInstructions, setShowInstructions] = useState(true);
+  const [instructions, setInstructions] = useState<Instruction[]>([]);
+  const [currentInstruction, setCurrentInstruction] = useState<Instruction | null>(null);
+  const [totalSteps, setTotalSteps] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const introByLang: Record<string, string> = {
-    en: "Hi! I’m SIMIS AI. Ask me anything about the medical device you’re using. Tips: describe the step you’re on, what you’re seeing, or what’s unclear. I’ll answer briefly with step‑by‑step guidance.",
-    id: "Hai! Saya SIMIS AI. Tanyakan apa saja tentang perangkat medis yang Anda gunakan. Tips: jelaskan langkah yang sedang Anda lakukan, apa yang Anda lihat, atau yang belum jelas. Saya akan menjawab singkat dan bertahap.",
-    th: "สวัสดีครับ/ค่ะ ฉันคือ SIMIS AI ถามได้ทุกอย่างเกี่ยวกับอุปกรณ์ทางการแพทย์ของคุณ เคล็ดลับ: บอกขั้นตอนที่ทำอยู่ สิ่งที่เห็น หรือส่วนที่ยังไม่ชัดเจน ฉันจะตอบแบบสั้นและเป็นขั้นตอน",
-    vi: "Xin chào! Tôi là SIMIS AI. Hãy hỏi bất cứ điều gì về thiết bị y tế bạn đang dùng. Gợi ý: mô tả bước bạn đang làm, những gì bạn thấy hoặc điều chưa rõ. Tôi sẽ trả lời ngắn gọn theo từng bước.",
-    fil: "Hi! Ako si SIMIS AI. Magtanong tungkol sa medical device na gamit mo. Tip: ilahad ang kasalukuyang hakbang, nakikita mo, o hindi malinaw. Sasagot ako nang maikli at sunod‑sunod na hakbang."
-  };
-
-  // Mock instruction based on step
-  const getInstructionForStep = (step: number) => {
-    const instructions = {
-      1: {
-        title: "Wrap the cuff around your arm",
-        description: "Place the cuff around your upper arm, about 1 inch above your elbow. The cuff should be snug but not too tight.",
-        audioDescription: "Place the cuff around your upper arm, about 1 inch above your elbow. The cuff should be snug but not too tight."
+  // Fetch instructions from server
+  useEffect(() => {
+    const fetchInstructions = async () => {
+      try {
+        setLoading(true);
+        
+        // First, get all devices to find the thermometer
+        const devicesResponse = await fetch('/api/devices');
+        if (devicesResponse.ok) {
+          const devices = await devicesResponse.json();
+          const thermometerDevice = devices.find((device: any) => device.type === 'thermometer');
+          
+          if (thermometerDevice) {
+            // Now fetch instructions for the thermometer device
+            const instructionsResponse = await fetch(`/api/devices/${thermometerDevice.id}/instructions`);
+            if (instructionsResponse.ok) {
+              const data = await instructionsResponse.json();
+              setInstructions(data);
+              setTotalSteps(data.length);
+              if (data.length > 0) {
+                setCurrentInstruction(data[0]); // Start with first step
+              }
+            }
+          } else {
+            console.error('Thermometer device not found');
+            setInstructions([]);
+            setTotalSteps(0);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch instructions:', error);
+        // Fallback to mock data if API fails
+        setInstructions([]);
+        setTotalSteps(0);
+      } finally {
+        setLoading(false);
       }
     };
-    return instructions[step as keyof typeof instructions] || instructions[1];
+
+    fetchInstructions();
+  }, []);
+
+  // Update current instruction when step changes
+  useEffect(() => {
+    if (instructions.length > 0) {
+      const instruction = instructions.find(inst => inst.stepNumber === currentStep);
+      if (instruction) {
+        setCurrentInstruction(instruction);
+        setProgress((currentStep / totalSteps) * 100);
+      }
+    }
+  }, [currentStep, instructions, totalSteps]);
+
+  // Get instruction for current step
+  const getInstructionForStep = (step: number) => {
+    if (!currentInstruction) return null;
+    
+    const language = config.language || 'en';
+    const translation = currentInstruction.translations?.[language];
+    
+    return {
+      title: translation?.title || currentInstruction.title,
+      description: translation?.description || currentInstruction.description,
+      checkpoints: currentInstruction.checkpoints || []
+    };
   };
 
   const instruction = getInstructionForStep(currentStep);
 
-  const handleSendMessage = async () => {
-    const question = userQuestion.trim();
-    if (!question) return;
-    const newUserMessage = { id: Date.now(), type: 'user' as const, content: question };
-    setChatMessages(prev => [...prev, newUserMessage]);
-    setUserQuestion("");
-    setIsSending(true);
-    try {
-      const res = await fetch('/api/chat/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          question,
-          language: config.language || 'en',
-          deviceHint: deviceHint || { type: config.device }
-        })
-      });
-      const data = await res.json();
-      const answer: string = data?.message?.message || data?.message?.content || data?.answer || 'Sorry, I could not generate a response.';
-      setChatMessages(prev => [...prev, { id: Date.now() + 1, type: 'ai', content: answer }]);
-    } catch {
-      setChatMessages(prev => [...prev, { id: Date.now() + 2, type: 'ai', content: 'Sorry, there was a problem. Please try again.' }]);
-    } finally {
-      setIsSending(false);
+  const handleNextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
     }
   };
 
+  const handlePreviousStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (userQuestion.trim()) {
+      const newUserMessage = {
+        id: Date.now(),
+        type: 'user' as const,
+        content: userQuestion
+      };
+      
+      const aiResponse = {
+        id: Date.now() + 1,
+        type: 'ai' as const,
+        content: "Manset harus pas tetapi tidak ketat. Anda harus bisa menyelipkan satu jari di bawahnya dengan nyaman."
+      };
+
+      setChatMessages(prev => [...prev, newUserMessage, aiResponse]);
+      setUserQuestion("");
+      
+      // Auto-scroll to bottom after adding messages
+      setTimeout(() => {
+        const messagesContainer = document.querySelector('.chat-messages');
+        if (messagesContainer) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      }, 100);
+    }
+  };
+
+  const toggleInstructions = () => {
+    setShowInstructions(!showInstructions);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Main container with white border */}
-      <div className="w-full max-w-7xl mx-auto bg-background border-2 border-white/20 rounded-2xl p-6 m-4">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={onBack}
-              className="text-white hover:bg-white/10"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Step 1: Wrap the cuff around your arm
-            </Button>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#1E1B4B] to-[#312E81] text-white">
+      {/* Header */}
+      <header className="bg-transparent text-white p-6 relative">
+        {/* Back Button and Session Configuration Container - Left Aligned */}
+        <div className="flex items-center gap-4">
+          <Card className="bg-card/50 border-border backdrop-blur-sm cursor-pointer hover:bg-white/10 transition-colors" onClick={onBack}>
+            <CardContent className="px-6 py-2">
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Icon icon="mingcute:arrow-to-left-fill" className="w-7 h-7 text-white/70" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-white">Back</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span className="text-white text-sm">REC 0:08:41</span>
+          {/* Session Configuration */}
+          <div className="flex gap-4">
+            {/* Device Option Box */}
+            <Card className="bg-card/50 border-border backdrop-blur-sm">
+              <CardContent className="px-6 py-2">
+                <div className="flex items-center space-x-3">
+                  <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Icon icon="mingcute:cellphone-vibration-line" className="w-7 h-7 text-white/70" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-white">
+                      {config.device === 'thermometer' ? 'Digital thermometer' :
+                       config.device === 'ear' ? 'Ear thermometer' :
+                       config.device === 'forehead' ? 'Forehead thermometer' :
+                       config.device === 'blood-pressure' ? 'Blood pressure monitor' :
+                       config.device === 'glucose' ? 'Blood glucose meter' : config.device}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Language Option Box */}
+            <Card className="bg-card/50 border-border backdrop-blur-sm">
+              <CardContent className="px-6 py-2">
+                <div className="flex items-center space-x-3">
+                  <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Icon icon="mingcute:world-2-line" className="w-7 h-7 text-white/80" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-white">
+                      {config.language === 'en' ? 'English' :
+                       config.language === 'id' ? 'Bahasa Indonesia' :
+                       config.language === 'th' ? 'ไทย' :
+                       config.language === 'vi' ? 'Tiếng Việt' :
+                       config.language === 'fil' ? 'Filipino' : 'English'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Guidance Style Option Box */}
+            <Card className="bg-card/50 border-border backdrop-blur-sm">
+              <CardContent className="px-6 py-2">
+                <div className="flex items-center space-x-3">
+                  <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Icon icon="mingcute:settings-1-line" className="w-7 h-7 text-white/80" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-white">
+                      {config.guidanceStyle === 'direct' ? 'Direct instructions' :
+                       config.guidanceStyle === 'gentle' ? 'Gentle suggestions' :
+                       config.guidanceStyle === 'detailed' ? 'Detailed explanations' : config.guidanceStyle}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Voice Option Box */}
+            <Card className="bg-card/50 border-border backdrop-blur-sm">
+              <CardContent className="px-6 py-2">
+                <div className="flex items-center space-x-3">
+                  <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Icon icon="mingcute:mic-ai-line" className="w-7 h-7 text-white/80" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-white">
+                      {config.voiceOption === 'male' ? 'Male' :
+                       config.voiceOption === 'female' ? 'Female' :
+                       config.voiceOption === 'text' ? 'Text only' : config.voiceOption}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
+      </header>
 
-        <div className="grid grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+      {/* Main Content - Two Panel Layout */}
+      <main className="max-w-8xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[600px]">
+          {/* Left Panel: Camera View (2/3 width) */}
+          <div className="lg:col-span-2">
+            <div className="h-full min-h-[600px] rounded-xl overflow-hidden">
+              <MediaPipeCameraView 
+                onThermometerDetected={(detection) => {
+                  console.log('Device detected:', detection);
+                }}
+                sessionConfig={config}
+                language={config.language}
+                sessionId="guidance-session"
+              />
+            </div>
+          </div>
           
-          {/* Left: Camera View */}
-          <div className="col-span-2">
-            <Card className="bg-black border-border h-full relative overflow-hidden">
-              <CardContent className="p-0 h-full">
-                <MediaPipeCameraView onThermometerDetected={(detection) => {
-                  setDeviceHint({ type: 'thermometer', label: 'Thermometer', confidence: detection?.confidence || 0.9 });
-                }} />
+          {/* Right Panel: Instructions + Chat (1/3 width) */}
+          <div className="lg:col-span-1">
+            {showInstructions ? (
+              <div className="bg-card border border-border rounded-lg shadow-lg p-4 h-full min-h-[600px] flex flex-col">
+                {/* Instruction Card */}
+                <div className="flex-1">
+                  {loading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                        <p className="text-sm text-muted-foreground">Loading instructions...</p>
+                      </div>
+                    </div>
+                  ) : instruction ? (
+                    <InstructionCard 
+                      language={config.language}
+                      sessionId="guidance-session"
+                      currentStep={currentStep}
+                      totalSteps={totalSteps}
+                      title={instruction.title}
+                      description={instruction.description}
+                      checkpoints={instruction.checkpoints}
+                      onNextStep={handleNextStep}
+                      onPreviousStep={handlePreviousStep}
+                      canGoNext={currentStep < totalSteps}
+                      canGoPrevious={currentStep > 1}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-sm text-muted-foreground">No instructions available</p>
+                    </div>
+                  )}
+                </div>
                 
-                {/* Detection overlays */}
-                <div className="absolute inset-4 pointer-events-none">
-                  {/* Green bounding box for "Cuff" */}
-                  <div className="absolute top-20 left-20 w-48 h-32 border-2 border-green-400 rounded">
-                    <div className="bg-green-400 text-black px-2 py-1 text-xs font-medium rounded -mt-6">
-                      Cuff
+                {/* Toggle to Chat Button */}
+                <div className="mt-4 flex-shrink-0">
+                  <Button 
+                    onClick={toggleInstructions}
+                    className="w-full bg-primary text-white hover:bg-primary transition-colors text-base font-semibold py-4"
+                  >
+                    Chat with Assistant
+                    <Icon icon="mingcute:chat-4-fill" className="w-5 h-5" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-card border border-border rounded-lg shadow-lg p-4 h-full min-h-[600px] flex flex-col">
+                {/* Toggle to Instructions Button - Above chat box */}
+                <div className="mb-4 flex-shrink-0">
+                  <Button 
+                    onClick={toggleInstructions}
+                    className="w-full bg-primary text-white hover:bg-primary transition-colors text-base font-semibold py-4"
+                  >
+                    <Icon icon="mingcute:list-expansion-fill" className="w-5 h-5" />
+                    View Instructions
+                  </Button>
+                </div>
+                
+                {/* Chat Assistant - Styled to match Instruction Card */}
+                <div className="flex flex-col h-full min-h-0 bg-[rgba(139,92,246,0.1)] border border-[rgba(139,92,246,0.3)] rounded-lg p-4">
+                  {/* Chat Header */}
+                  <div className="mb-4 flex-shrink-0">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <h3 className="text-xl font-semibold text-foreground">Chat with Assistant</h3>
+                      <Icon icon="mingcute:chat-4-fill" className="w-6 h-6 mb-1 text-primary" />
                     </div>
                   </div>
                   
-                  {/* Yellow warning circle */}
-                  <div className="absolute top-32 left-32 w-16 h-16 border-2 border-yellow-400 rounded-full flex items-center justify-center">
-                    <span className="text-yellow-400 text-xs font-medium">Too loose</span>
-                  </div>
-                </div>
-                
-                {/* Camera controls */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-4">
-                  <Button size="sm" variant="secondary" className="rounded-full w-10 h-10 p-0">
-                    <Camera className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="secondary" className="rounded-full w-10 h-10 p-0">
-                    <Mic className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="secondary" className="rounded-full w-10 h-10 p-0">
-                    <Settings className="w-4 h-4" />
-                  </Button>
-                  <Button size="sm" variant="destructive" className="rounded-full w-10 h-10 p-0">
-                    <Phone className="w-4 h-4" />
-                  </Button>
-                </div>
-                
-                {/* Audio instruction bar */}
-                <div className="absolute bottom-16 left-4 right-4">
-                  <Card className="bg-card/90 border-border">
-                    <CardContent className="p-3">
-                      <div className="flex items-center space-x-3">
-                        <Button size="sm" variant="ghost" className="rounded-full w-8 h-8 p-0">
-                          <Volume2 className="w-4 h-4" />
-                        </Button>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-1 mb-1">
-                            {[...Array(40)].map((_, i) => (
-                              <div key={i} className={`w-1 rounded-full ${i < 15 ? 'bg-blue-500 h-2' : 'bg-gray-400 h-1'}`} />
-                            ))}
-                          </div>
-                          <p className="text-card-foreground text-sm">
-                            {instruction.audioDescription}
-                          </p>
-                        </div>
+                  {/* Chat Messages - Takes up remaining space with fixed height */}
+                  <div className="chat-messages flex-1 overflow-y-auto mb-4 space-y-3 min-h-0 max-h-[400px]">
+                    {/* Assistant greeting message */}
+                    <div className="bg-background text-foreground mr-4 p-3 rounded-lg border border-border">
+                      <p className="text-sm">Hello! I'm here to help you with your medical device setup. Feel free to ask me any questions!</p>
+                    </div>
+                    
+                    {chatMessages.map((message) => (
+                      <div 
+                        key={message.id} 
+                        className={`p-3 rounded-lg ${
+                          message.type === 'user' 
+                            ? 'bg-primary text-white ml-4' 
+                            : 'bg-background text-foreground mr-4 border border-border'
+                        }`}
+                      >
+                        <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right: Sidebar */}
-          <div className="col-span-1 space-y-6">
-            
-            {/* Progress Card */}
-            <Card className="bg-card border-border">
-              <CardContent className="p-6">
-                <div className="mb-4">
-                  <h3 className="text-white font-semibold text-lg mb-2">Step 1 of 5</h3>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div className="bg-primary h-2 rounded-full" style={{width: `${progress}%`}}></div>
+                    ))}
                   </div>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>Progress</span>
-                    <span>{progress}%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Messages/Chat Card */}
-            <Card className="bg-card border-border flex-1">
-              <CardContent className="p-6">
-                <div className="mb-4">
-                  <h4 className="text-white font-semibold flex items-center gap-2">
-                    <Bot className="w-4 h-4" /> Assistant
-                  </h4>
-                </div>
-                <div className="space-y-3 mb-4 max-h-80 overflow-y-auto pr-1">
-                  {/* Intro bubble */}
-                  <div className="flex items-start gap-2 mr-6">
-                    <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                      <Bot className="w-4 h-4" />
-                    </div>
-                    <div className="p-3 rounded-md text-sm leading-relaxed bg-white/10 text-white border border-white/15 shadow-sm prose prose-invert">
-                      <p>{introByLang[config.language] || introByLang.en}</p>
+                  
+                  {/* Chat Input - Fixed at bottom with constrained height */}
+                  <div className="space-y-3 flex-shrink-0">
+                    <div className="flex space-x-2 w-full">
+                      <textarea
+                        value={userQuestion}
+                        onChange={(e) => setUserQuestion(e.target.value)}
+                        placeholder="Ask a question..."
+                        className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-w-0 resize-none min-h-[40px] max-h-[120px]"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                          }
+                        }}
+                        rows={1}
+                        style={{
+                          height: 'auto',
+                          minHeight: '40px',
+                          maxHeight: '120px',
+                          overflowY: 'auto'
+                        }}
+                        onInput={(e) => {
+                          const target = e.target as HTMLTextAreaElement;
+                          target.style.height = 'auto';
+                          target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+                        }}
+                      />
+                      <Button 
+                        size="sm" 
+                        onClick={handleSendMessage}
+                        className="bg-primary hover:bg-primary/80 text-primary-foreground flex-shrink-0 self-end"
+                      >
+                        <Icon icon="mingcute:send-fill" className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
-                  {chatMessages.map((message) => (
-                    <div key={message.id} className={`flex items-start gap-2 ${message.type === 'user' ? 'justify-end' : ''}`}>
-                      {message.type !== 'user' && (
-                        <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                          <Bot className="w-4 h-4" />
-                        </div>
-                      )}
-                      <div className={`p-3 rounded-md text-sm leading-relaxed max-w-[90%] ${
-                        message.type === 'user'
-                          ? 'bg-primary/90 text-primary-foreground ml-6 rounded-tr-none'
-                          : 'bg-white/10 text-white border border-white/15 shadow-sm mr-6 rounded-tl-none prose prose-invert whitespace-pre-wrap'
-                      }`}>
-                        {message.content}
-                      </div>
-                      {message.type === 'user' && (
-                        <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                          <User className="w-4 h-4" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
                 </div>
-
-                <div className="mt-auto">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={userQuestion}
-                      onChange={(e) => setUserQuestion(e.target.value)}
-                      placeholder="Ask a question about your device"
-                      className="flex-1 bg-input border border-border rounded-lg px-4 py-3 text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    />
-                    <Button size="sm" onClick={handleSendMessage} className="bg-primary hover:bg-primary/80 w-10 h-10 rounded-lg" disabled={isSending}>
-                      <Send className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  {deviceHint && (
-                    <p className="mt-2 text-[10px] text-muted-foreground">Context: {deviceHint.type || deviceHint.label} {deviceHint.confidence ? `(${Math.round((deviceHint.confidence||0)*100)}%)` : ''}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

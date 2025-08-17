@@ -34,17 +34,25 @@ function Router() {
     setCurrentView('home');
   };
 
+  const handleBackFromHome = () => {
+    setCurrentView('welcome');
+  };
+
   if (currentView === 'welcome') {
-    return <Welcome onStartSession={handleStartSession} onGoToHome={handleGoToHome} />;
+    return <Welcome onStartSession={handleStartSession} />;
   }
 
   if (currentView === 'guidance' && sessionConfig) {
     return <Guidance config={sessionConfig} onBack={handleBackToWelcome} />;
   }
 
+  if (currentView === 'home') {
+    return <Home onBack={handleBackFromHome} sessionConfig={sessionConfig || undefined} />;
+  }
+
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={() => <Home onBack={handleBackFromHome} sessionConfig={sessionConfig || undefined} />} />
       <Route component={NotFound} />
     </Switch>
   );
