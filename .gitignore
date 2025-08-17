@@ -8,3 +8,11 @@ server-dev.log
 server-prod.log
 vite-dev.log
 
+cv_model/data
+# cv_model/models
+yolov8l.pt
+.env
+
+#logs
+*.log
+logs/
