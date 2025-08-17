@@ -5,7 +5,14 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Icon } from "@iconify/react";
 import { useEffect } from "react";
-import simulationImage from "@assets/generated_images/SIMIS_AI_thermometer_detection_interface_ddfe0475.png";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
+import demo1 from "@assets/Demo 1.jpg";
+import demo2 from "@assets/Demo 2.jpg";
+import demo3 from "@assets/Demo 3.jpg";
+import demo4 from "@assets/Demo 4.jpg";
+import demo5 from "@assets/Demo 5.jpg";
+import demo6 from "@assets/Demo 6.jpg";
+import demo7 from "@assets/Demo 7.jpg";
 
 interface WelcomeProps {
   onStartSession: (config: SessionConfig) => void;
@@ -28,6 +35,22 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
   const [showHowItWorks, setShowHowItWorks] = useState<boolean>(false);
   const [openPopover, setOpenPopover] = useState<string | null>(null);
   const [hoveredGuidance, setHoveredGuidance] = useState<string | null>(null);
+
+  // How It Works slides (Demo 1 → 7 order)
+  const howItWorksSlides = [
+    { title: "Thermometer detected", caption: "SIMIS AI identifies the thermometer in real-time using the camera.", img: demo1 },
+    { title: "Device not switched on", caption: "Determines that the thermometer is off or no display is found and prompts to power on.", img: demo2 },
+    { title: "Correct placement: in mouth", caption: "Confirms the user is measuring temperature correctly in the mouth.", img: demo3 },
+    // Swapped order maintained; update titles per request
+    { title: "Wrong Placement on Face", caption: "Detects the thermometer on the face – not a valid measuring position.", img: demo5 },
+    { title: "Wrong placement in Nose", caption: "Detects the thermometer in the nose – not a valid measuring position.", img: demo4 },
+    // Removed "other location" slide per request
+    { title: "Low temperature (Lo) error", caption: "Identifies a low‑temperature error on the screen and explains how to resolve it.", img: demo7 },
+  ];
+
+  const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   const languages = [
     { value: "en", label: "🇺🇸 English", flag: "🇺🇸" },
@@ -120,6 +143,24 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
       });
     }
   };
+
+  useEffect(() => {
+    // Auto-advance carousel
+    if (!carouselApi) return;
+    const onSelect = () => setSelectedIndex(carouselApi.selectedScrollSnap());
+    carouselApi.on('select', onSelect);
+    onSelect();
+    let timer: any;
+    const tick = () => {
+      if (!isPaused) carouselApi.scrollNext();
+      timer = setTimeout(tick, 3500);
+    };
+    timer = setTimeout(tick, 3500);
+    return () => {
+      try { carouselApi.off('select', onSelect); } catch {}
+      if (timer) clearTimeout(timer);
+    };
+  }, [carouselApi, isPaused]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -516,12 +557,39 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 <p className="text-white/70 text-sm text-center max-w-2xl mx-auto mb-6">
                   Real-time camera detection identifies your thermometer, while our AI provides step-by-step guidance in your preferred language with voice assistance.
                 </p>
-                
-                <img 
-                  src={simulationImage} 
-                  alt="SIMIS AI Interface Preview - Split screen showing thermometer detection with camera view and step-by-step guidance"
-                  className="w-full max-w-4xl mx-auto rounded-lg shadow-lg"
-                />
+
+                <div className="relative">
+                  <Carousel className="w-full" setApi={setCarouselApi}>
+                    <CarouselContent>
+                      {howItWorksSlides.map((slide, idx) => (
+                        <CarouselItem key={idx}>
+                          <div className="rounded-xl overflow-hidden border border-border bg-card/40">
+                            <img src={slide.img} alt={slide.title} className="w-full h-72 object-cover" />
+                            <div className="p-4">
+                              <h3 className="text-white font-semibold mb-1">{slide.title}</h3>
+                              <p className="text-white/70 text-sm">{slide.caption}</p>
+                            </div>
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="-left-4" />
+                    <CarouselNext className="-right-4" />
+                  </Carousel>
+                  <div className="mt-3 flex items-center justify-center gap-2"
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                  >
+                    {howItWorksSlides.map((_, i) => (
+                      <button
+                        key={i}
+                        aria-label={`Go to slide ${i + 1}`}
+                        onClick={() => carouselApi?.scrollTo(i)}
+                        className={`h-2 w-2 rounded-full transition-all ${selectedIndex === i ? 'bg-white w-6' : 'bg-white/40 hover:bg-white/70'}`}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
