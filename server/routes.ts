@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { insertChatMessageSchema, insertGuidanceSessionSchema } from "@shared/schema";
 import { z } from "zod";
 import { cvService } from "./cv-service";
+import { cvServiceHF } from "./cv-service-hf";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -246,7 +247,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('CV detection request received');
       console.log('Image data length:', imageData.length);
       
-      const result = await cvService.detectObjectsFromBase64(imageData);
+      // Use Hugging Face service if HF_SPACES_URL is set, otherwise use local service
+      const service = process.env.HF_SPACES_URL ? cvServiceHF : cvService;
+      const result = await service.detectObjectsFromBase64(imageData);
       
       console.log('CV detection completed');
       console.log('Detections found:', result.detections.length);
@@ -351,7 +354,8 @@ async function generateSealionResponse(args: { sessionId: string; userMessage: s
         role: "system",
         content: [
           "You are SIMIS AI, a multilingual medical device assistant.",
-          `- Answer strictly in the user's language (ISO code: ${language}). Do not switch languages.`,
+          "- Detect the language of the user's most recent message and respond strictly in that same language.",
+          "- Do not translate the user's message into a different language.",
           "- Explain step-by-step, short and clear.",
           "- If safety-critical, recommend checking the device manual and consulting a clinician.",
           "- Keep responses under 120 words.",
@@ -363,7 +367,12 @@ async function generateSealionResponse(args: { sessionId: string; userMessage: s
       { role: "user", content: userMessage }
     ];
 
-    const endpoint = `${apiBaseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+    // Normalize base URL (handle trailing slash and accidental /v1)
+    const normalizedBase = (apiBaseUrl || '')
+      .trim()
+      .replace(/\/+$/, '')
+      .replace(/\/v1$/i, '');
+    const endpoint = `${normalizedBase}/v1/chat/completions`;
     console.log('[chat] Calling Sealion:', { endpoint, model });
     const res = await fetch(endpoint, {
       method: "POST",

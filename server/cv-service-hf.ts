@@ -1,6 +1,4 @@
-import { spawn } from 'child_process';
-import path from 'path';
-import fs from 'fs';
+import fetch from 'node-fetch';
 
 export interface DetectionResult {
   class: string;
@@ -16,98 +14,66 @@ export interface CVResponse {
 }
 
 export class CVServiceHF {
-  private modelPath: string;
-  private pythonScript: string;
+  private apiUrl: string;
 
   constructor() {
-    // Use Hugging Face model instead of local
-    this.modelPath = 'spizzray/simisai1.0'; // Replace with your username
+    // This will be your Hugging Face Spaces URL
+    // Format: https://your-username-simisai1-0.hf.space
+    this.apiUrl = process.env.HF_SPACES_URL || 'https://your-username-simisai1-0.hf.space';
     
-    this.pythonScript = path.resolve(process.cwd(), 'cv_model/detect_screen.py');
+    console.log('CV Service HF initialized with:');
+    console.log(`- API URL: ${this.apiUrl}`);
+    console.log(`- Environment: ${process.env.NODE_ENV}`);
   }
 
   /**
-   * Process an image using Hugging Face model
-   */
-  async detectObjects(imagePath: string): Promise<CVResponse> {
-    return new Promise((resolve, reject) => {
-      const startTime = Date.now();
-      
-      // Spawn Python process for inference with HF model
-      const pythonProcess = spawn('python', [
-        this.pythonScript,
-        '--model', this.modelPath,
-        '--image', imagePath,
-        '--conf', '0.5',
-        '--output', 'json'
-      ]);
-
-      let output = '';
-      let errorOutput = '';
-
-      pythonProcess.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-
-      pythonProcess.stderr.on('data', (data) => {
-        errorOutput += data.toString();
-      });
-
-      pythonProcess.on('close', (code) => {
-        const processingTime = Date.now() - startTime;
-        
-        if (code !== 0) {
-          console.error('Python script error:', errorOutput);
-          reject(new Error(`Python script failed with code ${code}: ${errorOutput}`));
-          return;
-        }
-
-        try {
-          const result = JSON.parse(output);
-          resolve({
-            detections: result.detections || [],
-            processing_time: processingTime,
-            image_size: result.image_size || [0, 0]
-          });
-        } catch (error) {
-          reject(new Error(`Failed to parse Python output: ${error}`));
-        }
-      });
-
-      pythonProcess.on('error', (error) => {
-        reject(new Error(`Failed to start Python process: ${error.message}`));
-      });
-    });
-  }
-
-  /**
-   * Process base64 image data
+   * Process base64 image data using Hugging Face Spaces API
    */
   async detectObjectsFromBase64(base64Data: string): Promise<CVResponse> {
-    // Remove data URL prefix if present
-    const base64Image = base64Data.replace(/^data:image\/[a-z]+;base64,/, '');
-    
-    // Create temporary file
-    const tempDir = path.resolve(process.cwd(), 'temp');
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-    }
-    
-    const tempImagePath = path.join(tempDir, `temp_${Date.now()}.jpg`);
-    
     try {
-      // Write base64 to file
-      fs.writeFileSync(tempImagePath, base64Image, 'base64');
+      console.log('Calling Hugging Face Spaces API...');
       
-      // Process the image
-      const result = await this.detectObjects(tempImagePath);
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
       
-      return result;
-    } finally {
-      // Clean up temporary file
-      if (fs.existsSync(tempImagePath)) {
-        fs.unlinkSync(tempImagePath);
+      // Add authentication if token is available
+      if (process.env.HUGGINGFACE_TOKEN) {
+        headers['Authorization'] = `Bearer ${process.env.HUGGINGFACE_TOKEN}`;
       }
+      
+      const response = await fetch(`${this.apiUrl}/run/predict`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          data: [base64Data]
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json() as any;
+      
+      // Hugging Face Spaces returns data in a specific format
+      // The actual result is in result.data[0]
+      const apiResult = result.data[0];
+      
+      console.log('HF API response received:', {
+        detections: apiResult.detections?.length || 0,
+        processing_time: apiResult.processing_time
+      });
+
+      return {
+        detections: apiResult.detections || [],
+        processing_time: apiResult.processing_time || 0,
+        image_size: apiResult.image_size || [0, 0]
+      };
+
+    } catch (error) {
+      console.error('HF API error:', error);
+      throw new Error(`Failed to call Hugging Face API: ${error}`);
     }
   }
 
@@ -116,8 +82,8 @@ export class CVServiceHF {
    */
   getModelInfo() {
     return {
-      model_path: this.modelPath,
-      model_type: 'YOLOv8 (Hugging Face)',
+      model_path: this.apiUrl,
+      model_type: 'YOLOv8 (Hugging Face Spaces)',
       classes: [
         'thermometer (Lo error)',
         'thermometer (measuring)',
@@ -130,6 +96,35 @@ export class CVServiceHF {
         'thermometer on face'
       ]
     };
+  }
+
+  /**
+   * Health check for the CV service
+   */
+  async healthCheck(): Promise<boolean> {
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Add authentication if token is available
+      if (process.env.HUGGINGFACE_TOKEN) {
+        headers['Authorization'] = `Bearer ${process.env.HUGGINGFACE_TOKEN}`;
+      }
+      
+      const response = await fetch(`${this.apiUrl}/run/predict`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          data: [''] // Empty base64 data for health check
+        }),
+      });
+      
+      return response.ok;
+    } catch (error) {
+      console.error('HF API health check failed:', error);
+      return false;
+    }
   }
 }
 
