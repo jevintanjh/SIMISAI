@@ -69,8 +69,19 @@ export class MemStorage implements IStorage {
       description: "Blood glucose monitoring device"
     };
 
+    const thermometer: Device = {
+      id: randomUUID(),
+      name: "Digital Thermometer",
+      type: "thermometer",
+      stepCount: 5,
+      isActive: true,
+      imageUrl: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300",
+      description: "Digital oral thermometer for temperature measurement"
+    };
+
     this.devices.set(bpMonitor.id, bpMonitor);
     this.devices.set(glucoseMeter.id, glucoseMeter);
+    this.devices.set(thermometer.id, thermometer);
 
     // Create sample instructions for BP Monitor
     const bpInstructions: Instruction[] = [
@@ -133,6 +144,154 @@ export class MemStorage implements IStorage {
     ];
 
     bpInstructions.forEach(instruction => {
+      this.instructions.set(instruction.id, instruction);
+    });
+
+    // Create sample instructions for Digital Thermometer
+    const thermometerInstructions: Instruction[] = [
+      {
+        id: randomUUID(),
+        deviceId: thermometer.id,
+        stepNumber: 1,
+        title: "Turn on the thermometer and wait for the ready signal",
+        description: "Press the power button on your digital thermometer and wait for the display to show the ready signal (usually a beep or specific icon).",
+        translations: {
+          "id": {
+            title: "Nyalakan termometer dan tunggu sinyal siap",
+            description: "Tekan tombol power pada termometer digital Anda dan tunggu layar menampilkan sinyal siap (biasanya bunyi beep atau ikon tertentu)."
+          },
+          "th": {
+            title: "เปิดเทอร์โมมิเตอร์และรอสัญญาณพร้อม",
+            description: "กดปุ่มเปิดเครื่องเทอร์โมมิเตอร์ดิจิตอลและรอให้หน้าจอแสดงสัญญาณพร้อม (มักจะเป็นเสียงบี๊บหรือไอคอนเฉพาะ)"
+          },
+          "vi": {
+            title: "Bật nhiệt kế và chờ tín hiệu sẵn sàng",
+            description: "Nhấn nút nguồn trên nhiệt kế kỹ thuật số và chờ màn hình hiển thị tín hiệu sẵn sàng (thường là tiếng beep hoặc biểu tượng cụ thể)."
+          },
+          "fil": {
+            title: "I-on ang thermometer at maghintay ng ready signal",
+            description: "Pindutin ang power button sa inyong digital thermometer at maghintay na magpakita ang display ng ready signal (karaniwang beep o specific na icon)."
+          }
+        },
+        audioUrl: null,
+        imageUrl: null,
+        checkpoints: ["Power button pressed", "Ready signal displayed"]
+      },
+      {
+        id: randomUUID(),
+        deviceId: thermometer.id,
+        stepNumber: 2,
+        title: "Place the tip under your tongue, to the side of your mouth",
+        description: "Gently place the thermometer tip under your tongue, positioning it to the side of your mouth for accurate readings.",
+        translations: {
+          "id": {
+            title: "Tempatkan ujung termometer di bawah lidah, ke samping mulut",
+            description: "Tempatkan ujung termometer dengan lembut di bawah lidah, posisikan ke samping mulut untuk pembacaan yang akurat."
+          },
+          "th": {
+            title: "วางปลายเทอร์โมมิเตอร์ใต้ลิ้น ด้านข้างปาก",
+            description: "วางปลายเทอร์โมมิเตอร์เบาๆ ใต้ลิ้น โดยวางไว้ด้านข้างปากเพื่อการอ่านค่าที่แม่นยำ"
+          },
+          "vi": {
+            title: "Đặt đầu nhiệt kế dưới lưỡi, bên cạnh miệng",
+            description: "Nhẹ nhàng đặt đầu nhiệt kế dưới lưỡi, định vị bên cạnh miệng để có kết quả đọc chính xác."
+          },
+          "fil": {
+            title: "Ilagay ang tip ng thermometer sa ilalim ng dila, sa gilid ng bibig",
+            description: "Dahan-dahang ilagay ang tip ng thermometer sa ilalim ng dila, iposisyon ito sa gilid ng bibig para sa tumpak na pagbabasa."
+          }
+        },
+        audioUrl: null,
+        imageUrl: null,
+        checkpoints: ["Tip positioned under tongue", "Positioned to the side"]
+      },
+      {
+        id: randomUUID(),
+        deviceId: thermometer.id,
+        stepNumber: 3,
+        title: "Close your mouth gently and keep your lips sealed",
+        description: "Close your mouth gently around the thermometer, ensuring your lips are sealed to prevent air from affecting the reading.",
+        translations: {
+          "id": {
+            title: "Tutup mulut dengan lembut dan jaga bibir tetap tertutup",
+            description: "Tutup mulut dengan lembut di sekitar termometer, pastikan bibir tetap tertutup untuk mencegah udara mempengaruhi pembacaan."
+          },
+          "th": {
+            title: "ปิดปากเบาๆ และปิดริมฝีปากให้สนิท",
+            description: "ปิดปากเบาๆ รอบเทอร์โมมิเตอร์ ตรวจสอบให้แน่ใจว่าริมฝีปากปิดสนิทเพื่อป้องกันไม่ให้อากาศส่งผลต่อการอ่านค่า"
+          },
+          "vi": {
+            title: "Nhắm miệng nhẹ nhàng và giữ môi khép kín",
+            description: "Nhắm miệng nhẹ nhàng xung quanh nhiệt kế, đảm bảo môi khép kín để ngăn không khí ảnh hưởng đến kết quả đọc."
+          },
+          "fil": {
+            title: "Isara ang bibig nang dahan-dahan at panatilihing nakasara ang mga labi",
+            description: "Isara ang bibig nang dahan-dahan sa paligid ng thermometer, tiyaking nakasara ang mga labi para maiwasan na maapektuhan ng hangin ang pagbabasa."
+          }
+        },
+        audioUrl: null,
+        imageUrl: null,
+        checkpoints: ["Mouth closed gently", "Lips sealed properly"]
+      },
+      {
+        id: randomUUID(),
+        deviceId: thermometer.id,
+        stepNumber: 4,
+        title: "Wait for the thermometer to beep (usually 30-60 seconds)",
+        description: "Hold the thermometer in place and wait for the beep sound that indicates the measurement is complete.",
+        translations: {
+          "id": {
+            title: "Tunggu termometer berbunyi beep (biasanya 30-60 detik)",
+            description: "Tahan termometer di tempat dan tunggu suara beep yang menandakan pengukuran selesai."
+          },
+          "th": {
+            title: "รอให้เทอร์โมมิเตอร์ส่งเสียงบี๊บ (โดยปกติ 30-60 วินาที)",
+            description: "ถือเทอร์โมมิเตอร์ไว้ในตำแหน่งเดิมและรอเสียงบี๊บที่บ่งบอกว่าการวัดเสร็จสิ้นแล้ว"
+          },
+          "vi": {
+            title: "Giữ nhiệt kế tại chỗ và chờ tiếng beep cho biết việc đo đã hoàn thành.",
+            description: "Giữ nhiệt kế tại chỗ và chờ tiếng beep cho biết việc đo đã hoàn thành."
+          },
+          "fil": {
+            title: "Maghintay na mag-beep ang thermometer (karaniwang 30-60 segundo)",
+            description: "Hawakan ang thermometer sa lugar at maghintay ng beep sound na nagpapahiwatig na tapos na ang pagsukat."
+          }
+        },
+        audioUrl: null,
+        imageUrl: null,
+        checkpoints: ["Thermometer held in place", "Beep sound heard"]
+      },
+      {
+        id: randomUUID(),
+        deviceId: thermometer.id,
+        stepNumber: 5,
+        title: "Remove and read the temperature display",
+        description: "Carefully remove the thermometer from your mouth and read the temperature displayed on the screen.",
+        translations: {
+          "id": {
+            title: "Angkat dan baca tampilan suhu",
+            description: "Angkat termometer dengan hati-hati dari mulut dan baca suhu yang ditampilkan di layar."
+          },
+          "th": {
+            title: "นำเทอร์โมมิเตอร์ออกและอ่านค่าอุณหภูมิที่แสดง",
+            description: "นำเทอร์โมมิเตอร์ออกจากปากอย่างระมัดระวังและอ่านค่าอุณหภูมิที่แสดงบนหน้าจอ"
+          },
+          "vi": {
+            title: "Lấy nhiệt kế ra khỏi miệng và đọc nhiệt độ hiển thị trên màn hình.",
+            description: "Lấy nhiệt kế ra khỏi miệng và đọc nhiệt độ hiển thị trên màn hình."
+          },
+          "fil": {
+            title: "Alisin at basahin ang temperature display",
+            description: "Maingat na alisin ang thermometer sa bibig at basahin ang temperatura na ipinapakita sa screen."
+          }
+        },
+        audioUrl: null,
+        imageUrl: null,
+        checkpoints: ["Thermometer removed safely", "Temperature read correctly"]
+      }
+    ];
+
+    thermometerInstructions.forEach(instruction => {
       this.instructions.set(instruction.id, instruction);
     });
   }
