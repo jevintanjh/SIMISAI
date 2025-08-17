@@ -143,6 +143,14 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
 
       setChatMessages(prev => [...prev, newUserMessage, aiResponse]);
       setUserQuestion("");
+      
+      // Auto-scroll to bottom after adding messages
+      setTimeout(() => {
+        const messagesContainer = document.querySelector('.chat-messages');
+        if (messagesContainer) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      }, 100);
     }
   };
 
@@ -335,8 +343,8 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                     </div>
                   </div>
                   
-                  {/* Chat Messages - Takes up remaining space */}
-                  <div className="flex-1 overflow-y-auto mb-4 space-y-3 min-h-0">
+                  {/* Chat Messages - Takes up remaining space with fixed height */}
+                  <div className="chat-messages flex-1 overflow-y-auto mb-4 space-y-3 min-h-0 max-h-[400px]">
                     {/* Assistant greeting message */}
                     <div className="bg-background text-foreground mr-4 p-3 rounded-lg border border-border">
                       <p className="text-sm">Hello! I'm here to help you with your medical device setup. Feel free to ask me any questions!</p>
@@ -351,26 +359,42 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                             : 'bg-background text-foreground mr-4 border border-border'
                         }`}
                       >
-                        <p className="text-sm">{message.content}</p>
+                        <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
                       </div>
                     ))}
                   </div>
                   
-                  {/* Chat Input - Fixed at bottom */}
+                  {/* Chat Input - Fixed at bottom with constrained height */}
                   <div className="space-y-3 flex-shrink-0">
                     <div className="flex space-x-2 w-full">
-                      <input
-                        type="text"
+                      <textarea
                         value={userQuestion}
                         onChange={(e) => setUserQuestion(e.target.value)}
                         placeholder="Ask a question..."
-                        className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-w-0"
-                        onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                        className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-w-0 resize-none min-h-[40px] max-h-[120px]"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                          }
+                        }}
+                        rows={1}
+                        style={{
+                          height: 'auto',
+                          minHeight: '40px',
+                          maxHeight: '120px',
+                          overflowY: 'auto'
+                        }}
+                        onInput={(e) => {
+                          const target = e.target as HTMLTextAreaElement;
+                          target.style.height = 'auto';
+                          target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+                        }}
                       />
                       <Button 
                         size="sm" 
                         onClick={handleSendMessage}
-                        className="bg-primary hover:bg-primary/80 text-primary-foreground flex-shrink-0"
+                        className="bg-primary hover:bg-primary/80 text-primary-foreground flex-shrink-0 self-end"
                       >
                         <Icon icon="mingcute:send-fill" className="w-4 h-4" />
                       </Button>
