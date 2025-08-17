@@ -45,6 +45,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   const [currentInstruction, setCurrentInstruction] = useState<Instruction | null>(null);
   const [totalSteps, setTotalSteps] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [deviceHint, setDeviceHint] = useState<any>(null);
 
   // Fetch instructions from server
   useEffect(() => {
@@ -127,26 +128,40 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
     }
   };
 
-  const handleSendMessage = () => {
-    if (userQuestion.trim()) {
-      const newUserMessage = {
-        id: Date.now(),
-        type: 'user' as const,
-        content: userQuestion
-      };
-      
-      const aiResponse = {
-        id: Date.now() + 1,
-        type: 'ai' as const,
-        content: "Manset harus pas tetapi tidak ketat. Anda harus bisa menyelipkan satu jari di bawahnya dengan nyaman."
-      };
+  const handleSendMessage = async () => {
+    if (!userQuestion.trim()) return;
+    const newUserMessage = {
+      id: Date.now(),
+      type: 'user' as const,
+      content: userQuestion
+    };
+    setChatMessages(prev => [...prev, newUserMessage]);
+    setUserQuestion("");
 
-      setChatMessages(prev => [...prev, newUserMessage, aiResponse]);
-      setUserQuestion("");
-      
-      // Auto-scroll to bottom after adding messages
+    try {
+      const res = await fetch('/api/chat/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: 'guidance-session',
+          question: newUserMessage.content,
+          language: config.language || 'en',
+          deviceHint: deviceHint ? {
+            type: (deviceHint as any).type || (deviceHint as any).device || (deviceHint as any).label,
+            label: (deviceHint as any).label,
+            confidence: (deviceHint as any).confidence
+          } : undefined
+        })
+      });
+      if (!res.ok) throw new Error('Chat request failed');
+      const data = await res.json();
+      const aiText: string = data?.message?.message || data?.answer || 'Sorry, I could not generate a response.';
+      setChatMessages(prev => [...prev, { id: Date.now() + 1, type: 'ai', content: aiText }]);
+    } catch (_err) {
+      setChatMessages(prev => [...prev, { id: Date.now() + 1, type: 'ai', content: 'Sorry, the assistant is unavailable right now.' }]);
+    } finally {
       setTimeout(() => {
-        const messagesContainer = document.querySelector('.chat-messages');
+        const messagesContainer = document.querySelector('.chat-messages') as HTMLElement | null;
         if (messagesContainer) {
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
@@ -267,6 +282,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
               <MediaPipeCameraView 
                 onThermometerDetected={(detection) => {
                   console.log('Device detected:', detection);
+                  setDeviceHint(detection);
                 }}
                 sessionConfig={config}
                 language={config.language}
