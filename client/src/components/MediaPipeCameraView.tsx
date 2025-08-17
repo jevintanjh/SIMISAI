@@ -49,7 +49,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [imageSize, setImageSize] = useState<[number, number]>([640, 480]);
   const lastRunRef = useRef<number>(0);
-  const DETECTION_INTERVAL = 1000; // ms - 1 second for better responsiveness
+  const DETECTION_INTERVAL = 2000; // ms - 2 seconds to reduce server load while keeping video smooth
 
   // Color mapping for different classes
   const getClassColor = (className: string): string => {
@@ -94,7 +94,30 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
     }
   }, [isInitialized, error]);
 
-  // Detection loop
+  // Separate video rendering loop (runs at 60fps for smooth video)
+  useEffect(() => {
+    if (!isCameraActive || !videoRef.current || !canvasRef.current) return;
+
+    const renderFrame = () => {
+      const canvas = canvasRef.current;
+      const video = videoRef.current;
+      
+      if (!canvas || !video) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Clear canvas and draw current video frame
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    };
+
+    // Run at 60fps for smooth video
+    const renderInterval = setInterval(renderFrame, 1000 / 60);
+    return () => clearInterval(renderInterval);
+  }, [isCameraActive]);
+
+  // Separate detection loop (runs at lower frequency)
   useEffect(() => {
     if (!isDetecting || !isCameraActive || !videoRef.current) return;
 
@@ -115,17 +138,22 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
           return;
         }
 
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
+        // Create a temporary canvas for detection (don't interfere with video rendering)
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        if (!tempCtx) {
           setIsProcessing(false);
           return;
         }
 
-        // Draw video frame to canvas
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Draw current video frame to temporary canvas
+        tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
         
         // Get image data as base64
-        const imageData = canvas.toDataURL('image/jpeg', 0.8);
+        const imageData = tempCanvas.toDataURL('image/jpeg', 0.8);
         const base64Data = imageData.split(',')[1];
 
         // Call CV API
@@ -151,7 +179,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
               onThermometerDetected(result.detections);
             }
 
-            // Draw bounding boxes
+            // Draw bounding boxes (this will persist until next detection)
             drawBoundingBoxes(result.detections);
           } else {
             setDetections([]);
@@ -281,8 +309,8 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
           <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
             {isDetecting ? (
               <div className="text-xs text-white bg-black/50 px-4 py-2 rounded-full flex items-center space-x-2">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span>Detecting</span>
+                <div className={`w-2 h-2 rounded-full ${isProcessing ? 'bg-yellow-500 animate-pulse' : 'bg-primary'}`} />
+                <span>{isProcessing ? 'Processing...' : 'Detecting'}</span>
               </div>
             ) : (
               <div className="text-xs text-white bg-black/50 px-4 py-2 rounded-full flex items-center space-x-2">
