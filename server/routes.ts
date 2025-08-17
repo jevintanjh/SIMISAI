@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { insertChatMessageSchema, insertGuidanceSessionSchema } from "@shared/schema";
 import { z } from "zod";
 import { cvService } from "./cv-service";
+import { cvServiceHF } from "./cv-service-hf";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -246,7 +247,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('CV detection request received');
       console.log('Image data length:', imageData.length);
       
-      const result = await cvService.detectObjectsFromBase64(imageData);
+      // Use Hugging Face service if HF_SPACES_URL is set, otherwise use local service
+      const service = process.env.HF_SPACES_URL ? cvServiceHF : cvService;
+      const result = await service.detectObjectsFromBase64(imageData);
       
       console.log('CV detection completed');
       console.log('Detections found:', result.detections.length);
