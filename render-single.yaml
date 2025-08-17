@@ -1,0 +1,20 @@
+services:
+  # Single service hosting both frontend and backend
+  - type: web
+    name: simisai-app
+    env: node
+    plan: starter
+    buildCommand: |
+      npm install
+      cd cv_model && pip install -r requirements.txt && cd ..
+      npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CV_MODEL_PATH
+        value: cv_model/models/poc2/best.pt
+    healthCheckPath: /api/cv/health
+    autoDeploy: true

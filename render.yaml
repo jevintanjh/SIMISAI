@@ -1,0 +1,32 @@
+services:
+  # Backend API with CV Model
+  - type: web
+    name: simisai-backend
+    env: node
+    plan: starter
+    buildCommand: |
+      npm install
+      cd cv_model && pip install -r requirements.txt && cd ..
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CV_MODEL_PATH
+        value: cv_model/models/poc2/best.pt
+    healthCheckPath: /api/cv/health
+    autoDeploy: true
+
+  # Frontend Static Site
+  - type: web
+    name: simisai-frontend
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist/public
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://simisai-backend.onrender.com
+      - key: VITE_WS_BASE_URL
+        value: wss://simisai-backend.onrender.com
+    autoDeploy: true
