@@ -17,10 +17,11 @@ export class CVServiceHF {
   private apiUrl: string;
 
   constructor() {
-    // This will be your Hugging Face Spaces URL
-    // Format: https://your-username-simisai1-0.hf.space
-    this.apiUrl = process.env.HF_SPACES_URL || 'https://your-username-simisai1-0.hf.space';
-    
+    // Prefer a generic remote CV URL (e.g., Render), then fall back to HF Spaces URL
+    const remote = (process.env.CV_REMOTE_URL || process.env.HF_SPACES_URL || 'https://your-username-simisai1-0.hf.space').trim();
+    // Normalize by removing trailing slash
+    this.apiUrl = remote.replace(/\/+$/, '');
+
     console.log('CV Service HF initialized with:');
     console.log(`- API URL: ${this.apiUrl}`);
     console.log(`- Environment: ${process.env.NODE_ENV}`);
@@ -31,49 +32,38 @@ export class CVServiceHF {
    */
   async detectObjectsFromBase64(base64Data: string): Promise<CVResponse> {
     try {
-      console.log('Calling Hugging Face Spaces API...');
-      
+      console.log('Calling Remote CV API...', this.apiUrl);
+
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
-      
-      // Add authentication if token is available
-      if (process.env.HUGGINGFACE_TOKEN) {
-        headers['Authorization'] = `Bearer ${process.env.HUGGINGFACE_TOKEN}`;
-      }
-      
-      const response = await fetch(`${this.apiUrl}/run/predict`, {
+
+      const response = await fetch(`${this.apiUrl}/detect`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          data: [base64Data]
-        }),
+        body: JSON.stringify({ imageData: base64Data }),
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json() as any;
-      
-      // Hugging Face Spaces returns data in a specific format
-      // The actual result is in result.data[0]
-      const apiResult = result.data[0];
-      
-      console.log('HF API response received:', {
-        detections: apiResult.detections?.length || 0,
-        processing_time: apiResult.processing_time
+      const apiResult = await response.json() as any;
+
+      console.log('Remote CV response received:', {
+        detections: apiResult?.detections?.length || 0,
+        processing_time: apiResult?.processing_time
       });
 
       return {
-        detections: apiResult.detections || [],
-        processing_time: apiResult.processing_time || 0,
-        image_size: apiResult.image_size || [0, 0]
+        detections: apiResult?.detections || [],
+        processing_time: apiResult?.processing_time || 0,
+        image_size: apiResult?.image_size || [0, 0]
       };
 
     } catch (error) {
-      console.error('HF API error:', error);
-      throw new Error(`Failed to call Hugging Face API: ${error}`);
+      console.error('Remote CV API error:', error);
+      throw new Error(`Failed to call Remote CV API: ${error}`);
     }
   }
 
@@ -83,7 +73,7 @@ export class CVServiceHF {
   getModelInfo() {
     return {
       model_path: this.apiUrl,
-      model_type: 'YOLOv8 (Hugging Face Spaces)',
+      model_type: 'YOLOv8 (Remote CV)',
       classes: [
         'thermometer (Lo error)',
         'thermometer (measuring)',
@@ -103,26 +93,10 @@ export class CVServiceHF {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      
-      // Add authentication if token is available
-      if (process.env.HUGGINGFACE_TOKEN) {
-        headers['Authorization'] = `Bearer ${process.env.HUGGINGFACE_TOKEN}`;
-      }
-      
-      const response = await fetch(`${this.apiUrl}/run/predict`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          data: [''] // Empty base64 data for health check
-        }),
-      });
-      
+      const response = await fetch(`${this.apiUrl}/health`, { method: 'GET' });
       return response.ok;
     } catch (error) {
-      console.error('HF API health check failed:', error);
+      console.error('Remote CV health check failed:', error);
       return false;
     }
   }
