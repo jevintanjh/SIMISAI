@@ -1,5 +1,16 @@
 import { spawn } from 'child_process';
-import { CVResponse, CVDetection } from '@shared/schema';
+export interface CVDetection {
+  class: string;
+  confidence: number;
+  box: [number, number, number, number]; // [x1, y1, x2, y2]
+}
+
+export interface CVResponse {
+  detections: CVDetection[];
+  processing_time?: number;
+  image_size?: [number, number];
+  error?: string;
+}
 
 export class CVServiceReplicate {
   private apiToken: string;
@@ -7,14 +18,22 @@ export class CVServiceReplicate {
 
   constructor() {
     this.apiToken = process.env.REPLICATE_API_TOKEN || '';
-    this.modelVersion = process.env.REPLICATE_MODEL_VERSION || 'ultralytics/yolov8:6beff3369e81422112d93b89ca01400208eef704a8f2c83d2f11a7f6f52495b5';
+    this.modelVersion = process.env.REPLICATE_MODEL_VERSION || '';
+    
+    if (!this.apiToken) {
+      console.warn('⚠️  REPLICATE_API_TOKEN not set. Replicate service will not work.');
+    }
+    
+    if (!this.modelVersion) {
+      console.warn('⚠️  REPLICATE_MODEL_VERSION not set. Please set it to your custom model (e.g., username/model-name:latest)');
+    }
     
     if (!this.apiToken) {
       console.warn('⚠️  REPLICATE_API_TOKEN not set. Replicate service will not work.');
     }
     
     console.log('CV Service Replicate initialized with:');
-    console.log(`- Model version: ${this.modelVersion}`);
+    console.log(`- Model version: ${this.modelVersion || 'NOT_SET'}`);
     console.log(`- Environment: ${process.env.NODE_ENV}`);
   }
 
@@ -74,16 +93,11 @@ export class CVServiceReplicate {
       // Parse YOLOv8 output format
       const detections = this.parseYOLOv8Output(result.output);
       
-      return {
-        detections,
-        processing_time: result.metrics?.predict_time || 0,
-        image_size: [640, 640], // Default YOLOv8 input size
-        model_info: {
-          model_path: `replicate:${this.modelVersion}`,
-          model_type: 'YOLOv8 (Replicate)',
-          classes: this.getModelClasses()
-        }
-      };
+              return {
+          detections,
+          processing_time: result.metrics?.predict_time || 0,
+          image_size: [640, 640] // Default YOLOv8 input size
+        };
 
     } catch (error) {
       console.error('Replicate API error:', error);
@@ -153,12 +167,7 @@ export class CVServiceReplicate {
           detections.push({
             class: className,
             confidence: Math.round(confidence * 100) / 100,
-            bbox: {
-              x: Math.round(x1),
-              y: Math.round(y1),
-              width: Math.round(x2 - x1),
-              height: Math.round(y2 - y1)
-            }
+            box: [Math.round(x1), Math.round(y1), Math.round(x2), Math.round(y2)]
           });
         }
       }
