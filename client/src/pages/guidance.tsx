@@ -45,6 +45,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   const [currentInstruction, setCurrentInstruction] = useState<Instruction | null>(null);
   const [totalSteps, setTotalSteps] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [deviceHint, setDeviceHint] = useState<any>(null);
 
   // Fetch instructions from server
   useEffect(() => {
@@ -115,6 +116,17 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
 
   const instruction = getInstructionForStep(currentStep);
 
+  const getIntroMessage = (lang: string) => {
+    const map: Record<string, string> = {
+      en: "Hello! I'm here to help you with your medical device setup. Feel free to ask me any questions!",
+      id: "Halo! Saya siap membantu Anda menyiapkan perangkat medis. Silakan ajukan pertanyaan apa pun!",
+      th: "สวัสดี! ฉันพร้อมช่วยคุณตั้งค่าอุปกรณ์ทางการแพทย์ ถามมาได้เลย!",
+      vi: "Xin chào! Tôi sẵn sàng giúp bạn thiết lập thiết bị y tế. Hãy đặt câu hỏi bất cứ khi nào!",
+      fil: "Hello! Nandito ako para tulungan ka sa pag-setup ng iyong medical device. Magtanong ka lang!",
+    };
+    return map[lang] || map.en;
+  };
+
   const handleNextStep = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
@@ -127,26 +139,40 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
     }
   };
 
-  const handleSendMessage = () => {
-    if (userQuestion.trim()) {
-      const newUserMessage = {
-        id: Date.now(),
-        type: 'user' as const,
-        content: userQuestion
-      };
-      
-      const aiResponse = {
-        id: Date.now() + 1,
-        type: 'ai' as const,
-        content: "Manset harus pas tetapi tidak ketat. Anda harus bisa menyelipkan satu jari di bawahnya dengan nyaman."
-      };
+  const handleSendMessage = async () => {
+    if (!userQuestion.trim()) return;
+    const newUserMessage = {
+      id: Date.now(),
+      type: 'user' as const,
+      content: userQuestion
+    };
+    setChatMessages(prev => [...prev, newUserMessage]);
+    setUserQuestion("");
 
-      setChatMessages(prev => [...prev, newUserMessage, aiResponse]);
-      setUserQuestion("");
-      
-      // Auto-scroll to bottom after adding messages
+    try {
+      const res = await fetch('/api/chat/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: 'guidance-session',
+          question: newUserMessage.content,
+          language: config.language || 'en',
+          deviceHint: deviceHint ? {
+            type: (deviceHint as any).type || (deviceHint as any).device || (deviceHint as any).label,
+            label: (deviceHint as any).label,
+            confidence: (deviceHint as any).confidence
+          } : undefined
+        })
+      });
+      if (!res.ok) throw new Error('Chat request failed');
+      const data = await res.json();
+      const aiText: string = data?.message?.message || data?.answer || 'Sorry, I could not generate a response.';
+      setChatMessages(prev => [...prev, { id: Date.now() + 1, type: 'ai', content: aiText }]);
+    } catch (_err) {
+      setChatMessages(prev => [...prev, { id: Date.now() + 1, type: 'ai', content: 'Sorry, the assistant is unavailable right now.' }]);
+    } finally {
       setTimeout(() => {
-        const messagesContainer = document.querySelector('.chat-messages');
+        const messagesContainer = document.querySelector('.chat-messages') as HTMLElement | null;
         if (messagesContainer) {
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
@@ -267,6 +293,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
               <MediaPipeCameraView 
                 onThermometerDetected={(detection) => {
                   console.log('Device detected:', detection);
+                  setDeviceHint(detection);
                 }}
                 sessionConfig={config}
                 language={config.language}
@@ -347,7 +374,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                   <div className="chat-messages flex-1 overflow-y-auto mb-4 space-y-3 min-h-0 max-h-[400px]">
                     {/* Assistant greeting message */}
                     <div className="bg-background text-foreground mr-4 p-3 rounded-lg border border-border">
-                      <p className="text-sm">Hello! I'm here to help you with your medical device setup. Feel free to ask me any questions!</p>
+                      <p className="text-sm">{getIntroMessage(config.language)}</p>
                     </div>
                     
                     {chatMessages.map((message) => (
