@@ -366,7 +366,12 @@ async function generateSealionResponse(args: { sessionId: string; userMessage: s
       { role: "user", content: userMessage }
     ];
 
-    const endpoint = `${apiBaseUrl.replace(/\/$/, "")}/v1/chat/completions`;
+    // Normalize base URL (handle trailing slash and accidental /v1)
+    const normalizedBase = (apiBaseUrl || '')
+      .trim()
+      .replace(/\/+$/, '')
+      .replace(/\/v1$/i, '');
+    const endpoint = `${normalizedBase}/v1/chat/completions`;
     console.log('[chat] Calling Sealion:', { endpoint, model });
     const res = await fetch(endpoint, {
       method: "POST",
