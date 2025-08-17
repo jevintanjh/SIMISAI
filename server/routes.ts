@@ -5,6 +5,8 @@ import { storage } from "./storage";
 import { insertChatMessageSchema, insertGuidanceSessionSchema } from "@shared/schema";
 import { z } from "zod";
 import { cvService } from "./cv-service";
+import { cvServiceHF } from "./cv-service-hf";
+import { cvServiceReplicate } from "./cv-service-replicate";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -246,7 +248,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('CV detection request received');
       console.log('Image data length:', imageData.length);
       
-      const result = await cvService.detectObjectsFromBase64(imageData);
+      // Use Replicate service if configured, otherwise fall back to local service
+      const service = process.env.REPLICATE_API_TOKEN ? cvServiceReplicate : cvService;
+      const result = await service.detectObjectsFromBase64(imageData);
       
       console.log('CV detection completed');
       console.log('Detections found:', result.detections.length);
@@ -266,8 +270,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('CV health check requested');
       
-      const isHealthy = await cvService.healthCheck();
-      const modelInfo = cvService.getModelInfo();
+      // Use Replicate service if configured, otherwise fall back to local service
+      const service = process.env.REPLICATE_API_TOKEN ? cvServiceReplicate : cvService;
+      const isHealthy = await service.healthCheck();
+      const modelInfo = service.getModelInfo();
       
       console.log('CV health check result:', { isHealthy, modelInfo });
       
@@ -277,6 +283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString(),
         environment: {
           NODE_ENV: process.env.NODE_ENV,
+          REPLICATE_API_TOKEN: process.env.REPLICATE_API_TOKEN ? 'SET' : 'NOT_SET',
           CV_MODEL_PATH: process.env.CV_MODEL_PATH,
           HUGGINGFACE_TOKEN: process.env.HUGGINGFACE_TOKEN ? 'SET' : 'NOT_SET'
         }
