@@ -17,6 +17,14 @@ from pathlib import Path
 def detect_in_image(model_path, image_path, conf_threshold=0.5):
     """Detect objects in a single image file"""
     try:
+        # Suppress warnings and set environment variables to avoid config directory issues
+        import warnings
+        import os
+        warnings.filterwarnings("ignore")
+        
+        # Set YOLO config directory to avoid permission issues
+        os.environ['YOLO_CONFIG_DIR'] = '/tmp'
+        
         # Check if this is a Hugging Face model path
         if '/' in model_path and not os.path.exists(model_path):
             # It's a Hugging Face model, ensure we're authenticated
@@ -107,6 +115,14 @@ def detect_screen_realtime(model_path, monitor_region=None, conf_threshold=0.5):
     cv2.destroyAllWindows()
 
 def main():
+    # Suppress all warnings to avoid interfering with JSON output
+    import warnings
+    warnings.filterwarnings("ignore")
+    
+    # Set YOLO config directory to avoid permission issues
+    import os
+    os.environ['YOLO_CONFIG_DIR'] = '/tmp'
+    
     parser = argparse.ArgumentParser(description='YOLOv8 Detection for SIMIS AI')
     parser.add_argument('--model', required=True, help='Path to YOLOv8 model file')
     parser.add_argument('--image', help='Path to image file for detection')

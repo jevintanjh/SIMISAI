@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: simisai-monolithic
+    env: docker
+    region: oregon
+    plan: starter
+    healthCheckPath: /api/cv/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: CV_MODEL_PATH
+        value: cv_model/models/poc2/best.pt
+      # Add other environment variables as needed
+      # - key: DATABASE_URL
+      #   value: your_database_url_here
+      # - key: SEALION_API_KEY
+      #   value: your_sealion_api_key_here
+      # - key: SEALION_API_URL
+      #   value: your_sealion_api_url_here
+      # - key: SESSION_SECRET
+      #   value: your_session_secret_here
+    buildCommand: docker build -t simisai .
+    startCommand: docker run -p $PORT:3001 simisai
