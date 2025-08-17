@@ -116,6 +116,17 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
 
   const instruction = getInstructionForStep(currentStep);
 
+  const getIntroMessage = (lang: string) => {
+    const map: Record<string, string> = {
+      en: "Hello! I'm here to help you with your medical device setup. Feel free to ask me any questions!",
+      id: "Halo! Saya siap membantu Anda menyiapkan perangkat medis. Silakan ajukan pertanyaan apa pun!",
+      th: "สวัสดี! ฉันพร้อมช่วยคุณตั้งค่าอุปกรณ์ทางการแพทย์ ถามมาได้เลย!",
+      vi: "Xin chào! Tôi sẵn sàng giúp bạn thiết lập thiết bị y tế. Hãy đặt câu hỏi bất cứ khi nào!",
+      fil: "Hello! Nandito ako para tulungan ka sa pag-setup ng iyong medical device. Magtanong ka lang!",
+    };
+    return map[lang] || map.en;
+  };
+
   const handleNextStep = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
@@ -363,7 +374,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                   <div className="chat-messages flex-1 overflow-y-auto mb-4 space-y-3 min-h-0 max-h-[400px]">
                     {/* Assistant greeting message */}
                     <div className="bg-background text-foreground mr-4 p-3 rounded-lg border border-border">
-                      <p className="text-sm">Hello! I'm here to help you with your medical device setup. Feel free to ask me any questions!</p>
+                      <p className="text-sm">{getIntroMessage(config.language)}</p>
                     </div>
                     
                     {chatMessages.map((message) => (
