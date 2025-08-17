@@ -6,3 +6,4 @@ torch>=2.0.0
 torchvision>=0.15.0
 mss>=9.0.0
 huggingface-hub>=0.16.0
+gradio>=4.0.0

@@ -41,6 +41,20 @@ export default defineConfig({
       host: 'localhost',
       port: 24678, // Default HMR port
     },
+    // Proxy API and WS to the Express server during development
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/chat-ws': {
+        target: 'ws://localhost:3001',
+        ws: true,
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   preview: {
     host: '0.0.0.0',
