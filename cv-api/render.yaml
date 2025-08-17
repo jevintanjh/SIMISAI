@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: simisai-cv
+    env: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    # If you store weights in the image under models/best.pt, you can omit MODEL_PATH
+    envVars:
+      - key: MODEL_PATH
+        value: models/best.pt
+
