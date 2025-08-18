@@ -6,6 +6,7 @@ import { insertChatMessageSchema, insertGuidanceSessionSchema } from "@shared/sc
 import { z } from "zod";
 import { cvService } from "./cv-service";
 import { cvServiceHF } from "./cv-service-hf";
+import { cvServiceRemote } from "./cv-service-remote";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
@@ -247,8 +248,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('CV detection request received');
       console.log('Image data length:', imageData.length);
       
-      // Use Hugging Face service if HF_SPACES_URL is set, otherwise use local service
-      const service = process.env.HF_SPACES_URL ? cvServiceHF : cvService;
+      // Prefer remote microservice if configured, else HF if configured, else local
+      const service = process.env.CV_REMOTE_URL
+        ? cvServiceRemote
+        : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
       const result = await service.detectObjectsFromBase64(imageData);
       
       console.log('CV detection completed');
@@ -268,18 +271,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/cv/health', async (req, res) => {
     try {
       console.log('CV health check requested');
-      
-      const isHealthy = await cvService.healthCheck();
-      const modelInfo = cvService.getModelInfo();
-      
+
+      const service = process.env.CV_REMOTE_URL
+        ? cvServiceRemote
+        : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
+
+      const isHealthy = await service.healthCheck();
+      const modelInfo = service.getModelInfo?.() ?? { model_type: 'unknown' };
+
       console.log('CV health check result:', { isHealthy, modelInfo });
-      
+
       res.json({
         healthy: isHealthy,
         model_info: modelInfo,
         timestamp: new Date().toISOString(),
         environment: {
           NODE_ENV: process.env.NODE_ENV,
+          CV_REMOTE_URL: process.env.CV_REMOTE_URL ? 'SET' : 'NOT_SET',
+          HF_SPACES_URL: process.env.HF_SPACES_URL ? 'SET' : 'NOT_SET',
           CV_MODEL_PATH: process.env.CV_MODEL_PATH,
           HUGGINGFACE_TOKEN: process.env.HUGGINGFACE_TOKEN ? 'SET' : 'NOT_SET'
         }
@@ -303,7 +312,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // For real-time streaming, you might want to implement WebSocket
       // This is a placeholder for future real-time detection
-      const result = await cvService.detectObjectsFromBase64(imageData);
+      const service = process.env.CV_REMOTE_URL
+        ? cvServiceRemote
+        : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
+      const result = await service.detectObjectsFromBase64(imageData);
       res.json(result);
     } catch (error) {
       console.error('CV stream error:', error);
