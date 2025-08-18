@@ -87,6 +87,16 @@ Preferred communication style: Simple, everyday language.
 - **Date Utilities**: date-fns for localized date formatting
 
 ### Form Management
+## Configuration
+
+Set `CV_REMOTE_URL` to point the backend to your CV microservice (preferred):
+
+```env
+CV_REMOTE_URL=https://dockercv.onrender.com
+```
+
+If `CV_REMOTE_URL` is not set, the server will use `HF_SPACES_URL` when provided; otherwise it falls back to the local Python model.
+
 - **React Hook Form**: Form state management
 - **Zod**: Schema validation with Drizzle integration
 - **Hookform Resolvers**: Integration between React Hook Form and validation schemas
