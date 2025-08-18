@@ -10,6 +10,11 @@ import { cvServiceRemote } from "./cv-service-remote";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
+  // Log selected CV backend at startup
+  const cvMode = process.env.CV_REMOTE_URL
+    ? `remote (${process.env.CV_REMOTE_URL})`
+    : (process.env.HF_SPACES_URL ? `hf (${process.env.HF_SPACES_URL})` : 'local');
+  console.log(`[CV] Selected backend: ${cvMode}`);
   
   // Setup WebSocket for real-time chat on a specific path to avoid conflicts
   const wss = new WebSocketServer({ 
@@ -252,6 +257,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const service = process.env.CV_REMOTE_URL
         ? cvServiceRemote
         : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
+      console.log('[CV] detect using:', process.env.CV_REMOTE_URL ? 'remote' : (process.env.HF_SPACES_URL ? 'hf' : 'local'));
       const result = await service.detectObjectsFromBase64(imageData);
       
       console.log('CV detection completed');
@@ -275,6 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const service = process.env.CV_REMOTE_URL
         ? cvServiceRemote
         : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
+      console.log('[CV] health using:', process.env.CV_REMOTE_URL ? 'remote' : (process.env.HF_SPACES_URL ? 'hf' : 'local'));
 
       const isHealthy = await service.healthCheck();
       const modelInfo = service.getModelInfo?.() ?? { model_type: 'unknown' };
@@ -315,6 +322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const service = process.env.CV_REMOTE_URL
         ? cvServiceRemote
         : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
+      console.log('[CV] stream using:', process.env.CV_REMOTE_URL ? 'remote' : (process.env.HF_SPACES_URL ? 'hf' : 'local'));
       const result = await service.detectObjectsFromBase64(imageData);
       res.json(result);
     } catch (error) {
