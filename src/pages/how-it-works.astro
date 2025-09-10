@@ -8,12 +8,16 @@ import Layout from '../layouts/Layout.astro';
     <div class="absolute top-6 left-6 z-50">
       <a 
         href="/" 
-        class="text-white/70 hover:text-white transition-colors flex items-center space-x-2 group"
+        class="bg-card/50 border border-border backdrop-blur-sm cursor-pointer hover:bg-white/10 transition-colors rounded-lg p-3 inline-block"
       >
-        <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-        <span class="font-medium">Back to App</span>
+        <div class="flex items-center space-x-3">
+          <div class="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </div>
+          <span class="text-white font-medium">Back to App</span>
+        </div>
       </a>
     </div>
 
@@ -25,11 +29,11 @@ import Layout from '../layouts/Layout.astro';
           <span class="text-primary text-sm font-medium">AI-Powered Medical Guidance</span>
         </div>
         
-        <h1 class="text-6xl md:text-7xl font-bold text-white mb-8 leading-tight">
+        <h1 class="text-5xl md:text-6xl font-bold text-white mb-8 leading-tight">
           How <span class="bg-gradient-to-r from-primary via-blue-400 to-purple-400 bg-clip-text text-transparent">SIMIS AI</span> Works
         </h1>
         
-        <p class="text-white/80 text-xl md:text-2xl max-w-4xl mx-auto mb-12 leading-relaxed">
+        <p class="text-white/80 text-lg md:text-xl max-w-4xl mx-auto mb-12 leading-relaxed">
           Your intelligent medical device guidance assistant that uses advanced computer vision and AI to provide real-time, personalized instructions for using medical devices safely and effectively.
         </p>
         
@@ -60,10 +64,10 @@ import Layout from '../layouts/Layout.astro';
     <section id="how-it-works" class="container mx-auto px-6 py-20">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16">
-          <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
             How It <span class="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">Works</span>
           </h2>
-          <p class="text-white/70 text-xl max-w-3xl mx-auto">
+          <p class="text-white/70 text-lg max-w-3xl mx-auto">
             Experience the power of AI-driven medical device guidance in six simple steps
           </p>
         </div>
@@ -76,7 +80,7 @@ import Layout from '../layouts/Layout.astro';
             <!-- Step 1 -->
             <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
-                <div class="w-32 h-32 bg-gradient-to-br from-primary/20 to-primary/40 rounded-3xl flex items-center justify-center border border-primary/30 backdrop-blur-sm overflow-hidden">
+                <div class="w-40 h-40 bg-gradient-to-br from-primary/20 to-primary/40 rounded-3xl flex items-center justify-center border border-primary/30 backdrop-blur-sm overflow-hidden shadow-lg">
                   <img src="/attached_assets/Demo 1.jpg" alt="Device Detection" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
@@ -84,7 +88,7 @@ import Layout from '../layouts/Layout.astro';
                 <div class="bg-card/30 border border-border rounded-3xl p-8 backdrop-blur-sm">
                   <div class="flex items-center space-x-3 mb-4">
                     <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm">1</div>
-                    <h3 class="text-2xl font-bold text-white">Device Detection</h3>
+                    <h3 class="text-xl font-bold text-white">Device Detection</h3>
                   </div>
                   <p class="text-white/80 text-lg leading-relaxed">
                     Point your camera at your medical device. Our advanced computer vision technology instantly identifies the device type, brand, and model in real-time, ensuring accurate guidance.
@@ -96,7 +100,7 @@ import Layout from '../layouts/Layout.astro';
             <!-- Step 2 -->
             <div class="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
-                <div class="w-32 h-32 bg-gradient-to-br from-green-500/20 to-green-500/40 rounded-3xl flex items-center justify-center border border-green-500/30 backdrop-blur-sm overflow-hidden">
+                <div class="w-40 h-40 bg-gradient-to-br from-green-500/20 to-green-500/40 rounded-3xl flex items-center justify-center border border-green-500/30 backdrop-blur-sm overflow-hidden shadow-lg">
                   <img src="/attached_assets/Demo 2.jpg" alt="AI Analysis" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
@@ -104,7 +108,7 @@ import Layout from '../layouts/Layout.astro';
                 <div class="bg-card/30 border border-border rounded-3xl p-8 backdrop-blur-sm">
                   <div class="flex items-center space-x-3 mb-4">
                     <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm">2</div>
-                    <h3 class="text-2xl font-bold text-white">AI Analysis</h3>
+                    <h3 class="text-xl font-bold text-white">AI Analysis</h3>
                   </div>
                   <p class="text-white/80 text-lg leading-relaxed">
                     Our AI analyzes the device state, user positioning, and context to provide personalized guidance tailored to your specific device and situation.
@@ -116,7 +120,7 @@ import Layout from '../layouts/Layout.astro';
             <!-- Step 3 -->
             <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
-                <div class="w-32 h-32 bg-gradient-to-br from-blue-500/20 to-blue-500/40 rounded-3xl flex items-center justify-center border border-blue-500/30 backdrop-blur-sm overflow-hidden">
+                <div class="w-40 h-40 bg-gradient-to-br from-blue-500/20 to-blue-500/40 rounded-3xl flex items-center justify-center border border-blue-500/30 backdrop-blur-sm overflow-hidden shadow-lg">
                   <img src="/attached_assets/Demo 3.jpg" alt="Step-by-Step Guidance" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
@@ -124,7 +128,7 @@ import Layout from '../layouts/Layout.astro';
                 <div class="bg-card/30 border border-border rounded-3xl p-8 backdrop-blur-sm">
                   <div class="flex items-center space-x-3 mb-4">
                     <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">3</div>
-                    <h3 class="text-2xl font-bold text-white">Step-by-Step Guidance</h3>
+                    <h3 class="text-xl font-bold text-white">Step-by-Step Guidance</h3>
                   </div>
                   <p class="text-white/80 text-lg leading-relaxed">
                     Receive clear, step-by-step instructions in your preferred language with voice assistance and visual cues to ensure proper device usage.
@@ -136,7 +140,7 @@ import Layout from '../layouts/Layout.astro';
             <!-- Step 4 -->
             <div class="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
-                <div class="w-32 h-32 bg-gradient-to-br from-purple-500/20 to-purple-500/40 rounded-3xl flex items-center justify-center border border-purple-500/30 backdrop-blur-sm overflow-hidden">
+                <div class="w-40 h-40 bg-gradient-to-br from-purple-500/20 to-purple-500/40 rounded-3xl flex items-center justify-center border border-purple-500/30 backdrop-blur-sm overflow-hidden shadow-lg">
                   <img src="/attached_assets/Demo 4.jpg" alt="Real-time Monitoring" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
@@ -144,7 +148,7 @@ import Layout from '../layouts/Layout.astro';
                 <div class="bg-card/30 border border-border rounded-3xl p-8 backdrop-blur-sm">
                   <div class="flex items-center space-x-3 mb-4">
                     <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">4</div>
-                    <h3 class="text-2xl font-bold text-white">Real-time Monitoring</h3>
+                    <h3 class="text-xl font-bold text-white">Real-time Monitoring</h3>
                   </div>
                   <p class="text-white/80 text-lg leading-relaxed">
                     Continuous monitoring detects errors, incorrect positioning, or device issues, providing immediate feedback and correction suggestions.
@@ -156,7 +160,7 @@ import Layout from '../layouts/Layout.astro';
             <!-- Step 5 -->
             <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
-                <div class="w-32 h-32 bg-gradient-to-br from-orange-500/20 to-orange-500/40 rounded-3xl flex items-center justify-center border border-orange-500/30 backdrop-blur-sm overflow-hidden">
+                <div class="w-40 h-40 bg-gradient-to-br from-orange-500/20 to-orange-500/40 rounded-3xl flex items-center justify-center border border-orange-500/30 backdrop-blur-sm overflow-hidden shadow-lg">
                   <img src="/attached_assets/Demo 5.jpg" alt="Interactive Support" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
@@ -164,7 +168,7 @@ import Layout from '../layouts/Layout.astro';
                 <div class="bg-card/30 border border-border rounded-3xl p-8 backdrop-blur-sm">
                   <div class="flex items-center space-x-3 mb-4">
                     <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">5</div>
-                    <h3 class="text-2xl font-bold text-white">Interactive Support</h3>
+                    <h3 class="text-xl font-bold text-white">Interactive Support</h3>
                   </div>
                   <p class="text-white/80 text-lg leading-relaxed">
                     Ask questions anytime through our AI chat system. Get instant answers and troubleshooting help for any device-related concerns.
@@ -176,7 +180,7 @@ import Layout from '../layouts/Layout.astro';
             <!-- Step 6 -->
             <div class="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
-                <div class="w-32 h-32 bg-gradient-to-br from-red-500/20 to-red-500/40 rounded-3xl flex items-center justify-center border border-red-500/30 backdrop-blur-sm overflow-hidden">
+                <div class="w-40 h-40 bg-gradient-to-br from-red-500/20 to-red-500/40 rounded-3xl flex items-center justify-center border border-red-500/30 backdrop-blur-sm overflow-hidden shadow-lg">
                   <img src="/attached_assets/Demo 6.jpg" alt="Learning Summary" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
@@ -184,7 +188,7 @@ import Layout from '../layouts/Layout.astro';
                 <div class="bg-card/30 border border-border rounded-3xl p-8 backdrop-blur-sm">
                   <div class="flex items-center space-x-3 mb-4">
                     <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-bold text-sm">6</div>
-                    <h3 class="text-2xl font-bold text-white">Learning Summary</h3>
+                    <h3 class="text-xl font-bold text-white">Learning Summary</h3>
                   </div>
                   <p class="text-white/80 text-lg leading-relaxed">
                     Get a comprehensive summary of your session with key learnings, areas for improvement, and personalized recommendations for future use.
@@ -201,10 +205,10 @@ import Layout from '../layouts/Layout.astro';
     <section class="container mx-auto px-6 py-20">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16">
-          <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
             Powerful <span class="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">Features</span>
           </h2>
-          <p class="text-white/70 text-xl max-w-3xl mx-auto">
+          <p class="text-white/70 text-lg max-w-3xl mx-auto">
             Everything you need for safe and effective medical device usage
           </p>
         </div>
@@ -293,10 +297,10 @@ import Layout from '../layouts/Layout.astro';
     <section class="container mx-auto px-6 py-20">
       <div class="max-w-4xl mx-auto text-center">
         <div class="bg-gradient-to-r from-primary/10 via-blue-500/10 to-purple-500/10 border border-primary/20 rounded-3xl p-12 backdrop-blur-sm">
-          <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
             Ready to Get <span class="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">Started?</span>
           </h2>
-          <p class="text-white/80 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">
+          <p class="text-white/80 text-lg mb-10 max-w-3xl mx-auto leading-relaxed">
             Experience the future of medical device guidance with SIMIS AI. Get personalized, real-time assistance for all your medical devices with our advanced AI technology.
           </p>
           
