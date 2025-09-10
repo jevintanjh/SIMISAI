@@ -22,40 +22,60 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <!-- Hero Section -->
-    <section class="container mx-auto px-6 py-20 text-center">
-      <div class="max-w-4xl mx-auto">
-        <div class="inline-flex items-center space-x-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-2 mb-8">
+    <section class="relative min-h-screen flex items-center justify-center px-6 py-20 text-center overflow-hidden">
+      <!-- Background Elements -->
+      <div class="absolute inset-0 bg-gradient-to-br from-[#1E1B4B] to-[#312E81]"></div>
+      <div class="absolute inset-0 opacity-20">
+        <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(156, 146, 172, 0.15) 1px, transparent 0); background-size: 20px 20px;"></div>
+      </div>
+      
+      <div class="relative z-10 max-w-5xl mx-auto">
+        <!-- Badge -->
+        <div class="inline-flex items-center space-x-2 bg-primary/10 border border-primary/20 rounded-full px-6 py-3 mb-8 backdrop-blur-sm">
           <div class="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
           <span class="text-primary text-sm font-medium">AI-Powered Medical Guidance</span>
         </div>
         
-        <h1 class="text-5xl md:text-6xl font-bold text-white mb-8 leading-tight">
-          How <span class="bg-gradient-to-r from-primary via-blue-400 to-purple-400 bg-clip-text text-transparent">SIMIS AI</span> Works
+        <!-- Main Heading -->
+        <h1 class="text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-tight">
+          How <span class="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">SIMIS AI</span> Works
         </h1>
         
-        <p class="text-white/80 text-lg md:text-xl max-w-4xl mx-auto mb-12 leading-relaxed">
+        <!-- Subtitle -->
+        <p class="text-white/80 text-xl md:text-2xl max-w-4xl mx-auto mb-16 leading-relaxed">
           Your intelligent medical device guidance assistant that uses advanced computer vision and AI to provide real-time, personalized instructions for using medical devices safely and effectively.
         </p>
         
-        <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8">
           <a 
             href="/" 
-            class="inline-flex items-center space-x-2 bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-primary/25"
+            class="group relative inline-flex items-center space-x-3 bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 text-white font-bold px-10 py-5 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-primary/30"
           >
-            <span>Start Using SIMIS AI</span>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span class="text-lg">Start Using SIMIS AI</span>
+            <svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
+            <!-- Glow effect -->
+            <div class="absolute inset-0 bg-gradient-to-r from-primary to-blue-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
           </a>
+          
           <a 
             href="#how-it-works" 
-            class="inline-flex items-center space-x-2 text-white/70 hover:text-white transition-colors"
+            class="group inline-flex items-center space-x-2 text-white/70 hover:text-white transition-all duration-300 hover:scale-105"
           >
-            <span>Learn More</span>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span class="text-lg font-medium">Learn More</span>
+            <svg class="w-5 h-5 group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </a>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div class="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+            <div class="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -64,9 +84,6 @@ import Layout from '../layouts/Layout.astro';
     <section id="how-it-works" class="container mx-auto px-6 py-20">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16">
-          <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
-            How It <span class="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">Works</span>
-          </h2>
           <p class="text-white/70 text-lg max-w-3xl mx-auto">
             Experience the power of AI-driven medical device guidance in six simple steps
           </p>
@@ -304,23 +321,33 @@ import Layout from '../layouts/Layout.astro';
             Experience the future of medical device guidance with SIMIS AI. Get personalized, real-time assistance for all your medical devices with our advanced AI technology.
           </p>
           
-          <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+          <div class="flex flex-col sm:flex-row items-center justify-center space-y-6 sm:space-y-0 sm:space-x-8">
             <a 
               href="/" 
-              class="inline-flex items-center space-x-3 bg-primary hover:bg-primary/90 text-white font-semibold px-10 py-5 rounded-2xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-primary/25"
+              class="group relative inline-flex items-center space-x-3 bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 text-white font-bold px-12 py-6 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-primary/30"
             >
-              <span class="text-lg">Start Using SIMIS AI</span>
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span class="text-xl">Start Using SIMIS AI</span>
+              <svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
+              <!-- Glow effect -->
+              <div class="absolute inset-0 bg-gradient-to-r from-primary to-blue-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
             </a>
-            <div class="text-white/60 text-sm">
-              <span class="inline-flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            
+            <div class="flex items-center space-x-4 text-white/60">
+              <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                <span>100% Free to Use</span>
-              </span>
+                <span class="font-medium">100% Free</span>
+              </div>
+              <div class="w-1 h-1 bg-white/30 rounded-full"></div>
+              <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span class="font-medium">Instant Setup</span>
+              </div>
             </div>
           </div>
         </div>
