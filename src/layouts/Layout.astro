@@ -1,0 +1,31 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = "SIMIS AI", description = "AI-powered medical device guidance" } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png" />
+    <link rel="stylesheet" href="https://use.typekit.net/tqq8wjv.css">
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
+    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
+  </body>
+</html>
+
+<style is:global>
+  @import '../index.css';
+</style>
