@@ -1,6 +1,6 @@
-# SIMIS AI - Oral Thermometer Detection Model
+# SIMIS - Oral Thermometer Detection Model
 
-This is a YOLOv8 model trained to detect oral thermometers and their various states for the SIMIS AI application.
+This is a YOLOv8 model trained to detect oral thermometers and their various states for the SIMIS application.
 
 ## Model Details
 
