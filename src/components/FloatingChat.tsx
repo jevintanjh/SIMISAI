@@ -1,21 +1,33 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Card, CardContent, CardHeader } from "./ui/card";
 import { MessageCircle, X, Send, Mic, Bot } from "lucide-react";
-import { useWebSocket } from "@/hooks/use-websocket";
-import type { ChatMessage } from "@shared/schema";
+import { useWebSocket } from "../hooks/use-websocket";
+import type { ChatMessage } from "../../shared/schema";
 
 interface FloatingChatProps {
   sessionId: string;
   language: string;
 }
 
+const suggestedQuestions = [
+  "How do I position the device correctly?",
+  "What does this error message mean?",
+  "How long should I wait for results?",
+  "Is this reading normal?",
+  "What should I do if the device doesn't turn on?",
+  "How do I clean the device?",
+  "Can I use this on children?",
+  "What's the difference between oral and rectal readings?"
+];
+
 export default function FloatingChat({ sessionId, language }: FloatingChatProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -47,6 +59,12 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
     });
 
     setMessage("");
+    setShowSuggestions(false);
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setMessage(suggestion);
+    setShowSuggestions(false);
   };
 
   const handleVoiceInput = () => {
@@ -134,6 +152,23 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
                 <div className="text-center text-gray-500">
                   <Bot className="w-8 h-8 mx-auto mb-2 text-[hsl(207,90%,54%)]" />
                   <p className="text-sm">Hi! I'm here to help with your medical device guidance. What can I assist you with?</p>
+                  
+                  {showSuggestions && (
+                    <div className="mt-4">
+                      <p className="text-xs text-gray-400 mb-2">Quick questions:</p>
+                      <div className="grid grid-cols-1 gap-2">
+                        {suggestedQuestions.slice(0, 4).map((question, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleSuggestionClick(question)}
+                            className="text-left text-xs bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg p-2 transition-colors"
+                          >
+                            {question}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -199,7 +234,7 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
         className="w-full medical-blue hover:bg-[hsl(207,90%,50%)] text-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
       >
         <MessageCircle className="w-5 h-5 mr-2" />
-        <span>Chat with Assistant</span>
+        <span>Chat with SIMIS</span>
       </Button>
     </div>
   );
