@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 import { Icon } from "@iconify/react";
-import { useEffect } from "react";
+import deviceOptions from "../../data/device-options.json";
+import preferenceOptions from "../../data/preference-options.json";
 
 interface WelcomeProps {
   onStartSession: (config: SessionConfig) => void;
@@ -31,58 +32,13 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
   const [hoveredGuidance, setHoveredGuidance] = useState<string | null>(null);
 
 
-  const languages = [
-    { value: "en", label: "🇺🇸 English", flag: "🇺🇸" },
-    { value: "id", label: "🇮🇩 Bahasa Indonesia", flag: "🇮🇩" },
-    { value: "ms", label: "🇲🇾 Bahasa Melayu", flag: "🇲🇾" },
-    { value: "th", label: "🇹🇭 ภาษาไทย", flag: "🇹🇭" },
-    { value: "vi", label: "🇻🇳 Tiếng Việt", flag: "🇻🇳" },
-    { value: "fil", label: "🇵🇭 Filipino", flag: "🇵🇭" },
-    { value: "my", label: "🇲🇲 မြန်မာ", flag: "🇲🇲" },
-    { value: "lo", label: "🇱🇦 ລາວ", flag: "🇱🇦" },
-    { value: "km", label: "🇰🇭 ខ្មែរ", flag: "🇰🇭" },
-    { value: "bn", label: "🇧🇳 Brunei Malay", flag: "🇧🇳" },
-  ];
-
-  const devices = [
-    { value: "thermometer", label: "Digital thermometer", icon: "🌡️", enabled: true },
-    { value: "ear", label: "Ear thermometer", icon: "👂", enabled: false },
-    { value: "forehead", label: "Forehead thermometer", icon: "🤒", enabled: false },
-    { value: "blood-pressure", label: "Blood pressure monitor", icon: "🩸", enabled: false },
-    { value: "glucose", label: "Blood glucose meter", icon: "🍬", enabled: false },
-  ];
-
-  const deviceBrands = [
-    { value: "omron", label: "Omron" },
-    { value: "braun", label: "Braun" },
-    { value: "exergen", label: "Exergen" },
-    { value: "vicks", label: "Vicks" },
-    { value: "kinsa", label: "Kinsa" },
-    { value: "thermoworks", label: "ThermoWorks" },
-  ];
-
-  const deviceModels = [
-    { value: "mc-246", label: "MC-246", brand: "omron" },
-    { value: "mc-245", label: "MC-245", brand: "omron" },
-    { value: "thermoscan-7", label: "ThermoScan 7", brand: "braun" },
-    { value: "thermoscan-5", label: "ThermoScan 5", brand: "braun" },
-    { value: "temporal-artery", label: "Temporal Artery", brand: "exergen" },
-    { value: "smart-thermometer", label: "Smart Thermometer", brand: "vicks" },
-    { value: "quickcare", label: "QuickCare", brand: "kinsa" },
-    { value: "dot", label: "Dot", brand: "thermoworks" },
-  ];
-
-  const guidanceOptions = [
-    { value: "direct", label: "Direct instructions", icon: "📋", description: "Clear, step-by-step commands for immediate action" },
-    { value: "gentle", label: "Gentle suggestions", icon: "💡", description: "Soft, encouraging guidance with helpful tips" },
-    { value: "detailed", label: "Detailed explanations", icon: "📖", description: "Comprehensive information with context and reasoning" },
-  ];
-
-  const voiceOptions = [
-    { value: "male", label: "Male", icon: "👨" },
-    { value: "female", label: "Female", icon: "👩" },
-    { value: "text", label: "Text only", icon: "📝" },
-  ];
+  // Load options from JSON files
+  const languages = preferenceOptions.languages;
+  const devices = deviceOptions.deviceTypes;
+  const deviceBrands = deviceOptions.deviceBrands;
+  const deviceModels = deviceOptions.deviceModels;
+  const guidanceOptions = preferenceOptions.guidanceOptions;
+  const voiceOptions = preferenceOptions.voiceOptions;
 
   const canStart = true;
 
@@ -190,9 +146,8 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
           
           {/* Device Selection Section */}
           <div className="mb-8 relative z-10">
-            <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-              <Icon icon="mingcute:cellphone-vibration-line" className="w-6 h-6 mr-2" />
-              Select your device
+            <h3 className="text-xl font-semibold text-white mb-4">
+              1. Select your device
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -267,11 +222,11 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                     onClick={() => togglePopover('brand')}
                   >
                     <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mingcute:building-line" className="w-7 h-7 text-white/70" />
+                      <Icon icon="mingcute:tag-line" className="w-7 h-7 text-white/70" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-bold text-white">
-                        {deviceBrand ? deviceBrands.find(b => b.value === deviceBrand)?.label : "Select brand"}
+                        {deviceBrand ? deviceBrands.find(b => b.value === deviceBrand)?.label : "Brand"}
                       </p>
                     </div>
                     <div className="text-white/50">
@@ -327,11 +282,11 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                     onClick={() => togglePopover('model')}
                   >
                     <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mingcute:settings-line" className="w-7 h-7 text-white/70" />
+                      <Icon icon="mingcute:barcode-line" className="w-7 h-7 text-white/70" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-bold text-white">
-                        {deviceModel ? deviceModels.find(m => m.value === deviceModel)?.label : "Select model"}
+                        {deviceModel ? deviceModels.find(m => m.value === deviceModel)?.label : "Model"}
                       </p>
                     </div>
                     <div className="text-white/50">
@@ -383,15 +338,14 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
 
           {/* AI Preferences Section */}
           <div className="mb-8 relative z-0">
-            <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-              <Icon icon="mingcute:settings-3-line" className="w-6 h-6 mr-2" />
-              Select your preferences
+            <h3 className="text-xl font-semibold text-white mb-4">
+              2. Set preferences
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
 
             {/* Language Selection */}
-            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative z-0">
+            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
               <CardContent className="px-6 py-3">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
@@ -463,7 +417,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             </Card>
 
             {/* Guidance Style */}
-            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative z-0">
+            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
               <CardContent className="px-6 py-3">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
@@ -544,7 +498,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             </Card>
 
             {/* Voice Options */}
-            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative z-0">
+            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
               <CardContent className="px-6 py-3">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
