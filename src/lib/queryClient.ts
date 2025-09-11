@@ -26,7 +26,7 @@ export async function apiRequest(
 type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
-}) => ({ queryKey }: { queryKey: string[] }) => Promise<T> =
+}) => (context: { queryKey: string[] }) => Promise<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const res = await fetch(queryKey.join("/") as string, {
