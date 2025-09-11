@@ -1,0 +1,39 @@
+{
+  "languages": [
+    { "value": "en", "label": "🇺🇸 English", "flag": "🇺🇸" },
+    { "value": "id", "label": "🇮🇩 Bahasa Indonesia", "flag": "🇮🇩" },
+    { "value": "ms", "label": "🇲🇾 Bahasa Melayu", "flag": "🇲🇾" },
+    { "value": "th", "label": "🇹🇭 ภาษาไทย", "flag": "🇹🇭" },
+    { "value": "vi", "label": "🇻🇳 Tiếng Việt", "flag": "🇻🇳" },
+    { "value": "fil", "label": "🇵🇭 Filipino", "flag": "🇵🇭" },
+    { "value": "my", "label": "🇲🇲 မြန်မာ", "flag": "🇲🇲" },
+    { "value": "lo", "label": "🇱🇦 ລາວ", "flag": "🇱🇦" },
+    { "value": "km", "label": "🇰🇭 ខ្មែរ", "flag": "🇰🇭" },
+    { "value": "bn", "label": "🇧🇳 Brunei Malay", "flag": "🇧🇳" }
+  ],
+  "guidanceOptions": [
+    { 
+      "value": "direct", 
+      "label": "Direct instructions", 
+      "icon": "📋", 
+      "description": "Clear, step-by-step commands for immediate action" 
+    },
+    { 
+      "value": "gentle", 
+      "label": "Gentle suggestions", 
+      "icon": "💡", 
+      "description": "Soft, encouraging guidance with helpful tips" 
+    },
+    { 
+      "value": "detailed", 
+      "label": "Detailed explanations", 
+      "icon": "📖", 
+      "description": "Comprehensive information with context and reasoning" 
+    }
+  ],
+  "voiceOptions": [
+    { "value": "male", "label": "Male", "icon": "👨" },
+    { "value": "female", "label": "Female", "icon": "👩" },
+    { "value": "text", "label": "Text only", "icon": "📝" }
+  ]
+}
