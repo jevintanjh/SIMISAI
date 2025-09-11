@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "./ui/badge";
 import { Icon } from "@iconify/react";
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "./ui/progress";
 
 interface SessionSummaryProps {
   sessionData: {
@@ -39,7 +39,7 @@ export default function SessionSummary({
     try {
       // Create a summary document
       const summaryText = `
-SIMIS AI Session Summary
+SIMIS Session Summary
 =======================
 
 Device Information:
