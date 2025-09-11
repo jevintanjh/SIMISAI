@@ -2,8 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="How SIMIS AI Works - Medical Device Guidance">
-  <div class="min-h-screen bg-gradient-to-br from-[#1E1B4B] to-[#312E81]">
+<Layout title="How SIMIS Works - Medical Device Guidance">
+  <div class="how-it-works min-h-screen bg-gradient-to-br from-[#1E1B4B] to-[#312E81]">
     <!-- Back Button -->
     <div class="absolute top-6 left-6 z-50">
       <a 
@@ -12,11 +12,13 @@ import Layout from '../layouts/Layout.astro';
       >
         <div class="flex items-center space-x-3">
           <div class="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-7 h-7 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
           </div>
-          <span class="text-white font-medium">Back to App</span>
+          <div class="flex-1">
+            <p class="text-sm text-white">Back to App</p>
+          </div>
         </div>
       </a>
     </div>
@@ -25,9 +27,6 @@ import Layout from '../layouts/Layout.astro';
     <section class="relative min-h-screen flex items-center justify-center px-6 py-20 text-center overflow-hidden">
       <!-- Background Elements -->
       <div class="absolute inset-0 bg-gradient-to-br from-[#1E1B4B] to-[#312E81]"></div>
-      <div class="absolute inset-0 opacity-20">
-        <div class="absolute inset-0" style="background-image: radial-gradient(circle at 1px 1px, rgba(156, 146, 172, 0.15) 1px, transparent 0); background-size: 20px 20px;"></div>
-      </div>
       
       <div class="relative z-10 max-w-5xl mx-auto">
         <!-- Badge -->
@@ -38,21 +37,21 @@ import Layout from '../layouts/Layout.astro';
         
         <!-- Main Heading -->
         <h1 class="text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-tight">
-          How <span class="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">SIMIS AI</span> Works
+          How <span class="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">SIMIS</span> Works
         </h1>
         
         <!-- Subtitle -->
-        <p class="text-white/80 text-xl md:text-2xl max-w-4xl mx-auto mb-16 leading-relaxed">
-          Your intelligent medical device guidance assistant that uses advanced computer vision and AI to provide real-time, personalized instructions for using medical devices safely and effectively.
+        <p class="text-white/80 text-lg md:text-xl max-w-3xl mx-auto mb-16 leading-relaxed">
+          AI-powered medical device guidance that provides real-time, personalized instructions for safe and effective device usage.
         </p>
         
         <!-- CTA Buttons -->
         <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
           <a 
             href="/" 
-            class="inline-flex items-center space-x-2 bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-200"
+            class="inline-flex items-center space-x-2 bg-primary text-white border border-primary hover:bg-primary/90 font-semibold px-8 py-4 rounded-xl transition-all duration-200"
           >
-            <span>Try it now</span>
+            <span>Try now</span>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
@@ -60,22 +59,15 @@ import Layout from '../layouts/Layout.astro';
           
           <a 
             href="#how-it-works" 
-            class="text-white/70 hover:text-white transition-colors"
+            class="inline-flex items-center px-6 py-3 bg-transparent text-white border border-white hover:bg-white/10 hover:border-white/50 rounded-xl transition-all duration-200"
           >
-            <span>Learn More</span>
+            <span>Learn more</span>
           </a>
-        </div>
-        
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div class="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-            <div class="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse"></div>
-          </div>
         </div>
       </div>
     </section>
 
-    <!-- How It Works Steps -->
+    <!-- How it works Steps -->
     <section id="how-it-works" class="container mx-auto px-6 py-20">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16">
@@ -93,7 +85,7 @@ import Layout from '../layouts/Layout.astro';
             <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
                 <div class="w-40 h-40 bg-gradient-to-br from-primary/20 to-primary/40 rounded-3xl flex items-center justify-center border border-primary/30 backdrop-blur-sm overflow-hidden shadow-lg">
-                  <img src="/attached_assets/Demo 1.jpg" alt="Device Detection" class="w-full h-full object-cover rounded-3xl" />
+                  <img src="/Demo 1.jpg" alt="Device Detection" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
               <div class="flex-1 order-1 lg:order-2">
@@ -113,7 +105,7 @@ import Layout from '../layouts/Layout.astro';
             <div class="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
                 <div class="w-40 h-40 bg-gradient-to-br from-green-500/20 to-green-500/40 rounded-3xl flex items-center justify-center border border-green-500/30 backdrop-blur-sm overflow-hidden shadow-lg">
-                  <img src="/attached_assets/Demo 2.jpg" alt="AI Analysis" class="w-full h-full object-cover rounded-3xl" />
+                  <img src="/Demo 2.jpg" alt="AI Analysis" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
               <div class="flex-1 order-1 lg:order-2">
@@ -133,7 +125,7 @@ import Layout from '../layouts/Layout.astro';
             <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
                 <div class="w-40 h-40 bg-gradient-to-br from-blue-500/20 to-blue-500/40 rounded-3xl flex items-center justify-center border border-blue-500/30 backdrop-blur-sm overflow-hidden shadow-lg">
-                  <img src="/attached_assets/Demo 3.jpg" alt="Step-by-Step Guidance" class="w-full h-full object-cover rounded-3xl" />
+                  <img src="/Demo 3.jpg" alt="Step-by-Step Guidance" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
               <div class="flex-1 order-1 lg:order-2">
@@ -153,7 +145,7 @@ import Layout from '../layouts/Layout.astro';
             <div class="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
                 <div class="w-40 h-40 bg-gradient-to-br from-purple-500/20 to-purple-500/40 rounded-3xl flex items-center justify-center border border-purple-500/30 backdrop-blur-sm overflow-hidden shadow-lg">
-                  <img src="/attached_assets/Demo 4.jpg" alt="Real-time Monitoring" class="w-full h-full object-cover rounded-3xl" />
+                  <img src="/Demo 4.jpg" alt="Real-time Monitoring" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
               <div class="flex-1 order-1 lg:order-2">
@@ -173,7 +165,7 @@ import Layout from '../layouts/Layout.astro';
             <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
                 <div class="w-40 h-40 bg-gradient-to-br from-orange-500/20 to-orange-500/40 rounded-3xl flex items-center justify-center border border-orange-500/30 backdrop-blur-sm overflow-hidden shadow-lg">
-                  <img src="/attached_assets/Demo 5.jpg" alt="Interactive Support" class="w-full h-full object-cover rounded-3xl" />
+                  <img src="/Demo 5.jpg" alt="Interactive Support" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
               <div class="flex-1 order-1 lg:order-2">
@@ -193,7 +185,7 @@ import Layout from '../layouts/Layout.astro';
             <div class="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-16">
               <div class="flex-shrink-0 order-2 lg:order-1">
                 <div class="w-40 h-40 bg-gradient-to-br from-red-500/20 to-red-500/40 rounded-3xl flex items-center justify-center border border-red-500/30 backdrop-blur-sm overflow-hidden shadow-lg">
-                  <img src="/attached_assets/Demo 6.jpg" alt="Learning Summary" class="w-full h-full object-cover rounded-3xl" />
+                  <img src="/Demo 6.jpg" alt="Learning Summary" class="w-full h-full object-cover rounded-3xl" />
                 </div>
               </div>
               <div class="flex-1 order-1 lg:order-2">
@@ -229,7 +221,7 @@ import Layout from '../layouts/Layout.astro';
           <!-- Feature 1 -->
           <div class="bg-card/20 border border-border rounded-2xl p-8 backdrop-blur-sm hover:bg-card/30 transition-all duration-300 group">
             <div class="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/40 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform overflow-hidden">
-              <img src="/attached_assets/Demo 7.jpg" alt="Multi-Device Support" class="w-full h-full object-cover rounded-2xl" />
+              <img src="/Demo 7.jpg" alt="Multi-Device Support" class="w-full h-full object-cover rounded-2xl" />
             </div>
             <h3 class="text-xl font-bold text-white mb-4">Multi-Device Support</h3>
             <p class="text-white/70 leading-relaxed">
@@ -313,15 +305,15 @@ import Layout from '../layouts/Layout.astro';
             Ready to Get <span class="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">Started?</span>
           </h2>
           <p class="text-white/80 text-lg mb-10 max-w-3xl mx-auto leading-relaxed">
-            Experience the future of medical device guidance with SIMIS AI. Get personalized, real-time assistance for all your medical devices with our advanced AI technology.
+            Experience the future of medical device guidance with SIMIS. Get personalized, real-time assistance for all your medical devices with our advanced AI technology.
           </p>
           
           <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
             <a 
               href="/" 
-              class="inline-flex items-center space-x-2 bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-200"
+              class="inline-flex items-center space-x-2 bg-primary text-white border border-primary hover:bg-primary/90 font-semibold px-8 py-4 rounded-xl transition-all duration-200"
             >
-              <span>Try it now</span>
+              <span>Try now</span>
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
@@ -343,13 +335,13 @@ import Layout from '../layouts/Layout.astro';
             <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
               <span class="text-white font-bold text-lg">S</span>
             </div>
-            <h3 class="text-2xl font-bold text-white">SIMIS AI</h3>
+            <h3 class="text-2xl font-bold text-white">SIMIS</h3>
           </div>
           <p class="text-white/60 text-lg mb-6 max-w-2xl mx-auto">
             Empowering safe and effective medical device usage through advanced AI technology. Making healthcare more accessible, one device at a time.
           </p>
           <div class="text-white/50 text-sm">
-            <p>&copy; 2024 SIMIS AI. All rights reserved.</p>
+            <p>&copy; 2024 SIMIS. All rights reserved.</p>
             <p class="mt-2">Built with ❤️ for better healthcare outcomes</p>
           </div>
         </div>
@@ -357,3 +349,36 @@ import Layout from '../layouts/Layout.astro';
     </footer>
   </div>
 </Layout>
+
+<style>
+  /* Override the global h2 font-size that's hijacking our Tailwind classes */
+  .how-it-works h1 {
+    font-size: 3.75rem !important; /* text-6xl */
+  }
+  
+  @media (min-width: 768px) {
+    .how-it-works h1 {
+      font-size: 4.5rem !important; /* md:text-7xl */
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .how-it-works h1 {
+      font-size: 6rem !important; /* lg:text-8xl */
+    }
+  }
+  
+  .how-it-works h2 {
+    font-size: 1.875rem !important; /* text-3xl */
+  }
+  
+  @media (min-width: 768px) {
+    .how-it-works h2 {
+      font-size: 2.25rem !important; /* md:text-4xl */
+    }
+  }
+  
+  .how-it-works h3 {
+    font-size: 1.25rem !important; /* text-xl */
+  }
+</style>
