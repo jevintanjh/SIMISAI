@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
 import { Icon } from "@iconify/react";
 
 interface TutorialStep {
@@ -22,7 +22,7 @@ const tutorialSteps: TutorialStep[] = [
   {
     id: 'welcome',
     target: 'welcome-title',
-    title: 'Welcome to SIMIS AI!',
+    title: 'Welcome to SIMIS!',
     description: 'Let me show you around the app. This is your AI-powered medical device guidance assistant.',
     position: 'bottom',
     action: 'Click anywhere to continue'
