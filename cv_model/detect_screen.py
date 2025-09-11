@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-YOLOv8 Detection Script for SIMIS AI
+YOLOv8 Detection Script for SIMIS
 Can be used for both screen capture and image file detection
 """
 
@@ -107,7 +107,7 @@ def detect_screen_realtime(model_path, monitor_region=None, conf_threshold=0.5):
     cv2.destroyAllWindows()
 
 def main():
-    parser = argparse.ArgumentParser(description='YOLOv8 Detection for SIMIS AI')
+    parser = argparse.ArgumentParser(description='YOLOv8 Detection for SIMIS')
     parser.add_argument('--model', required=True, help='Path to YOLOv8 model file')
     parser.add_argument('--image', help='Path to image file for detection')
     parser.add_argument('--screen', action='store_true', help='Run real-time screen detection')
