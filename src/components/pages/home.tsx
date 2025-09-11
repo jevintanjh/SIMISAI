@@ -1,11 +1,11 @@
 import { useState } from "react";
-import CameraView from "@/components/CameraView";
-import { MediaPipeCameraView } from "@/components/MediaPipeCameraView";
-import InstructionCard from "@/components/InstructionCard";
-import DeviceLibrary from "@/components/DeviceLibrary";
-import FloatingChat from "@/components/FloatingChat";
-import BottomNavigation from "@/components/BottomNavigation";
-import { Button } from "@/components/ui/button";
+import CameraView from "../CameraView";
+import { MediaPipeCameraView } from "../MediaPipeCameraView";
+import InstructionCard from "../InstructionCard";
+import DeviceLibrary from "../DeviceLibrary";
+import FloatingChat from "../FloatingChat";
+import BottomNavigation from "../BottomNavigation";
+import { Button } from "../ui/button";
 import { Icon } from "@iconify/react";
 
 interface HomeProps {
@@ -16,17 +16,34 @@ interface HomeProps {
     guidanceStyle: string;
     voiceOption: string;
   };
+  onShowSessionSummary?: () => void;
 }
 
-export default function Home({ onBack, sessionConfig }: HomeProps) {
+export default function Home({ onBack, sessionConfig, onShowSessionSummary }: HomeProps) {
   // Enhanced UI with radio buttons and improved design - v2
   const [currentTab, setCurrentTab] = useState<"scan" | "devices" | "history" | "settings">("scan");
   const [currentLanguage, setCurrentLanguage] = useState(sessionConfig?.language || "en");
   const [currentSession, setCurrentSession] = useState<string | null>(null);
   const [useMediaPipe, setUseMediaPipe] = useState(true); // Toggle for MediaPipe vs old camera (default to MediaPipe)
   const [thermometerDetected, setThermometerDetected] = useState<any>(null);
+  const [showChangeSettingsModal, setShowChangeSettingsModal] = useState(false);
 
   // Get display labels for configuration
+  const handleConfigClick = () => {
+    setShowChangeSettingsModal(true);
+  };
+
+  const handleConfirmChangeSettings = () => {
+    setShowChangeSettingsModal(false);
+    if (onBack) {
+      onBack(); // This will take them back to the welcome page
+    }
+  };
+
+  const handleCancelChangeSettings = () => {
+    setShowChangeSettingsModal(false);
+  };
+
   const getDisplayLabel = (type: string, value: string) => {
     const languages = [
       { value: "en", label: "🇺🇸 English" },
@@ -92,7 +109,7 @@ export default function Home({ onBack, sessionConfig }: HomeProps) {
         )}
         
         <h1 className="text-3xl font-bold text-center mb-2">
-          🔬 SIMIS AI - Medical Device Guidance
+          🔬 SIMIS - Medical Device Guidance
         </h1>
         <p className="text-center text-[#E2E8F0] mb-4">
           Professional medical device scanning and guidance system
@@ -103,19 +120,19 @@ export default function Home({ onBack, sessionConfig }: HomeProps) {
           <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
             <h3 className="text-lg font-semibold text-white mb-3 text-center">Current Session Configuration</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="text-center">
+              <div className="text-center cursor-pointer hover:bg-white/5 rounded-lg p-2 transition-colors" onClick={handleConfigClick}>
                 <div className="text-sm text-[#94A3B8] mb-1">Device</div>
                 <div className="text-white font-medium">{getDisplayLabel('device', sessionConfig.device)}</div>
               </div>
-              <div className="text-center">
+              <div className="text-center cursor-pointer hover:bg-white/5 rounded-lg p-2 transition-colors" onClick={handleConfigClick}>
                 <div className="text-sm text-[#94A3B8] mb-1">Language</div>
                 <div className="text-white font-medium">{getDisplayLabel('language', sessionConfig.language)}</div>
               </div>
-              <div className="text-center">
+              <div className="text-center cursor-pointer hover:bg-white/5 rounded-lg p-2 transition-colors" onClick={handleConfigClick}>
                 <div className="text-sm text-[#94A3B8] mb-1">Guidance</div>
                 <div className="text-white font-medium">{getDisplayLabel('guidance', sessionConfig.guidanceStyle)}</div>
               </div>
-              <div className="text-center">
+              <div className="text-center cursor-pointer hover:bg-white/5 rounded-lg p-2 transition-colors" onClick={handleConfigClick}>
                 <div className="text-sm text-[#94A3B8] mb-1">Voice</div>
                 <div className="text-white font-medium">{getDisplayLabel('voice', sessionConfig.voiceOption)}</div>
               </div>
@@ -123,8 +140,22 @@ export default function Home({ onBack, sessionConfig }: HomeProps) {
           </div>
         )}
         
+        {/* Session Summary Button */}
+        {onShowSessionSummary && (
+          <div className="flex justify-center mt-4">
+            <Button
+              onClick={onShowSessionSummary}
+              variant="outline"
+              className="bg-white/10 backdrop-blur-sm border-white/20 hover:border-white/40 text-white"
+            >
+              <Icon icon="mingcute:chart-line" className="w-4 h-4 mr-2" />
+              View Session Summary
+            </Button>
+          </div>
+        )}
+        
         <div className="flex justify-center gap-4 mt-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer hover:bg-white/5 rounded-lg p-2 transition-colors" onClick={handleConfigClick}>
             <span className="text-[#94A3B8]">Language:</span>
             <span className="font-medium text-[#A78BFA]">
               {currentLanguage === 'en' ? 'English' : 
@@ -326,6 +357,42 @@ export default function Home({ onBack, sessionConfig }: HomeProps) {
         currentTab={currentTab}
         onTabChange={setCurrentTab}
       />
+
+      {/* Change Settings Modal */}
+      {showChangeSettingsModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-background border border-border rounded-2xl p-8 max-w-md w-full">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Icon icon="mingcute:settings-3-line" className="w-8 h-8 text-primary" />
+              </div>
+              
+              <h2 className="text-2xl font-bold text-white mb-4">Change Settings?</h2>
+              
+              <p className="text-white/70 mb-6">
+                Do you want to change your session configuration? This will end your current session and take you back to the setup page.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  onClick={handleCancelChangeSettings}
+                  variant="outline"
+                  className="bg-transparent text-white border-border hover:border-white/60"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmChangeSettings}
+                  className="bg-primary hover:bg-primary/90 text-white"
+                >
+                  <Icon icon="mingcute:refresh-line" className="w-4 h-4 mr-2" />
+                  Change Settings
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
