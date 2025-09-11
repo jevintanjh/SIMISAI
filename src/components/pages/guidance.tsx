@@ -1,15 +1,9 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { MediaPipeCameraView } from "@/components/MediaPipeCameraView";
-import InstructionCard from "@/components/InstructionCard";
-import EnhancedInstructionCard from "@/components/EnhancedInstructionCard";
-import FloatingChat from "@/components/FloatingChat";
-import SessionSummary from "@/components/SessionSummary";
-import EnhancedChat from "@/components/EnhancedChat";
-import { useVoiceInput } from "@/hooks/use-voice-input";
-import MobileOptimizedView, { useMobileDetection, accessibilityUtils } from "@/components/MobileOptimizedView";
-import { LoadingSpinner, ErrorDisplay, ProgressIndicator, ConnectionStatus } from "@/components/LoadingStates";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { MediaPipeCameraView } from "../MediaPipeCameraView";
+import InstructionCard from "../InstructionCard";
+import FloatingChat from "../FloatingChat";
 import { Icon } from "@iconify/react";
 
 interface Instruction {
@@ -37,9 +31,6 @@ interface GuidanceProps {
 interface SessionConfig {
   language: string;
   device: string;
-  deviceType: string;
-  deviceBrand: string;
-  deviceModel: string;
   guidanceStyle: string;
   voiceOption: string;
 }
@@ -54,30 +45,6 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   const [currentInstruction, setCurrentInstruction] = useState<Instruction | null>(null);
   const [totalSteps, setTotalSteps] = useState(0);
   const [loading, setLoading] = useState(true);
-  
-  // Session tracking
-  const [sessionStartTime] = useState(Date.now());
-  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-  const [retryAttempts, setRetryAttempts] = useState<Map<number, number>>(new Map());
-  const [showSessionSummary, setShowSessionSummary] = useState(false);
-  const [sessionCompleted, setSessionCompleted] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [isConnected, setIsConnected] = useState(true);
-  const [isReconnecting, setIsReconnecting] = useState(false);
-
-  // Voice input
-  const { 
-    isListening, 
-    isSupported: isVoiceSupported, 
-    transcript, 
-    error: voiceError, 
-    startListening, 
-    stopListening, 
-    resetTranscript 
-  } = useVoiceInput();
-
-  // Mobile detection
-  const isMobile = useMobileDetection();
 
   // Fetch instructions from server
   useEffect(() => {
@@ -111,8 +78,68 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
       } catch (error) {
         console.error('Failed to fetch instructions:', error);
         // Fallback to mock data if API fails
-        setInstructions([]);
-        setTotalSteps(0);
+        const mockInstructions: Instruction[] = [
+          {
+            id: '1',
+            deviceId: 'thermometer',
+            stepNumber: 1,
+            title: 'Prepare the thermometer',
+            description: 'Remove the thermometer from its case and ensure it\'s clean and dry.',
+            translations: null,
+            audioUrl: null,
+            imageUrl: null,
+            checkpoints: ['Thermometer is clean', 'Thermometer is dry']
+          },
+          {
+            id: '2',
+            deviceId: 'thermometer',
+            stepNumber: 2,
+            title: 'Turn on the thermometer',
+            description: 'Press the power button to turn on the thermometer. Wait for the display to show "Lo" or a similar ready indicator.',
+            translations: null,
+            audioUrl: null,
+            imageUrl: null,
+            checkpoints: ['Thermometer is turned on', 'Display shows ready indicator']
+          },
+          {
+            id: '3',
+            deviceId: 'thermometer',
+            stepNumber: 3,
+            title: 'Position correctly',
+            description: 'Place the thermometer tip under your tongue, close your mouth gently, and hold it in place.',
+            translations: null,
+            audioUrl: null,
+            imageUrl: null,
+            checkpoints: ['Tip is under tongue', 'Mouth is closed', 'Holding still']
+          },
+          {
+            id: '4',
+            deviceId: 'thermometer',
+            stepNumber: 4,
+            title: 'Wait for measurement',
+            description: 'Keep the thermometer in place until you hear a beep or see the temperature reading on the display.',
+            translations: null,
+            audioUrl: null,
+            imageUrl: null,
+            checkpoints: ['Waiting for beep', 'Temperature reading appears']
+          },
+          {
+            id: '5',
+            deviceId: 'thermometer',
+            stepNumber: 5,
+            title: 'Read and record',
+            description: 'Read the temperature from the display and record it. Clean the thermometer before storing.',
+            translations: null,
+            audioUrl: null,
+            imageUrl: null,
+            checkpoints: ['Temperature is read', 'Thermometer is cleaned', 'Stored properly']
+          }
+        ];
+        setInstructions(mockInstructions);
+        setTotalSteps(mockInstructions.length);
+        if (mockInstructions.length > 0) {
+          setCurrentInstruction(mockInstructions[0]);
+        }
       } finally {
         setLoading(false);
       }
@@ -160,21 +187,18 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
     }
   };
 
-  const handleSendMessage = (message?: string) => {
-    const messageToSend = message || userQuestion;
-    if (messageToSend.trim()) {
+  const handleSendMessage = () => {
+    if (userQuestion.trim()) {
       const newUserMessage = {
         id: Date.now(),
         type: 'user' as const,
-        content: messageToSend,
-        timestamp: new Date()
+        content: userQuestion
       };
       
       const aiResponse = {
         id: Date.now() + 1,
         type: 'ai' as const,
-        content: "Manset harus pas tetapi tidak ketat. Anda harus bisa menyelipkan satu jari di bawahnya dengan nyaman.",
-        timestamp: new Date()
+        content: "Manset harus pas tetapi tidak ketat. Anda harus bisa menyelipkan satu jari di bawahnya dengan nyaman."
       };
 
       setChatMessages(prev => [...prev, newUserMessage, aiResponse]);
@@ -190,141 +214,12 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
     }
   };
 
-  const handleVoiceInput = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      resetTranscript();
-      startListening();
-    }
-  };
-
-  // Handle voice transcript
-  useEffect(() => {
-    if (transcript) {
-      setUserQuestion(transcript);
-    }
-  }, [transcript]);
-
-  const handleStepComplete = (stepNumber: number) => {
-    setCompletedSteps(prev => new Set([...prev, stepNumber]));
-    
-    // Move to next step
-    if (stepNumber < totalSteps) {
-      setCurrentStep(stepNumber + 1);
-      setProgress(((stepNumber + 1) / totalSteps) * 100);
-    } else {
-      // Session completed
-      setSessionCompleted(true);
-      setShowSessionSummary(true);
-    }
-  };
-
-  const handleStepRetry = (stepNumber: number) => {
-    setRetryAttempts(prev => {
-      const newMap = new Map(prev);
-      newMap.set(stepNumber, (newMap.get(stepNumber) || 0) + 1);
-      return newMap;
-    });
-  };
-
-  const generateSessionSummary = () => {
-    const timeSpent = Date.now() - sessionStartTime;
-    const successRate = Math.round((completedSteps.size / totalSteps) * 100);
-    const totalRetries = Array.from(retryAttempts.values()).reduce((sum, attempts) => sum + attempts, 0);
-    
-    // Generate key learnings based on completed steps
-    const keyLearnings = [
-      `Successfully completed ${completedSteps.size} out of ${totalSteps} steps`,
-      `Device: ${config.deviceBrand} ${config.deviceModel}`,
-      `Language: ${config.language}`,
-      `Guidance style: ${config.guidanceStyle}`,
-    ];
-
-    // Generate areas for improvement based on retry attempts
-    const areasForImprovement = [];
-    if (totalRetries > 0) {
-      areasForImprovement.push(`Consider reviewing steps with retry attempts for better understanding`);
-    }
-    if (successRate < 80) {
-      areasForImprovement.push(`Focus on following instructions more carefully`);
-    }
-    if (timeSpent > 30 * 60 * 1000) { // 30 minutes
-      areasForImprovement.push(`Try to work more efficiently to reduce session time`);
-    }
-
-    // Generate common issues based on chat messages
-    const commonIssues = [];
-    const errorMessages = chatMessages.filter(msg => 
-      msg.type === 'ai' && (
-        msg.content.toLowerCase().includes('error') ||
-        msg.content.toLowerCase().includes('incorrect') ||
-        msg.content.toLowerCase().includes('wrong')
-      )
-    );
-    
-    if (errorMessages.length > 0) {
-      commonIssues.push(`Encountered ${errorMessages.length} error-related questions during session`);
-    }
-
-    return {
-      device: config.device,
-      deviceType: config.deviceType,
-      deviceBrand: config.deviceBrand,
-      deviceModel: config.deviceModel,
-      language: config.language,
-      guidanceStyle: config.guidanceStyle,
-      totalSteps,
-      completedSteps: completedSteps.size,
-      timeSpent,
-      successRate,
-      keyLearnings,
-      areasForImprovement,
-      commonIssues,
-    };
-  };
-
   const toggleInstructions = () => {
     setShowInstructions(!showInstructions);
   };
 
-  // Error handling
-  const resetError = () => {
-    setError(null);
-  };
-
-  // Connection monitoring
-  useEffect(() => {
-    const handleOnline = () => {
-      setIsConnected(true);
-      setIsReconnecting(false);
-      accessibilityUtils.announce('Connection restored');
-    };
-
-    const handleOffline = () => {
-      setIsConnected(false);
-      accessibilityUtils.announce('Connection lost');
-    };
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1E1B4B] to-[#312E81] text-white">
-        <ErrorDisplay error={error} resetError={resetError} />
-      </div>
-    );
-  }
-
   return (
-    <MobileOptimizedView isMobile={isMobile} className="min-h-screen bg-gradient-to-br from-[#1E1B4B] to-[#312E81] text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#1E1B4B] to-[#312E81] text-white">
       {/* Header */}
       <header className="bg-transparent text-white p-6 relative">
         {/* Back Button and Session Configuration Container - Left Aligned */}
@@ -419,20 +314,6 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Session Summary Button */}
-            <Card className="bg-card/50 border-border backdrop-blur-sm cursor-pointer hover:bg-white/10 transition-colors" onClick={() => setShowSessionSummary(true)}>
-              <CardContent className="px-6 py-2">
-                <div className="flex items-center space-x-3">
-                  <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Icon icon="mingcute:chart-line" className="w-7 h-7 text-white/70" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-white">Session Summary</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </header>
@@ -461,13 +342,14 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 {/* Instruction Card */}
                 <div className="flex-1">
                   {loading ? (
-                    <LoadingSpinner 
-                      size="lg" 
-                      text="Loading instructions..." 
-                      className="h-full"
-                    />
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                        <p className="text-sm text-muted-foreground">Loading instructions...</p>
+                      </div>
+                    </div>
                   ) : instruction ? (
-                    <EnhancedInstructionCard 
+                    <InstructionCard 
                       language={config.language}
                       sessionId="guidance-session"
                       currentStep={currentStep}
@@ -477,11 +359,8 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                       checkpoints={instruction.checkpoints}
                       onNextStep={handleNextStep}
                       onPreviousStep={handlePreviousStep}
-                      onStepComplete={handleStepComplete}
-                      onStepRetry={handleStepRetry}
-                      deviceType={config.deviceType}
-                      deviceBrand={config.deviceBrand}
-                      deviceModel={config.deviceModel}
+                      canGoNext={currentStep < totalSteps}
+                      canGoPrevious={currentStep > 1}
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
@@ -502,9 +381,9 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 </div>
               </div>
             ) : (
-              <div className="bg-card border border-border rounded-lg shadow-lg h-full min-h-[600px] flex flex-col">
+              <div className="bg-card border border-border rounded-lg shadow-lg p-4 h-full min-h-[600px] flex flex-col">
                 {/* Toggle to Instructions Button - Above chat box */}
-                <div className="p-4 border-b border-border flex-shrink-0">
+                <div className="mb-4 flex-shrink-0">
                   <Button 
                     onClick={toggleInstructions}
                     className="w-full bg-primary text-white hover:bg-primary transition-colors text-base font-semibold py-4"
@@ -514,15 +393,11 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                   </Button>
                 </div>
                 
-                {/* Enhanced Chat Component */}
-                <div className="flex-1 min-h-0">
-                  <EnhancedChat
-                    messages={chatMessages}
-                    onSendMessage={handleSendMessage}
-                    onVoiceInput={handleVoiceInput}
-                    isVoiceEnabled={isVoiceSupported && config.voiceOption !== 'text'}
-                    isListening={isListening}
-                    className="h-full"
+                {/* Chat Assistant */}
+                <div className="flex flex-col h-full min-h-0">
+                  <FloatingChat 
+                    sessionId="guidance-session"
+                    language={config.language}
                   />
                 </div>
               </div>
@@ -530,33 +405,6 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
           </div>
         </div>
       </main>
-
-      {/* Session Summary Modal */}
-      {showSessionSummary && (
-        <SessionSummary
-          sessionData={generateSessionSummary()}
-          onClose={() => setShowSessionSummary(false)}
-          onExport={() => {
-            // Export functionality is handled in the SessionSummary component
-          }}
-          onShare={() => {
-            // Share functionality can be implemented here
-            if (navigator.share) {
-              navigator.share({
-                title: 'SIMIS AI Session Summary',
-                text: `Completed ${completedSteps.size}/${totalSteps} steps with ${Math.round((completedSteps.size / totalSteps) * 100)}% success rate`,
-                url: window.location.href
-              });
-            }
-          }}
-        />
-      )}
-
-      {/* Connection Status */}
-      <ConnectionStatus 
-        isConnected={isConnected} 
-        isReconnecting={isReconnecting} 
-      />
-    </MobileOptimizedView>
+    </div>
   );
 }
