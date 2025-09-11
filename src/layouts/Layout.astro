@@ -1,10 +1,13 @@
 ---
-export interface Props {
+interface Props {
   title?: string;
   description?: string;
 }
 
-const { title = "SIMIS AI", description = "AI-powered medical device guidance" } = Astro.props;
+const { 
+  title = "SIMIS", 
+  description = "AI-powered medical device guidance"
+} = Astro.props as Props;
 ---
 
 <!DOCTYPE html>
