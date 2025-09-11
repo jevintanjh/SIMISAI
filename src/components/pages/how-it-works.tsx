@@ -41,8 +41,8 @@ export default function HowItWorks({ onBack }: HowItWorksProps) {
           </h1>
           
           {/* Subtitle */}
-          <p className="text-white/80 text-xl md:text-2xl max-w-4xl mx-auto mb-16 leading-relaxed">
-            Your intelligent medical device guidance assistant that uses advanced computer vision and AI to provide real-time, personalized instructions for using medical devices safely and effectively.
+          <p className="text-white/80 text-lg md:text-xl max-w-3xl mx-auto mb-16 leading-relaxed">
+            AI-powered medical device guidance that provides real-time, personalized instructions for safe and effective device usage.
           </p>
           
           {/* CTA Buttons */}
@@ -51,24 +51,19 @@ export default function HowItWorks({ onBack }: HowItWorksProps) {
               onClick={() => window.location.href = '/'}
               className="inline-flex items-center space-x-2 bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-200"
             >
-              <span>Try it now</span>
-              <Icon icon="mingcute:arrow-right-line" className="w-5 h-5" />
+              <span>Try now</span>
+              <Icon icon="mingcute:play-fill" className="w-5 h-5" />
             </Button>
             
             <button 
               onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-              className="text-white/70 hover:text-white transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-transparent text-white border border-white hover:bg-white/10 hover:border-white/50 rounded-xl transition-all duration-200"
             >
-              <span>Learn More</span>
+              <span>Learn more</span>
+              <Icon icon="mingcute:external-link-fill" className="w-4 h-4 ml-2" />
             </button>
           </div>
           
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse"></div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -76,21 +71,21 @@ export default function HowItWorks({ onBack }: HowItWorksProps) {
       <section id="how-it-works" className="container mx-auto px-6 py-20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              How it works
+            </h2>
             <p className="text-white/70 text-lg max-w-3xl mx-auto">
               Experience the power of AI-driven medical device guidance in six simple steps
             </p>
           </div>
 
           <div className="relative">
-            {/* Connection Line */}
-            <div className="hidden lg:block absolute top-24 left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-primary via-blue-400 to-purple-400 rounded-full"></div>
-            
             <div className="space-y-16">
               {/* Step 1 */}
               <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
                 <div className="flex-shrink-0 order-2 lg:order-1">
-                  <div className="w-40 h-40 bg-gradient-to-br from-primary/20 to-primary/40 rounded-3xl flex items-center justify-center border border-primary/30 backdrop-blur-sm overflow-hidden shadow-lg">
-                    <img src="/attached_assets/Demo 1.jpg" alt="Device Detection" className="w-full h-full object-cover rounded-3xl" />
+                  <div className="w-64 h-64 bg-gradient-to-br from-primary/20 to-primary/40 rounded-3xl flex items-center justify-center border border-primary/30 backdrop-blur-sm overflow-hidden shadow-lg">
+                    <img src="/Demo 1.jpg" alt="Device Detection" className="w-full h-full object-cover rounded-3xl" />
                   </div>
                 </div>
                 <div className="flex-1 order-1 lg:order-2">
