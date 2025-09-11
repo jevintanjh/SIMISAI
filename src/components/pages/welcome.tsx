@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Label } from "../ui/label";
 import { Icon } from "@iconify/react";
 import { useEffect } from "react";
-import OnboardingTutorial from "@/components/OnboardingTutorial";
-import HelpTooltip from "@/components/HelpTooltip";
 
 interface WelcomeProps {
   onStartSession: (config: SessionConfig) => void;
@@ -16,27 +14,21 @@ interface WelcomeProps {
 interface SessionConfig {
   language: string;
   device: string;
-  deviceType: string;
-  deviceBrand: string;
-  deviceModel: string;
   guidanceStyle: string;
   voiceOption: string;
 }
 
 export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
   const [language, setLanguage] = useState<string>("en");
-  const [deviceType, setDeviceType] = useState<string>("vital-signs");
+  const [device, setDevice] = useState<string>("thermometer");
   const [deviceBrand, setDeviceBrand] = useState<string>("");
   const [deviceModel, setDeviceModel] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState<string>("");
   const [guidanceStyle, setGuidanceStyle] = useState<string>("direct");
   const [voiceOption, setVoiceOption] = useState<string>("female");
   const [collapsedBoxes, setCollapsedBoxes] = useState<Set<string>>(new Set(['device', 'language', 'guidance', 'voice']));
   const [showHowItWorks, setShowHowItWorks] = useState<boolean>(false);
   const [openPopover, setOpenPopover] = useState<string | null>(null);
   const [hoveredGuidance, setHoveredGuidance] = useState<string | null>(null);
-  const [showTutorial, setShowTutorial] = useState<boolean>(false);
-  const [hasSeenTutorial, setHasSeenTutorial] = useState<boolean>(false);
 
 
   const languages = [
@@ -52,90 +44,32 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
     { value: "bn", label: "🇧🇳 Brunei Malay", flag: "🇧🇳" },
   ];
 
-  const deviceTypes = [
-    { value: "vital-signs", label: "Vital Signs", icon: "❤️", description: "Temperature, blood pressure, pulse" },
-    { value: "monitoring", label: "Monitoring", icon: "📊", description: "Glucose, oxygen saturation" },
-    { value: "diagnostic", label: "Diagnostic", icon: "🔬", description: "ECG, stethoscope" },
+  const devices = [
+    { value: "thermometer", label: "Digital thermometer", icon: "🌡️", enabled: true },
+    { value: "ear", label: "Ear thermometer", icon: "👂", enabled: false },
+    { value: "forehead", label: "Forehead thermometer", icon: "🤒", enabled: false },
+    { value: "blood-pressure", label: "Blood pressure monitor", icon: "🩸", enabled: false },
+    { value: "glucose", label: "Blood glucose meter", icon: "🍬", enabled: false },
   ];
 
-  const deviceBrands = {
-    "vital-signs": [
-      { value: "omron", label: "Omron", icon: "🏥" },
-      { value: "braun", label: "Braun", icon: "🌡️" },
-      { value: "exergen", label: "Exergen", icon: "🤒" },
-      { value: "generic", label: "Generic/Other", icon: "📱" },
-    ],
-    "monitoring": [
-      { value: "accu-chek", label: "Accu-Chek", icon: "🍬" },
-      { value: "freestyle", label: "FreeStyle", icon: "💉" },
-      { value: "contour", label: "Contour", icon: "🩸" },
-      { value: "generic", label: "Generic/Other", icon: "📱" },
-    ],
-    "diagnostic": [
-      { value: "philips", label: "Philips", icon: "🔬" },
-      { value: "ge", label: "GE Healthcare", icon: "🏥" },
-      { value: "generic", label: "Generic/Other", icon: "📱" },
-    ],
-  };
+  const deviceBrands = [
+    { value: "omron", label: "Omron" },
+    { value: "braun", label: "Braun" },
+    { value: "exergen", label: "Exergen" },
+    { value: "vicks", label: "Vicks" },
+    { value: "kinsa", label: "Kinsa" },
+    { value: "thermoworks", label: "ThermoWorks" },
+  ];
 
-  const deviceModels = {
-    "vital-signs": {
-      "thermometer": {
-        "omron": [
-          { value: "mc-246", label: "MC-246 Digital Thermometer" },
-          { value: "mc-245", label: "MC-245 Digital Thermometer" },
-          { value: "mc-244", label: "MC-244 Digital Thermometer" },
-        ],
-        "braun": [
-          { value: "thermoscan-7", label: "ThermoScan 7" },
-          { value: "thermoscan-5", label: "ThermoScan 5" },
-          { value: "thermoscan-3", label: "ThermoScan 3" },
-        ],
-        "exergen": [
-          { value: "temporal-artery", label: "Temporal Artery Thermometer" },
-          { value: "temporal-scanner", label: "Temporal Scanner" },
-        ],
-        "generic": [
-          { value: "digital-oral", label: "Digital Oral Thermometer" },
-          { value: "digital-rectal", label: "Digital Rectal Thermometer" },
-          { value: "digital-axillary", label: "Digital Axillary Thermometer" },
-        ],
-      },
-      "blood-pressure": {
-        "omron": [
-          { value: "m7", label: "M7 Intelli IT" },
-          { value: "m10", label: "M10 Intelli IT" },
-          { value: "m3", label: "M3 Intelli IT" },
-        ],
-        "generic": [
-          { value: "digital-upper-arm", label: "Digital Upper Arm Monitor" },
-          { value: "digital-wrist", label: "Digital Wrist Monitor" },
-        ],
-      },
-    },
-    "monitoring": {
-      "glucose": {
-        "accu-chek": [
-          { value: "performa", label: "Accu-Chek Performa" },
-          { value: "guide", label: "Accu-Chek Guide" },
-        ],
-        "freestyle": [
-          { value: "freedom-lite", label: "FreeStyle Freedom Lite" },
-          { value: "neo", label: "FreeStyle Neo" },
-        ],
-        "generic": [
-          { value: "digital-glucose", label: "Digital Glucose Meter" },
-        ],
-      },
-    },
-  };
-
-  const devices = [
-    { value: "thermometer", label: "Digital thermometer", icon: "🌡️", enabled: true, type: "vital-signs" },
-    { value: "ear", label: "Ear thermometer", icon: "👂", enabled: true, type: "vital-signs" },
-    { value: "forehead", label: "Forehead thermometer", icon: "🤒", enabled: true, type: "vital-signs" },
-    { value: "blood-pressure", label: "Blood pressure monitor", icon: "🩸", enabled: true, type: "vital-signs" },
-    { value: "glucose", label: "Blood glucose meter", icon: "🍬", enabled: true, type: "monitoring" },
+  const deviceModels = [
+    { value: "mc-246", label: "MC-246", brand: "omron" },
+    { value: "mc-245", label: "MC-245", brand: "omron" },
+    { value: "thermoscan-7", label: "ThermoScan 7", brand: "braun" },
+    { value: "thermoscan-5", label: "ThermoScan 5", brand: "braun" },
+    { value: "temporal-artery", label: "Temporal Artery", brand: "exergen" },
+    { value: "smart-thermometer", label: "Smart Thermometer", brand: "vicks" },
+    { value: "quickcare", label: "QuickCare", brand: "kinsa" },
+    { value: "dot", label: "Dot", brand: "thermoworks" },
   ];
 
   const guidanceOptions = [
@@ -151,65 +85,6 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
   ];
 
   const canStart = true;
-
-  // Check if user is first-time visitor
-  useEffect(() => {
-    const hasSeenTutorialBefore = localStorage.getItem('simis-ai-tutorial-seen');
-    if (!hasSeenTutorialBefore) {
-      setShowTutorial(true);
-    }
-  }, []);
-
-  const handleTutorialComplete = () => {
-    setShowTutorial(false);
-    setHasSeenTutorial(true);
-    localStorage.setItem('simis-ai-tutorial-seen', 'true');
-  };
-
-  const handleTutorialSkip = () => {
-    setShowTutorial(false);
-    setHasSeenTutorial(true);
-    localStorage.setItem('simis-ai-tutorial-seen', 'true');
-  };
-
-  // Get available devices based on device type
-  const getAvailableDevices = () => {
-    if (!deviceType) return [];
-    return devices.filter(device => device.type === deviceType);
-  };
-
-  // Get available brands based on device type
-  const getAvailableBrands = () => {
-    if (!deviceType) return [];
-    return deviceBrands[deviceType] || [];
-  };
-
-  // Get available models based on device type, brand, and search query
-  const getAvailableModels = () => {
-    if (!deviceType || !deviceBrand) return [];
-    
-    const deviceTypeModels = deviceModels[deviceType];
-    if (!deviceTypeModels) return [];
-    
-    // Find the device category (thermometer, blood-pressure, etc.)
-    const deviceCategory = getAvailableDevices().find(d => d.type === deviceType)?.value;
-    if (!deviceCategory || !deviceTypeModels[deviceCategory]) return [];
-    
-    const brandModels = deviceTypeModels[deviceCategory][deviceBrand] || [];
-    
-    if (!searchQuery) return brandModels;
-    
-    return brandModels.filter(model => 
-      model.label.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  };
-
-  // Get device name from type and model
-  const getDeviceName = () => {
-    if (!deviceType || !deviceBrand || !deviceModel) return '';
-    const deviceCategory = getAvailableDevices().find(d => d.type === deviceType)?.value;
-    return deviceCategory || '';
-  };
 
   const toggleBox = (boxType: string) => {
     const newCollapsed = new Set(collapsedBoxes);
@@ -240,12 +115,8 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
     switch (type) {
       case 'language':
         return languages.find(l => l.value === value)?.label.replace(/^[^\s]+ /, '') || '';
-      case 'deviceType':
-        return deviceTypes.find(t => t.value === value)?.label || 'Select Device Type';
-      case 'deviceBrand':
-        return getAvailableBrands().find(b => b.value === value)?.label || 'Select Brand';
-      case 'deviceModel':
-        return getAvailableModels().find(m => m.value === value)?.label || 'Select Model';
+      case 'device':
+        return devices.find(d => d.value === value)?.label || '';
       case 'guidance':
         return guidanceOptions.find(g => g.value === value)?.label || '';
       case 'voice':
@@ -265,10 +136,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
     if (canStart) {
       onStartSession({
         language,
-        device: getDeviceName(),
-        deviceType,
-        deviceBrand,
-        deviceModel,
+        device,
         guidanceStyle,
         voiceOption,
       });
@@ -308,12 +176,8 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
       {/* Hero Section */}
       <div className="flex justify-center pt-16">
         <div className="text-center">
-          <h1 
-            id="welcome-title"
-            data-tutorial="welcome-title"
-            className="text-5xl font-bold mb-6"
-          >
-            Welcome to <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">SIMIS AI</span>
+          <h1 className="text-5xl font-bold mb-6">
+            Welcome to <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">SIMIS</span>
           </h1>
           <p className="text-white/70 text-lg mb-4">Your AI-powered medical device guidance assistant</p>
         </div>
@@ -324,30 +188,27 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
         <div className="w-full max-w-6xl border border-border rounded-3xl px-12 py-20 mx-auto">
           <h2 className="text-3xl font-bold text-white mb-8 text-center">Configure session</h2>
           
-          {/* Device Configuration Section */}
-          <div className="mb-8">
+          {/* Device Selection Section */}
+          <div className="mb-8 relative z-10">
             <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-              <Icon icon="mingcute:device-line" className="w-6 h-6 mr-2" />
+              <Icon icon="mingcute:cellphone-vibration-line" className="w-6 h-6 mr-2" />
               Select your device
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-              {/* Device Type Selection */}
-              <Card 
-                data-tutorial="device-type-card"
-                className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative"
-              >
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Device Type */}
+              <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
                 <CardContent className="px-6 py-3">
                   <div 
                     className="flex items-center space-x-3 cursor-pointer"
-                    data-option-box="deviceType"
-                    onClick={() => togglePopover('deviceType')}
+                    data-option-box="device"
+                    onClick={() => togglePopover('device')}
                   >
                     <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mingcute:category-line" className="w-7 h-7 text-white/70" />
+                      <Icon icon="mingcute:cellphone-vibration-line" className="w-7 h-7 text-white/70" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-white">{getDisplayLabel('deviceType', deviceType)}</p>
+                      <p className="text-sm font-bold text-white">{getDisplayLabel('device', device)}</p>
                     </div>
                     <div className="text-white/50">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -357,36 +218,34 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                   </div>
 
                   {/* Device Type Popover */}
-                  {openPopover === 'deviceType' && (
+                  {openPopover === 'device' && (
                     <div 
-                      className="absolute z-[100] mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
-                      data-popover="deviceType"
+                      className="absolute z-[10000] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                      data-popover="device"
                     >
                       <div className="relative">
                         <div className="p-4 max-h-48 overflow-y-auto">
                           <div className="space-y-0.5">
-                            {deviceTypes.map((type) => (
+                            {devices.map((dev) => (
                               <div 
-                                key={type.value} 
-                                className={`flex items-center space-x-3 p-1.5 rounded-lg cursor-pointer transition-colors ${
-                                  type.value === deviceType 
+                                key={dev.value} 
+                                className={`flex items-center space-x-3 p-1.5 rounded-lg transition-colors ${
+                                  dev.value === device 
                                     ? 'bg-primary/20 text-primary hover:bg-primary/30' 
-                                    : 'hover:bg-white/10 text-white'
+                                    : dev.enabled 
+                                      ? 'hover:bg-white/10 text-white cursor-pointer' 
+                                      : 'text-white/50 cursor-not-allowed'
                                 }`}
                                 onClick={() => {
-                                  setDeviceType(type.value);
-                                  setDeviceBrand('');
-                                  setDeviceModel('');
-                                  setSearchQuery('');
-                                  setOpenPopover(null);
+                                  if (dev.enabled) {
+                                    setDevice(dev.value);
+                                    setOpenPopover(null);
+                                  }
                                 }}
                               >
-                                <span className="text-lg">{type.icon}</span>
-                                <div className="flex-1">
-                                  <span className="block">{type.label}</span>
-                                  <span className="text-xs text-white/60">{type.description}</span>
-                                </div>
-                                {type.value === deviceType && (
+                                <span className="text-lg">{dev.icon}</span>
+                                <span className="flex-1">{dev.label}</span>
+                                {dev.value === device && (
                                   <Icon icon="mingcute:check-line" className="w-5 h-5 text-primary" />
                                 )}
                               </div>
@@ -399,22 +258,21 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 </CardContent>
               </Card>
 
-              {/* Device Brand Selection */}
-              <Card 
-                data-tutorial="device-brand-card"
-                className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative"
-              >
+              {/* Device Brand */}
+              <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
                 <CardContent className="px-6 py-3">
                   <div 
                     className="flex items-center space-x-3 cursor-pointer"
-                    data-option-box="deviceBrand"
-                    onClick={() => deviceType && togglePopover('deviceBrand')}
+                    data-option-box="brand"
+                    onClick={() => togglePopover('brand')}
                   >
                     <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
                       <Icon icon="mingcute:building-line" className="w-7 h-7 text-white/70" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-white">{getDisplayLabel('deviceBrand', deviceBrand)}</p>
+                      <p className="text-sm font-bold text-white">
+                        {deviceBrand ? deviceBrands.find(b => b.value === deviceBrand)?.label : "Select brand"}
+                      </p>
                     </div>
                     <div className="text-white/50">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -423,31 +281,29 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                     </div>
                   </div>
 
-                  {/* Device Brand Popover */}
-                  {openPopover === 'deviceBrand' && deviceType && (
+                  {/* Brand Popover */}
+                  {openPopover === 'brand' && (
                     <div 
-                      className="absolute z-[100] mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
-                      data-popover="deviceBrand"
+                      className="absolute z-[10000] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                      data-popover="brand"
                     >
                       <div className="relative">
                         <div className="p-4 max-h-48 overflow-y-auto">
                           <div className="space-y-0.5">
-                            {getAvailableBrands().map((brand) => (
+                            {deviceBrands.map((brand) => (
                               <div 
                                 key={brand.value} 
-                                className={`flex items-center space-x-3 p-1.5 rounded-lg cursor-pointer transition-colors ${
+                                className={`flex items-center space-x-3 p-1.5 rounded-lg transition-colors ${
                                   brand.value === deviceBrand 
                                     ? 'bg-primary/20 text-primary hover:bg-primary/30' 
-                                    : 'hover:bg-white/10 text-white'
+                                    : 'hover:bg-white/10 text-white cursor-pointer'
                                 }`}
                                 onClick={() => {
                                   setDeviceBrand(brand.value);
-                                  setDeviceModel('');
-                                  setSearchQuery('');
+                                  setDeviceModel(""); // Reset model when brand changes
                                   setOpenPopover(null);
                                 }}
                               >
-                                <span className="text-lg">{brand.icon}</span>
                                 <span className="flex-1">{brand.label}</span>
                                 {brand.value === deviceBrand && (
                                   <Icon icon="mingcute:check-line" className="w-5 h-5 text-primary" />
@@ -462,22 +318,21 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 </CardContent>
               </Card>
 
-              {/* Device Model Selection with Search */}
-              <Card 
-                data-tutorial="device-model-card"
-                className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative"
-              >
+              {/* Device Model */}
+              <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
                 <CardContent className="px-6 py-3">
                   <div 
                     className="flex items-center space-x-3 cursor-pointer"
-                    data-option-box="deviceModel"
-                    onClick={() => deviceType && deviceBrand && togglePopover('deviceModel')}
+                    data-option-box="model"
+                    onClick={() => togglePopover('model')}
                   >
                     <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mingcute:settings-3-line" className="w-7 h-7 text-white/70" />
+                      <Icon icon="mingcute:settings-line" className="w-7 h-7 text-white/70" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-white">{getDisplayLabel('deviceModel', deviceModel)}</p>
+                      <p className="text-sm font-bold text-white">
+                        {deviceModel ? deviceModels.find(m => m.value === deviceModel)?.label : "Select model"}
+                      </p>
                     </div>
                     <div className="text-white/50">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -486,55 +341,36 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                     </div>
                   </div>
 
-                  {/* Device Model Popover with Search */}
-                  {openPopover === 'deviceModel' && deviceType && deviceBrand && (
+                  {/* Model Popover */}
+                  {openPopover === 'model' && (
                     <div 
-                      className="absolute z-[100] mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
-                      data-popover="deviceModel"
+                      className="absolute z-[10000] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                      data-popover="model"
                     >
                       <div className="relative">
-                        {/* Search Input */}
-                        <div className="p-4 border-b border-border">
-                          <div className="relative">
-                            <Icon icon="mingcute:search-line" className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
-                            <input
-                              type="text"
-                              placeholder="Search models..."
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                              className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                          </div>
-                        </div>
-                        
                         <div className="p-4 max-h-48 overflow-y-auto">
                           <div className="space-y-0.5">
-                            {getAvailableModels().length > 0 ? (
-                              getAvailableModels().map((model) => (
-                                <div 
-                                  key={model.value} 
-                                  className={`flex items-center space-x-3 p-1.5 rounded-lg cursor-pointer transition-colors ${
-                                    model.value === deviceModel 
-                                      ? 'bg-primary/20 text-primary hover:bg-primary/30' 
-                                      : 'hover:bg-white/10 text-white'
-                                  }`}
-                                  onClick={() => {
-                                    setDeviceModel(model.value);
-                                    setOpenPopover(null);
-                                  }}
-                                >
-                                  <span className="text-lg">📱</span>
-                                  <span className="flex-1 text-sm">{model.label}</span>
-                                  {model.value === deviceModel && (
-                                    <Icon icon="mingcute:check-line" className="w-5 h-5 text-primary" />
-                                  )}
-                                </div>
-                              ))
-                            ) : (
-                              <div className="text-center py-4 text-white/50 text-sm">
-                                {searchQuery ? 'No models found matching your search' : 'No models available'}
+                            {deviceModels
+                              .filter(model => !deviceBrand || model.brand === deviceBrand)
+                              .map((model) => (
+                              <div 
+                                key={model.value} 
+                                className={`flex items-center space-x-3 p-1.5 rounded-lg transition-colors ${
+                                  model.value === deviceModel 
+                                    ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                                    : 'hover:bg-white/10 text-white cursor-pointer'
+                                }`}
+                                onClick={() => {
+                                  setDeviceModel(model.value);
+                                  setOpenPopover(null);
+                                }}
+                              >
+                                <span className="flex-1">{model.label}</span>
+                                {model.value === deviceModel && (
+                                  <Icon icon="mingcute:check-line" className="w-5 h-5 text-primary" />
+                                )}
                               </div>
-                            )}
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -545,28 +381,26 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             </div>
           </div>
 
-          {/* AI Configuration Section */}
-          <div className="mb-8">
+          {/* AI Preferences Section */}
+          <div className="mb-8 relative z-0">
             <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-              <Icon icon="mingcute:robot-line" className="w-6 h-6 mr-2" />
-              Set SIMIS AI preferences
+              <Icon icon="mingcute:settings-3-line" className="w-6 h-6 mr-2" />
+              Select your preferences
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
 
-              {/* Language Selection */}
-              <Card 
-                data-tutorial="language-card"
-                className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative"
-              >
-                <CardContent className="px-6 py-3">
-                  <div 
-                    className="flex items-center space-x-3 cursor-pointer"
-                    data-option-box="language"
-                    onClick={() => {
-                      console.log('Language option box clicked');
-                      console.log('Current openPopover:', openPopover);
-                      togglePopover('language');
-                    }}
+            {/* Language Selection */}
+            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative z-0">
+              <CardContent className="px-6 py-3">
+                <div 
+                  className="flex items-center space-x-3 cursor-pointer"
+                  data-option-box="language"
+                  onClick={() => {
+                    console.log('Language option box clicked');
+                    console.log('Current openPopover:', openPopover);
+                    togglePopover('language');
+                  }}
                 >
                   <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
                     <Icon icon="mingcute:world-2-line" className="w-7 h-7 text-white/80" />
@@ -584,7 +418,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 {/* Language Popover */}
                 {openPopover === 'language' && (
                   <div 
-                    className="absolute z-[100] mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                    className="absolute z-[9998] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                     data-popover="language"
                   >
                     <div className="relative">
@@ -629,10 +463,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             </Card>
 
             {/* Guidance Style */}
-            <Card 
-              data-tutorial="guidance-card"
-              className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative"
-            >
+            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative z-0">
               <CardContent className="px-6 py-3">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
@@ -659,7 +490,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 {/* Guidance Popover */}
                 {openPopover === 'guidance' && (
                   <div 
-                    className="absolute z-[100] mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                    className="absolute z-[9998] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                     data-popover="guidance"
                   >
                     <div className="relative">
@@ -691,7 +522,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                               
                               {/* Hover Tooltip */}
                               {hoveredGuidance === style.value && (
-                                <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 w-64 bg-background border border-border rounded-lg p-3 shadow-lg z-50">
+                                <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 w-64 bg-background border border-border rounded-lg p-3 shadow-lg z-[9997]">
                                   <p className="text-white/80 text-sm">{style.description}</p>
                                 </div>
                               )}
@@ -713,10 +544,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             </Card>
 
             {/* Voice Options */}
-            <Card 
-              data-tutorial="voice-card"
-              className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative"
-            >
+            <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative z-0">
               <CardContent className="px-6 py-3">
                 <div 
                   className="flex items-center space-x-3 cursor-pointer"
@@ -742,7 +570,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
 
                 {/* Voice Popover */}
                 {openPopover === 'voice' && (
-                  <div className="absolute z-50 mt-6 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden">
+                  <div className="absolute z-[9998] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden">
                     <div className="relative">
                       <div className="p-4 max-h-48 overflow-y-auto">
                         <div className="space-y-0.5">
@@ -793,17 +621,17 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 onClick={() => setShowHowItWorks(true)}
                 variant="outline"
                 size="lg"
-                className="bg-transparent text-white font-semibold px-6 py-3 text-md rounded-xl border border-border hover:border-white/60 transition-all duration-300"
+                className="font-semibold"
               >
-                How It Works
+                How it works
               </Button>
               
               <Button
-                data-tutorial="start-button"
                 onClick={handleStart}
                 disabled={!canStart}
+                variant="default"
                 size="lg"
-                className="bg-primary hover:bg-white text-white hover:text-primary font-semibold px-6 py-3 text-md rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-200 border border-primary hover:border-white items-center"
+                className="font-semibold disabled:opacity-20 disabled:cursor-not-allowed"
               >
                 Start
                 <Icon icon="mingcute:play-fill" className="w-8 h-8 ml-1" />
@@ -811,48 +639,34 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             </div>
           </div>
 
-          {/* How It Works Modal - Simplified */}
+          {/* How it works Modal */}
           {showHowItWorks && (
-            <div 
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-              onClick={() => setShowHowItWorks(false)}
-            >
-              <div 
-                className="bg-background border border-border rounded-2xl p-8 max-w-md w-full"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="text-center">
-                  <h2 className="text-2xl font-bold text-white mb-4">How SIMIS AI Works</h2>
-                  <p className="text-white/70 text-sm mb-6">
-                    SIMIS AI uses real-time camera detection to identify your medical device and provides step-by-step guidance in your preferred language with voice assistance.
-                  </p>
-                  <div className="space-y-3">
-                    <Button
-                      onClick={() => window.open('/how-it-works', '_blank')}
-                      className="w-full bg-primary hover:bg-primary/90 text-white"
-                    >
-                      Learn More
-                      <Icon icon="mingcute:external-link-line" className="w-4 h-4 ml-2" />
-                    </Button>
-                    <Button
-                      onClick={() => setShowHowItWorks(false)}
-                      variant="outline"
-                      className="w-full bg-transparent text-white border-border hover:border-white/60"
-                    >
-                      Close
-                    </Button>
-                  </div>
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-background border border-border rounded-2xl p-8 max-w-2xl w-full">
+                <h2 className="text-3xl font-bold text-white text-center mb-4">How SIMIS Works</h2>
+                
+                <p className="text-white/70 text-center max-w-xl mx-auto mb-8">
+                  SIMIS uses real-time camera detection to identify your medical device and provides step-by-step guidance in your preferred language with voice assistance.
+                </p>
+
+                <div className="flex justify-center space-x-4">
+                  <Button
+                    onClick={() => window.open('/how-it-works', '_blank')}
+                    variant="outline"
+                  >
+                    Learn more
+                    <Icon icon="mingcute:external-link-line" className="w-4 h-4 ml-2" />
+                  </Button>
+                  <Button
+                    onClick={() => setShowHowItWorks(false)}
+                    variant="default"
+                  >
+                    Got it
+                  </Button>
                 </div>
               </div>
             </div>
           )}
-
-          {/* Onboarding Tutorial */}
-          <OnboardingTutorial
-            isVisible={showTutorial}
-            onComplete={handleTutorialComplete}
-            onSkip={handleTutorialSkip}
-          />
         </div>
       </div>
     </div>
