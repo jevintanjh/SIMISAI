@@ -348,9 +348,12 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
 
           {/* Advanced View - Show all original dropdowns */}
           {showAdvancedView && (
-            <div className="mt-12">
+            <div className="mt-12 border-t border-white/20 pt-8 bg-white/5 rounded-2xl p-6 -mx-6">
               <div className="flex justify-between items-center mb-8">
-                <h3 className="text-xl font-semibold text-white">Advanced Setup</h3>
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <h3 className="text-xl font-semibold text-white">Advanced Setup</h3>
+                </div>
                 <button
                   onClick={() => setShowAdvancedView(false)}
                   className="flex items-center gap-2 px-4 py-2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-all duration-200 border border-white/20 hover:border-white/40"
