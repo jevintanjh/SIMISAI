@@ -348,11 +348,14 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
 
           {/* Advanced View - Show all original dropdowns */}
           {showAdvancedView && (
-            <div className="mt-12 border-t border-white/20 pt-8 bg-white/5 rounded-2xl p-6 -mx-6">
+            <div className="mt-16">
               <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                   <h3 className="text-xl font-semibold text-white">Advanced Setup</h3>
+                  <div className="px-3 py-1 bg-primary/20 text-primary text-xs font-medium rounded-full">
+                    EXPERT MODE
+                  </div>
                 </div>
                 <button
                   onClick={() => setShowAdvancedView(false)}
@@ -365,8 +368,9 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
               
               {/* Device Selection Section */}
               <div className="mb-12">
-                <h4 className="text-lg font-semibold text-white mb-6">
-                  1. Select your device
+                <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                  <span className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center text-primary text-sm font-bold">1</span>
+                  Select your device
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Device Type */}
@@ -556,8 +560,9 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
 
               {/* AI Preferences Section */}
               <div className="mb-8 relative z-0">
-                <h4 className="text-lg font-semibold text-white mb-6">
-                  2. Set preferences
+                <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                  <span className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center text-primary text-sm font-bold">2</span>
+                  Set preferences
                 </h4>
             
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
