@@ -15,19 +15,26 @@ interface WelcomeProps {
 interface SessionConfig {
   language: string;
   device: string;
+  deviceBrand: string;
+  deviceModel: string;
   guidanceStyle: string;
   voiceOption: string;
 }
 
 export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
+  const [selectedDevice, setSelectedDevice] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [showAdvancedView, setShowAdvancedView] = useState<boolean>(false);
+  const [showSmartDefaults, setShowSmartDefaults] = useState<boolean>(false);
+  const [showHowItWorks, setShowHowItWorks] = useState<boolean>(false);
+  
+  // Advanced view states (only used when advanced view is enabled)
   const [language, setLanguage] = useState<string>("en");
   const [device, setDevice] = useState<string>("thermometer");
   const [deviceBrand, setDeviceBrand] = useState<string>("");
   const [deviceModel, setDeviceModel] = useState<string>("");
   const [guidanceStyle, setGuidanceStyle] = useState<string>("direct");
   const [voiceOption, setVoiceOption] = useState<string>("female");
-  const [collapsedBoxes, setCollapsedBoxes] = useState<Set<string>>(new Set(['device', 'language', 'guidance', 'voice']));
-  const [showHowItWorks, setShowHowItWorks] = useState<boolean>(false);
   const [openPopover, setOpenPopover] = useState<string | null>(null);
   const [hoveredGuidance, setHoveredGuidance] = useState<string | null>(null);
 
@@ -40,17 +47,61 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
   const guidanceOptions = preferenceOptions.guidanceOptions;
   const voiceOptions = preferenceOptions.voiceOptions;
 
-  const canStart = true;
+  // Popular devices for quick selection
+  const popularDevices = [
+    { value: "blood-pressure", label: "Blood Pressure Monitor", icon: "🩸", description: "Monitor your blood pressure" },
+    { value: "thermometer", label: "Digital Thermometer", icon: "🌡️", description: "Check your temperature" },
+    { value: "glucose", label: "Blood Glucose Meter", icon: "🍬", description: "Test blood sugar levels" },
+    { value: "nebulizer", label: "Nebulizer", icon: "💨", description: "Respiratory treatment device" },
+  ];
 
-  const toggleBox = (boxType: string) => {
-    const newCollapsed = new Set(collapsedBoxes);
-    if (newCollapsed.has(boxType)) {
-      newCollapsed.delete(boxType);
-    } else {
-      newCollapsed.add(boxType);
-    }
-    setCollapsedBoxes(newCollapsed);
+  // Auto-detect language from browser
+  const autoDetectLanguage = () => {
+    const browserLang = navigator.language.split('-')[0];
+    const supportedLang = languages.find(lang => lang.value === browserLang);
+    return supportedLang ? browserLang : 'en';
   };
+
+  // Search functionality
+  const filteredDevices = devices.filter(device => 
+    device.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    device.value.toLowerCase().includes(searchQuery.toLowerCase())
+  ).slice(0, 8);
+
+  // Toggle advanced view
+  const toggleAdvancedView = () => {
+    setShowAdvancedView(!showAdvancedView);
+    localStorage.setItem('simis-advanced-view', (!showAdvancedView).toString());
+  };
+
+  // Handle device selection
+  const handleDeviceSelect = (deviceValue: string) => {
+    setSelectedDevice(deviceValue);
+    setShowSmartDefaults(true);
+  };
+
+  // Handle smart defaults start
+  const handleSmartDefaultsStart = () => {
+    const config: SessionConfig = {
+      language: autoDetectLanguage(),
+      device: selectedDevice,
+      deviceBrand: "",
+      deviceModel: "",
+      guidanceStyle: "gentle",
+      voiceOption: "female"
+    };
+    onStartSession(config);
+  };
+
+  // Load user preferences on mount
+  useEffect(() => {
+    const savedAdvancedView = localStorage.getItem('simis-advanced-view');
+    if (savedAdvancedView === 'true') {
+      setShowAdvancedView(true);
+    }
+  }, []);
+
+  const canStart = true;
 
   const togglePopover = (popoverType: string) => {
     console.log('togglePopover called with:', popoverType);
@@ -93,6 +144,8 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
       onStartSession({
         language,
         device,
+        deviceBrand,
+        deviceModel,
         guidanceStyle,
         voiceOption,
       });
@@ -127,6 +180,69 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openPopover]);
 
+  // Smart Defaults Screen
+  if (showSmartDefaults) {
+    const selectedDeviceData = popularDevices.find(d => d.value === selectedDevice);
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#1E1B4B] to-[#312E81] flex flex-col items-center justify-center">
+        <div className="w-full max-w-2xl border border-border rounded-3xl px-12 py-20 mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white mb-4">
+              Ready to guide you through using your {selectedDeviceData?.label}
+            </h1>
+            <p className="text-white/70 text-lg">I'll use these settings:</p>
+          </div>
+
+          <div className="space-y-4 mb-8">
+            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4">
+              <div>
+                <p className="text-white font-medium">Language</p>
+                <p className="text-white/70 text-sm">{languages.find(l => l.value === autoDetectLanguage())?.label}</p>
+              </div>
+              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50" />
+            </div>
+            
+            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4">
+              <div>
+                <p className="text-white font-medium">Voice</p>
+                <p className="text-white/70 text-sm">Female voice guidance</p>
+              </div>
+              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50" />
+            </div>
+            
+            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4">
+              <div>
+                <p className="text-white font-medium">Style</p>
+                <p className="text-white/70 text-sm">Gentle, step-by-step style</p>
+              </div>
+              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50" />
+            </div>
+          </div>
+
+          <p className="text-white/60 text-center mb-8">Perfect for most people</p>
+
+          <div className="flex gap-4 justify-center">
+            <Button
+              onClick={() => setShowSmartDefaults(false)}
+              variant="outline"
+              className="font-semibold"
+            >
+              Change Settings
+            </Button>
+            <Button
+              onClick={handleSmartDefaultsStart}
+              variant="default"
+              size="lg"
+              className="font-semibold"
+            >
+              Start Guidance
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1E1B4B] to-[#312E81] flex flex-col items-center justify-center">
       {/* Hero Section */}
@@ -139,72 +255,163 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
         </div>
       </div>
 
-      {/* Configuration Container */}
+      {/* Main Device Selection Container */}
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="w-full max-w-6xl border border-border rounded-3xl px-12 py-20 mx-auto">
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">Configure session</h2>
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">What device do you need help with?</h2>
           
-          {/* Device Selection Section */}
-          <div className="mb-8 relative z-10">
-            <h3 className="text-xl font-semibold text-white mb-4">
-              1. Select your device
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Device Type */}
-              <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
-                <CardContent className="px-6 py-3">
-                  <div 
-                    className="flex items-center space-x-3 cursor-pointer"
-                    data-option-box="device"
-                    onClick={() => togglePopover('device')}
-                  >
-                    <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mingcute:cellphone-vibration-line" className="w-7 h-7 text-white/70" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-white">{getDisplayLabel('device', device)}</p>
-                    </div>
-                    <div className="text-white/50">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
+          {/* Search Bar */}
+          <div className="mb-8">
+            <div className="relative max-w-2xl mx-auto">
+              <Icon icon="mingcute:search-line" className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+              <input
+                type="text"
+                placeholder="Search for your device..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-card/50 border border-border rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              />
+            </div>
+          </div>
 
-                  {/* Device Type Popover */}
-                  {openPopover === 'device' && (
+          {/* Search Results */}
+          {searchQuery && (
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-white mb-4">Search Results</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredDevices.map((device) => (
+                  <Card 
+                    key={device.value}
+                    className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 cursor-pointer"
+                    onClick={() => handleDeviceSelect(device.value)}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="text-4xl mb-3">{device.icon}</div>
+                      <h4 className="text-white font-semibold mb-2">{device.label}</h4>
+                      <p className="text-white/70 text-sm">{device.enabled ? 'Available' : 'Coming soon'}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              {filteredDevices.length === 0 && (
+                <div className="text-center text-white/70 py-8">
+                  <p>No devices found matching "{searchQuery}"</p>
+                  <p className="text-sm mt-2">Try browsing popular devices below</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Popular Devices */}
+          {!searchQuery && (
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-white mb-6 text-center">Popular Devices</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {popularDevices.map((device) => (
+                  <Card 
+                    key={device.value}
+                    className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 cursor-pointer device-tile"
+                    onClick={() => handleDeviceSelect(device.value)}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="text-4xl mb-3">{device.icon}</div>
+                      <h4 className="text-white font-semibold mb-2">{device.label}</h4>
+                      <p className="text-white/70 text-sm">{device.description}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              <div className="text-center mt-6">
+                <Button
+                  variant="outline"
+                  className="font-semibold"
+                  onClick={() => setSearchQuery(" ")} // Trigger search mode
+                >
+                  Browse All Devices
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Advanced View Toggle */}
+          <div className="text-center">
+            <button
+              onClick={toggleAdvancedView}
+              className="text-white/60 hover:text-white/80 text-sm underline toggle-link"
+            >
+              Need more control? Advanced setup
+            </button>
+          </div>
+
+          {/* Advanced View - Show all original dropdowns */}
+          {showAdvancedView && (
+            <div className="mt-12">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold text-white">Advanced Setup</h3>
+                <button
+                  onClick={() => setShowAdvancedView(false)}
+                  className="text-white/60 hover:text-white/80 text-sm underline"
+                >
+                  Back to Simple
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Device Type */}
+                <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
+                  <CardContent className="px-6 py-3">
                     <div 
-                      className="absolute z-[10000] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
-                      data-popover="device"
+                      className="flex items-center space-x-3 cursor-pointer"
+                      data-option-box="device"
+                      onClick={() => togglePopover('device')}
                     >
-                      <div className="relative">
-                        <div className="p-4 max-h-48 overflow-y-auto">
-                          <div className="space-y-0.5">
-                            {devices.map((dev) => (
-                              <div 
-                                key={dev.value} 
-                                className={`flex items-center space-x-3 p-1.5 rounded-lg transition-colors ${
-                                  dev.value === device 
-                                    ? 'bg-primary/20 text-primary hover:bg-primary/30' 
-                                    : dev.enabled 
-                                      ? 'hover:bg-white/10 text-white cursor-pointer' 
-                                      : 'text-white/50 cursor-not-allowed'
-                                }`}
-                                onClick={() => {
-                                  if (dev.enabled) {
-                                    setDevice(dev.value);
-                                    setOpenPopover(null);
-                                  }
-                                }}
-                              >
-                                <span className="text-lg">{dev.icon}</span>
-                                <span className="flex-1">{dev.label}</span>
-                                {dev.value === device && (
-                                  <Icon icon="mingcute:check-line" className="w-5 h-5 text-primary" />
-                                )}
-                              </div>
-                            ))}
+                      <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Icon icon="mingcute:cellphone-vibration-line" className="w-7 h-7 text-white/70" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-white">{getDisplayLabel('device', device)}</p>
+                      </div>
+                      <div className="text-white/50">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Device Type Popover */}
+                    {openPopover === 'device' && (
+                      <div 
+                        className="absolute z-[10000] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                        data-popover="device"
+                      >
+                        <div className="relative">
+                          <div className="p-4 max-h-48 overflow-y-auto">
+                            <div className="space-y-0.5">
+                          {devices.map((dev) => (
+                            <div 
+                              key={dev.value} 
+                              className={`flex items-center space-x-3 p-1.5 rounded-lg transition-colors ${
+                                dev.value === device 
+                                  ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                                  : dev.enabled 
+                                    ? 'hover:bg-white/10 text-white cursor-pointer' 
+                                    : 'text-white/50 cursor-not-allowed'
+                              }`}
+                              onClick={() => {
+                                if (dev.enabled) {
+                                  setDevice(dev.value);
+                                  setOpenPopover(null);
+                                }
+                              }}
+                            >
+                              <span className="text-lg">{dev.icon}</span>
+                              <span className="flex-1">{dev.label}</span>
+                              {dev.value === device && (
+                                <Icon icon="mingcute:check-line" className="w-5 h-5 text-primary" />
+                              )}
+                            </div>
+                          ))}
                           </div>
                         </div>
                       </div>
@@ -233,9 +440,9 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
-                    </div>
-                  </div>
-
+                        </div>
+                      </div>
+                      
                   {/* Brand Popover */}
                   {openPopover === 'brand' && (
                     <div 
@@ -268,8 +475,8 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                           </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                        </div>
+                      )}
                 </CardContent>
               </Card>
 
@@ -328,12 +535,11 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                             ))}
                           </div>
                         </div>
-                      </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* AI Preferences Section */}
@@ -591,7 +797,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 <Icon icon="mingcute:play-fill" className="w-8 h-8 ml-1" />
               </Button>
             </div>
-          </div>
+          )}
 
           {/* How it works Modal */}
           {showHowItWorks && (
