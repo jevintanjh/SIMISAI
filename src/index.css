@@ -150,8 +150,7 @@
   }
   
   .step-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-card);
+    /* Removed transform and box-shadow to prevent drop shadows */
   }
   
   .chat-bubble {
