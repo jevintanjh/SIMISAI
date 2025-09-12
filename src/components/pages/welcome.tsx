@@ -771,32 +771,33 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 )}
               </CardContent>
             </Card>
-            </div>
           </div>
 
-          {/* Start Button */}
-          <div className="text-center space-y-4">
-            <div className="flex justify-center space-x-8">
-              <Button
-                onClick={() => setShowHowItWorks(true)}
-                variant="outline"
-                size="lg"
-                className="font-semibold"
-              >
-                How it works
-              </Button>
-              
-              <Button
-                onClick={handleStart}
-                disabled={!canStart}
-                variant="default"
-                size="lg"
-                className="font-semibold disabled:opacity-20 disabled:cursor-not-allowed"
-              >
-                Start
-                <Icon icon="mingcute:play-fill" className="w-8 h-8 ml-1" />
-              </Button>
+            {/* Start Button */}
+            <div className="text-center space-y-4">
+              <div className="flex justify-center space-x-8">
+                <Button
+                  onClick={() => setShowHowItWorks(true)}
+                  variant="outline"
+                  size="lg"
+                  className="font-semibold"
+                >
+                  How it works
+                </Button>
+                
+                <Button
+                  onClick={handleStart}
+                  disabled={!canStart}
+                  variant="default"
+                  size="lg"
+                  className="font-semibold disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  Start
+                  <Icon icon="mingcute:play-fill" className="w-8 h-8 ml-1" />
+                </Button>
+              </div>
             </div>
+          </div>
           )}
 
           {/* How it works Modal */}
