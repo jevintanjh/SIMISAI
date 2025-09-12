@@ -269,7 +269,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 placeholder="Search for your device..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-card/50 border border-border rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary/50 focus:bg-white/15"
               />
             </div>
           </div>
@@ -347,17 +347,23 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
           {/* Advanced View - Show all original dropdowns */}
           {showAdvancedView && (
             <div className="mt-12">
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-8">
                 <h3 className="text-xl font-semibold text-white">Advanced Setup</h3>
                 <button
                   onClick={() => setShowAdvancedView(false)}
-                  className="text-white/60 hover:text-white/80 text-sm underline"
+                  className="flex items-center gap-2 px-4 py-2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-all duration-200 border border-white/20 hover:border-white/40"
                 >
+                  <Icon icon="mingcute:arrow-left-line" className="w-4 h-4" />
                   Back to Simple
                 </button>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Device Selection Section */}
+              <div className="mb-12">
+                <h4 className="text-lg font-semibold text-white mb-6">
+                  1. Select your device
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Device Type */}
                 <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
                   <CardContent className="px-6 py-3">
@@ -540,15 +546,16 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
                 )}
               </CardContent>
             </Card>
-          </div>
+                </div>
+              </div>
 
-          {/* AI Preferences Section */}
-          <div className="mb-8 relative z-0">
-            <h3 className="text-xl font-semibold text-white mb-4">
-              2. Set preferences
-            </h3>
+              {/* AI Preferences Section */}
+              <div className="mb-8 relative z-0">
+                <h4 className="text-lg font-semibold text-white mb-6">
+                  2. Set preferences
+                </h4>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
 
             {/* Language Selection */}
             <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
@@ -772,6 +779,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
               </CardContent>
             </Card>
           </div>
+          </div>
 
             {/* Start Button */}
             <div className="text-center space-y-4">
@@ -829,7 +837,6 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             </div>
           )}
         </div>
-      </div>
     </div>
-  );
+    </div>  );
 }
