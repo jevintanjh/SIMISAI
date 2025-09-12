@@ -335,14 +335,16 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
           )}
 
           {/* Advanced View Toggle */}
-          <div className="text-center">
-            <button
-              onClick={toggleAdvancedView}
-              className="text-white/60 hover:text-white/80 text-sm underline toggle-link"
-            >
-              Need more control? Advanced setup
-            </button>
-          </div>
+          {!showAdvancedView && (
+            <div className="text-center">
+              <button
+                onClick={toggleAdvancedView}
+                className="text-white/60 hover:text-white/80 text-sm underline toggle-link"
+              >
+                Need more control? Advanced setup
+              </button>
+            </div>
+          )}
 
           {/* Advanced View - Show all original dropdowns */}
           {showAdvancedView && (
