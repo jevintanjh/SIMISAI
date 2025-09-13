@@ -358,56 +358,63 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
                   <Icon icon="mingcute:camera-2-off-line" className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="text-lg font-bold mb-2">Camera Off</h3>
-                <div className="flex items-center justify-center space-x-2 text-sm opacity-75">
-                  <Icon icon="mingcute:camera-2-line" className="w-4 h-4 text-primary" />
-                  <span>Click the camera button to enable the camera</span>
-                </div>
               </div>
             </div>
           )}
           
           {/* Camera Controls */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-40">
-            {/* Camera Start/Stop Button */}
-            <Button
-              onClick={handleCameraToggle}
-              variant="ghost"
-              size="icon"
-              className={`rounded-full shadow-lg w-12 h-12 transition-opacity duration-200 ${
-                isCameraActive 
-                  ? 'bg-white text-black opacity-60 hover:opacity-100' 
-                  : 'bg-black/50 text-white opacity-60 hover:opacity-100'
-              }`}
-            >
-              <Icon icon={isCameraActive ? "mingcute:camera-2-off-line" : "mingcute:camera-2-line"} className="w-5 h-5" />
-            </Button>
-
-            {/* Detection Start/Stop Button */}
-            {isCameraActive && (
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center space-y-3 z-40">
+            {/* Instruction message when camera is off */}
+            {!isCameraActive && !error && (
+              <div className="flex items-center space-x-2 text-sm text-white/80 bg-black/50 px-3 py-2 rounded-full">
+                <Icon icon="mingcute:camera-2-line" className="w-4 h-4 text-primary" />
+                <span>Click the camera button to enable</span>
+              </div>
+            )}
+            
+            <div className="flex items-center space-x-4">
+              {/* Camera Start/Stop Button */}
               <Button
-                  onClick={handleDetectionToggle}
-
+                onClick={handleCameraToggle}
+                variant="ghost"
+                size="icon"
                 className={`rounded-full shadow-lg w-12 h-12 transition-opacity duration-200 ${
-                  isDetecting 
+                  isCameraActive 
                     ? 'bg-white text-black opacity-60 hover:opacity-100' 
                     : 'bg-black/50 text-white opacity-60 hover:opacity-100'
                 }`}
               >
-                <Icon icon={isDetecting ? "mingcute:stop-line" : "mingcute:play-line"} className="w-5 h-5" />
+                <Icon icon={isCameraActive ? "mingcute:camera-2-off-line" : "mingcute:camera-2-line"} className="w-5 h-5" />
               </Button>
-            )}
 
-            {/* Reset Button - Only show when there are detections */}
-            {detections.length > 0 && (
-              <Button
-                onClick={handleReset}
-                variant="ghost"
-                size="icon"
-                className="rounded-full shadow-lg w-12 h-12 bg-black/50 text-white opacity-60 hover:opacity-100"
-              >
-                <Icon icon="mingcute:refresh-anticlockwise-1-fill" className="w-5 h-5" />
-              </Button>
-            )}
+              {/* Detection Start/Stop Button */}
+              {isCameraActive && (
+                <Button
+                  onClick={handleDetectionToggle}
+                  variant="ghost"
+                  size="icon"
+                  className={`rounded-full shadow-lg w-12 h-12 transition-opacity duration-200 ${
+                    isDetecting 
+                      ? 'bg-white text-black opacity-60 hover:opacity-100' 
+                      : 'bg-black/50 text-white opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <Icon icon={isDetecting ? "mingcute:stop-line" : "mingcute:play-line"} className="w-5 h-5" />
+                </Button>
+              )}
+
+              {/* Reset Button - Only show when there are detections */}
+              {detections.length > 0 && (
+                <Button
+                  onClick={handleReset}
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full shadow-lg w-12 h-12 bg-black/50 text-white opacity-60 hover:opacity-100"
+                >
+                  <Icon icon="mingcute:refresh-anticlockwise-1-fill" className="w-5 h-5" />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
