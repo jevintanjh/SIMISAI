@@ -180,63 +180,178 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openPopover]);
 
-  // Smart Defaults Screen
+  // Smart Defaults Screen - Now as a modal overlay with editable settings
   if (showSmartDefaults) {
     const selectedDeviceData = popularDevices.find(d => d.value === selectedDevice);
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#1E1B4B] to-[#312E81] flex flex-col items-center justify-center">
-        <div className="w-full max-w-2xl border border-border rounded-3xl px-12 py-20 mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-4">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="w-full max-w-lg bg-card/95 border border-border rounded-2xl p-6 mx-auto shadow-2xl backdrop-blur-sm relative">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl font-bold text-white mb-2">
               Ready to guide you through using your {selectedDeviceData?.label}
             </h1>
-            <p className="text-white/70 text-lg">I'll use these settings:</p>
+            <p className="text-white/70 text-sm">Customize your settings:</p>
           </div>
 
-          <div className="space-y-4 mb-8">
-            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4 cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setOpenPopover('language')}>
-              <div>
-                <p className="text-white font-medium">Language</p>
-                <p className="text-white/70 text-sm">{languages.find(l => l.value === autoDetectLanguage())?.label}</p>
+          <div className="space-y-3 mb-6">
+            {/* Language Setting */}
+            <div className="relative">
+              <div className="flex items-center justify-between bg-card/50 rounded-lg p-3 cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setOpenPopover('language')}>
+                <div>
+                  <p className="text-white font-medium text-sm">Language</p>
+                  <p className="text-white/70 text-xs">{languages.find(l => l.value === language)?.label}</p>
+                </div>
+                <Icon icon="mingcute:edit-line" className="w-4 h-4 text-white/50 hover:text-white transition-colors" />
               </div>
-              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50 hover:text-white transition-colors" />
+              
+              {/* Language Popover */}
+              {openPopover === 'language' && (
+                <div 
+                  className="absolute z-[9998] mt-2 left-0 w-full bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                  data-popover="language"
+                >
+                  <div className="relative">
+                    <div className="p-3 max-h-40 overflow-y-auto">
+                      <div className="space-y-0.5">
+                        {languages.map((lang) => (
+                          <div 
+                            key={lang.value} 
+                            className={`flex items-center space-x-3 p-1.5 rounded-lg cursor-pointer transition-colors ${
+                              lang.value === language 
+                                ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                                : 'hover:bg-white/10 text-white'
+                            }`}
+                            onClick={() => {
+                              setLanguage(lang.value);
+                              setOpenPopover(null);
+                            }}
+                          >
+                            <span className="text-lg">{lang.flag}</span>
+                            <span className="flex-1 text-sm">{lang.label.replace(/^[^\s]+ /, '')}</span>
+                            {lang.value === language && (
+                              <Icon icon="mingcute:check-line" className="w-4 h-4 text-primary" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             
-            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4 cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setOpenPopover('voice')}>
-              <div>
-                <p className="text-white font-medium">Voice</p>
-                <p className="text-white/70 text-sm">Female voice guidance</p>
+            {/* Voice Setting */}
+            <div className="relative">
+              <div className="flex items-center justify-between bg-card/50 rounded-lg p-3 cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setOpenPopover('voice')}>
+                <div>
+                  <p className="text-white font-medium text-sm">Voice</p>
+                  <p className="text-white/70 text-xs">{voiceOptions.find(v => v.value === voiceOption)?.label}</p>
+                </div>
+                <Icon icon="mingcute:edit-line" className="w-4 h-4 text-white/50 hover:text-white transition-colors" />
               </div>
-              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50 hover:text-white transition-colors" />
+              
+              {/* Voice Popover */}
+              {openPopover === 'voice' && (
+                <div 
+                  className="absolute z-[9998] mt-2 left-0 w-full bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                  data-popover="voice"
+                >
+                  <div className="relative">
+                    <div className="p-3 max-h-40 overflow-y-auto">
+                      <div className="space-y-0.5">
+                        {voiceOptions.map((voice) => (
+                          <div 
+                            key={voice.value} 
+                            className={`flex items-center space-x-3 p-1.5 rounded-lg cursor-pointer transition-colors ${
+                              voice.value === voiceOption 
+                                ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                                : 'hover:bg-white/10 text-white'
+                            }`}
+                            onClick={() => {
+                              setVoiceOption(voice.value);
+                              setOpenPopover(null);
+                            }}
+                          >
+                            <span className="text-lg">{voice.icon}</span>
+                            <span className="flex-1 text-sm">{voice.label}</span>
+                            {voice.value === voiceOption && (
+                              <Icon icon="mingcute:check-line" className="w-4 h-4 text-primary" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             
-            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4 cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setOpenPopover('style')}>
-              <div>
-                <p className="text-white font-medium">Style</p>
-                <p className="text-white/70 text-sm">Gentle, step-by-step style</p>
+            {/* Style Setting */}
+            <div className="relative">
+              <div className="flex items-center justify-between bg-card/50 rounded-lg p-3 cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setOpenPopover('style')}>
+                <div>
+                  <p className="text-white font-medium text-sm">Style</p>
+                  <p className="text-white/70 text-xs">{guidanceOptions.find(g => g.value === guidanceStyle)?.label}</p>
+                </div>
+                <Icon icon="mingcute:edit-line" className="w-4 h-4 text-white/50 hover:text-white transition-colors" />
               </div>
-              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50 hover:text-white transition-colors" />
+              
+              {/* Style Popover */}
+              {openPopover === 'style' && (
+                <div 
+                  className="absolute z-[9998] mt-2 left-0 w-full bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                  data-popover="style"
+                >
+                  <div className="relative">
+                    <div className="p-3 max-h-40 overflow-y-auto">
+                      <div className="space-y-0.5">
+                        {guidanceOptions.map((style) => (
+                          <div 
+                            key={style.value} 
+                            className={`flex items-center space-x-3 p-1.5 rounded-lg cursor-pointer transition-colors ${
+                              style.value === guidanceStyle 
+                                ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                                : 'hover:bg-white/10 text-white'
+                            }`}
+                            onClick={() => {
+                              setGuidanceStyle(style.value);
+                              setOpenPopover(null);
+                            }}
+                          >
+                            <span className="text-lg">{style.icon}</span>
+                            <span className="flex-1 text-sm">{style.label}</span>
+                            {style.value === guidanceStyle && (
+                              <Icon icon="mingcute:check-line" className="w-4 h-4 text-primary" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          <p className="text-white/60 text-center mb-8">Perfect for most people</p>
+          <p className="text-white/60 text-center text-xs mb-6">Perfect for most people</p>
 
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-3">
             <Button
               onClick={() => setShowSmartDefaults(false)}
               variant="outline"
-              className="font-semibold"
+              size="sm"
+              className="flex-1 text-xs"
             >
-              Change Settings
+              Back
             </Button>
             <Button
               onClick={handleSmartDefaultsStart}
               variant="default"
-              size="lg"
-              className="font-semibold"
+              size="sm"
+              className="flex-1 text-xs"
             >
               Start
-              <Icon icon="mingcute:play-fill" className="w-8 h-8 ml-1" />
+              <Icon icon="mingcute:play-fill" className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </div>
