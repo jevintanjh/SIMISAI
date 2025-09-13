@@ -21,3 +21,6 @@ logs/
 aws-deployment/lambda/chat-service/env-with-openai.json
 **/env-with-openai.json
 **/*-with-openai.json
+
+# Temporary files
+temp/
