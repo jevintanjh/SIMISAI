@@ -526,7 +526,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
               </div>
               
               {/* Device Selection Section */}
-              <div className="mb-12">
+              <div className="mb-12 relative z-20">
                 <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
                   <span className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">1</span>
                   Select your device
@@ -735,7 +735,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
               </div>
 
               {/* AI Preferences Section */}
-              <div className="mb-8 relative z-0">
+                <div className="mb-8 relative z-10">
                 <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
                   <span className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">2</span>
                   Set preferences
