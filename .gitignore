@@ -16,3 +16,8 @@ yolov8l.pt
 #logs
 *.log
 logs/
+
+# AWS deployment secrets
+aws-deployment/lambda/chat-service/env-with-openai.json
+**/env-with-openai.json
+**/*-with-openai.json
