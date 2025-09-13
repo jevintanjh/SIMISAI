@@ -26,6 +26,7 @@ interface SessionConfig {
 export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMode = false, onAdvancedModeChange }: WelcomeProps) {
   const [selectedDevice, setSelectedDevice] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [showAllDevices, setShowAllDevices] = useState<boolean>(false);
   const [showAdvancedView, setShowAdvancedView] = useState<boolean>(initialAdvancedMode);
   const [showSmartDefaults, setShowSmartDefaults] = useState<boolean>(false);
   const [showHowItWorks, setShowHowItWorks] = useState<boolean>(false);
@@ -65,17 +66,17 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
   };
 
   // Search functionality - includes devices, brands, and models
-  const filteredDevices = devices.filter(device => 
+  const filteredDevices = showAllDevices ? devices : devices.filter(device => 
     device.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
     device.value.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredBrands = deviceBrands.filter(brand => 
+  const filteredBrands = showAllDevices ? deviceBrands : deviceBrands.filter(brand => 
     brand.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
     brand.value.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredModels = deviceModels.filter(model => 
+  const filteredModels = showAllDevices ? deviceModels : deviceModels.filter(model => 
     model.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
     model.value.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (deviceBrand && model.brand === deviceBrand && 
@@ -84,7 +85,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
   );
 
   // Find models that match the searched brand
-  const brandMatchedModels = deviceModels.filter(model => {
+  const brandMatchedModels = showAllDevices ? [] : deviceModels.filter(model => {
     const brand = deviceBrands.find(b => b.value === model.brand);
     return brand && (
       brand.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -93,11 +94,13 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
   });
 
   // Combine all results, prioritizing models for brand searches (no brands shown)
-  const allSearchResults = [
-    ...filteredDevices.map(d => ({ ...d, type: 'device' })),
-    ...filteredModels.map(m => ({ ...m, type: 'model' })),
-    ...brandMatchedModels.map(m => ({ ...m, type: 'model' }))
-  ].slice(0, 8);
+  const allSearchResults = showAllDevices 
+    ? filteredModels.map(m => ({ ...m, type: 'model' })).slice(0, 12) // Show only models when browsing all
+    : [
+        ...filteredDevices.map(d => ({ ...d, type: 'device' })),
+        ...filteredModels.map(m => ({ ...m, type: 'model' })),
+        ...brandMatchedModels.map(m => ({ ...m, type: 'model' }))
+      ].slice(0, 8);
 
   // Toggle advanced view
   const toggleAdvancedView = () => {
@@ -422,16 +425,23 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                   type="text"
                   placeholder="Search for your device..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    if (e.target.value) {
+                      setShowAllDevices(false); // Reset browse all when user types
+                    }
+                  }}
                 className="w-full pl-12 pr-4 py-4 bg-background border border-border rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
             </div>
           </div>
 
           {/* Search Results */}
-          {searchQuery && (
+          {(searchQuery || showAllDevices) && (
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-white mb-4">Search Results</h3>
+              <h3 className="text-lg font-semibold text-white mb-4">
+                {showAllDevices ? "All Device Models" : "Search Results"}
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {allSearchResults.map((item) => (
                   <Card 
@@ -452,11 +462,20 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                   >
                     <CardContent className="p-6 text-center">
                       <div className="text-4xl mb-3">
-                        {item.type === 'device' ? item.icon : 
+                        {item.type === 'device' ? (item as any).icon : 
                          item.type === 'brand' ? '🏷️' : '⚙️'}
                       </div>
                       <h4 className="text-white font-semibold mb-2">{item.label}</h4>
-                      <p className="text-white/70 text-sm capitalize">{item.type}</p>
+                      {showAllDevices && item.type === 'model' ? (
+                        <p className="text-white/70 text-sm">
+                          {(item as any).brand ? 
+                            deviceBrands.find(b => b.value === (item as any).brand)?.label || (item as any).brand :
+                            'Unknown Brand'
+                          }
+                        </p>
+                      ) : (
+                        <p className="text-white/70 text-sm capitalize">{item.type}</p>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -471,7 +490,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
           )}
 
           {/* Popular Devices */}
-          {!searchQuery && (
+          {!searchQuery && !showAllDevices && (
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-white mb-6 text-center">Popular Devices</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -494,7 +513,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                 <Button
                   variant="outline"
                   className="font-semibold"
-                  onClick={() => setSearchQuery(" ")} // Trigger search mode
+                  onClick={() => setShowAllDevices(true)} // Show all devices
                 >
                   Browse All Devices
                 </Button>
