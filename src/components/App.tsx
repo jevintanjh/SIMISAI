@@ -22,6 +22,25 @@ function Router({ onShowSessionSummary }: { onShowSessionSummary: () => void }) 
   const [currentView, setCurrentView] = useState<'welcome' | 'guidance' | 'home'>('welcome');
   const [sessionConfig, setSessionConfig] = useState<SessionConfig | null>(null);
   const [wasInAdvancedMode, setWasInAdvancedMode] = useState<boolean>(false);
+  const [showTutorial, setShowTutorial] = useState<boolean>(false);
+
+  // Check if user has seen tutorial before - only show on guidance page
+  useEffect(() => {
+    const hasSeenTutorial = localStorage.getItem('simis-tutorial-completed');
+    if (!hasSeenTutorial && currentView === 'guidance') {
+      setShowTutorial(true);
+    }
+  }, [currentView]);
+
+  const handleTutorialComplete = () => {
+    setShowTutorial(false);
+    localStorage.setItem('simis-tutorial-completed', 'true');
+  };
+
+  const handleTutorialSkip = () => {
+    setShowTutorial(false);
+    localStorage.setItem('simis-tutorial-completed', 'true');
+  };
 
   const handleStartSession = (config: SessionConfig) => {
     setSessionConfig(config);
@@ -47,7 +66,16 @@ function Router({ onShowSessionSummary }: { onShowSessionSummary: () => void }) 
   }
 
   if (currentView === 'guidance' && sessionConfig) {
-    return <Guidance config={sessionConfig} onBack={handleBackToWelcome} />;
+    return (
+      <>
+        <Guidance config={sessionConfig} onBack={handleBackToWelcome} />
+        <OnboardingTutorial 
+          isVisible={showTutorial}
+          onComplete={handleTutorialComplete}
+          onSkip={handleTutorialSkip}
+        />
+      </>
+    );
   }
 
   if (currentView === 'home') {
@@ -63,27 +91,8 @@ function Router({ onShowSessionSummary }: { onShowSessionSummary: () => void }) 
 }
 
 function App() {
-  const [showTutorial, setShowTutorial] = useState<boolean>(false);
   const [showSessionSummary, setShowSessionSummary] = useState<boolean>(false);
   const [sessionData, setSessionData] = useState<any>(null);
-
-  // Check if user has seen tutorial before
-  useEffect(() => {
-    const hasSeenTutorial = localStorage.getItem('simis-tutorial-completed');
-    if (!hasSeenTutorial) {
-      setShowTutorial(true);
-    }
-  }, []);
-
-  const handleTutorialComplete = () => {
-    setShowTutorial(false);
-    localStorage.setItem('simis-tutorial-completed', 'true');
-  };
-
-  const handleTutorialSkip = () => {
-    setShowTutorial(false);
-    localStorage.setItem('simis-tutorial-completed', 'true');
-  };
 
   const handleShowSessionSummary = () => {
     // Create mock session data for now
@@ -120,11 +129,6 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router onShowSessionSummary={handleShowSessionSummary} />
-        <OnboardingTutorial 
-          isVisible={showTutorial}
-          onComplete={handleTutorialComplete}
-          onSkip={handleTutorialSkip}
-        />
         {showSessionSummary && sessionData && (
           <SessionSummary
             sessionData={sessionData}
