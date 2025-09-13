@@ -83,8 +83,33 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    setMessage(suggestion);
-    // Don't hide suggestions immediately - let them scroll up naturally
+    // Send the suggestion directly without setting it in the input
+    if (!suggestion.trim()) return;
+
+    // Add message to local state immediately for better UX
+    const newMessage = {
+      id: Date.now(),
+      isUser: true,
+      message: suggestion
+    };
+    
+    queryClient.setQueryData(
+      ["/api/chat", sessionId],
+      (oldMessages: any[] = []) => [...oldMessages, newMessage]
+    );
+
+    // Try to send via WebSocket if connected
+    if (isConnected) {
+      sendMessage({
+        type: 'chat_message',
+        sessionId,
+        content: suggestion,
+        language
+      });
+    } else {
+      // Fallback: show a message that we're not connected
+      console.warn('WebSocket not connected, message saved locally only');
+    }
   };
 
   const recognitionRef = useRef<any>(null);
@@ -161,8 +186,8 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
   return (
     <div className="relative">
       {isOpen && (
-        <Card className="w-full h-full border-0 shadow-none">
-          <CardHeader className="text-white p-4 rounded-t-xl">
+        <Card className="w-full h-[500px] border-0 shadow-none flex flex-col">
+          <CardHeader className="text-white p-4 rounded-t-xl flex-shrink-0">
               <div className="flex items-center justify-center space-x-2">
                 <div title={isConnected ? 'Connected' : 'Disconnected'}>
                   <Icon 
@@ -174,16 +199,16 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
               </div>
           </CardHeader>
           
-          <CardContent className="p-0 flex flex-col h-full min-h-0">
+          <CardContent className="p-0 flex flex-col flex-1 min-h-0">
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto min-h-0">
               {isLoading ? (
                 <div className="text-center text-gray-500">Loading messages...</div>
               ) : (
-                <div className="space-y-3 p-4">
+                <div className="space-y-3 p-2">
                   {/* SIMIS Introduction Message - Always shown */}
                   <div className="flex justify-start">
-                    <div className="rounded-lg p-3 text-white">
+                    <div className="rounded-lg text-white">
                       <p className="text-sm">Hi! I'm here to help with your medical device guidance. What can I assist you with?</p>
                     </div>
                   </div>
@@ -224,7 +249,7 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
             </div>
             
             {/* Chat Input */}
-            <div className="p-4 flex-shrink-0">
+            <div className="pt-4 flex-shrink-0 border-t border-border">
               <div className="flex gap-2">
                 <Input
                   value={message}
@@ -237,16 +262,15 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
                   onClick={handleSend}
                   disabled={!message.trim()}
                   size="sm"
-                  className="medical-blue hover:bg-[hsl(207,90%,50%)] rounded-lg w-10 h-10 p-0 flex-shrink-0"
+                  className="medical-blue hover:bg-white hover:text-primary rounded-lg w-10 h-10 p-0 flex-shrink-0"
                 >
                   <Send className="w-4 h-4" />
                 </Button>
                 <Button
                   onClick={handleVoiceInput}
-                  disabled={isListening}
                   size="sm"
                   variant="outline"
-                  className={`rounded-lg w-10 h-10 p-0 flex-shrink-0 ${isListening ? 'bg-red-100 border-red-300' : 'bg-gray-100'}`}
+                  className={`rounded-lg w-10 h-10 p-0 flex-shrink-0 ${isListening ? 'bg-red-100 border-red-300 hover:bg-red-200' : 'bg-gray-100 hover:bg-gray-200'}`}
                 >
                   <Mic className={`w-4 h-4 ${isListening ? 'text-red-600' : 'text-gray-600'}`} />
                 </Button>
