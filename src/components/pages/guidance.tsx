@@ -35,6 +35,50 @@ interface SessionConfig {
   voiceOption: string;
 }
 
+// Helper function to get default instruction
+const getDefaultInstruction = (deviceType: string, stepNumber: number, language: string): Instruction => {
+  const defaultInstructions = {
+    'blood_pressure_monitor': {
+      1: { title: 'Prepare the cuff', description: 'Remove the blood pressure cuff from its case and ensure it is clean and properly inflated.' },
+      2: { title: 'Position the cuff', description: 'Wrap the cuff around your upper arm, about 1 inch above your elbow.' },
+      3: { title: 'Start measurement', description: 'Press the start button and remain still during the measurement.' },
+      4: { title: 'Wait for completion', description: 'Keep the cuff in place until you hear a beep or see the measurement complete.' },
+      5: { title: 'Read results', description: 'Read the blood pressure values from the display and record them.' }
+    },
+    'digital_oral_thermometer': {
+      1: { title: 'Prepare thermometer', description: 'Remove the thermometer from its case and ensure it is clean and dry.' },
+      2: { title: 'Turn on device', description: 'Press the power button to turn on the thermometer and wait for the ready indicator.' },
+      3: { title: 'Position under tongue', description: 'Place the thermometer tip under your tongue and close your mouth gently.' },
+      4: { title: 'Wait for measurement', description: 'Keep the thermometer in place until you hear a beep or see the temperature reading.' },
+      5: { title: 'Read and clean', description: 'Read the temperature from the display and clean the thermometer before storing.' }
+    },
+    'digital_ear_thermometer': {
+      1: { title: 'Prepare thermometer', description: 'Remove the thermometer from its case and ensure it is clean and dry.' },
+      2: { title: 'Turn on device', description: 'Press the power button to turn on the thermometer and wait for the ready indicator.' },
+      3: { title: 'Position in ear', description: 'Gently insert the thermometer tip into the ear canal until it fits snugly.' },
+      4: { title: 'Wait for measurement', description: 'Keep the thermometer in place until you hear a beep or see the temperature reading.' },
+      5: { title: 'Read and clean', description: 'Read the temperature from the display and clean the thermometer before storing.' }
+    }
+  };
+  
+  const instruction = defaultInstructions[deviceType as keyof typeof defaultInstructions]?.[stepNumber] || {
+    title: 'Step Instruction',
+    description: 'Please follow the device instructions carefully.'
+  };
+  
+  return {
+    id: stepNumber.toString(),
+    deviceId: deviceType,
+    stepNumber: stepNumber,
+    title: instruction.title,
+    description: instruction.description,
+    translations: { [language]: { title: instruction.title, description: instruction.description } },
+    audioUrl: null,
+    imageUrl: null,
+    checkpoints: ['Complete the step']
+  };
+};
+
 export default function Guidance({ config, onBack }: GuidanceProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [progress, setProgress] = useState(25);
@@ -47,33 +91,77 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   const [loading, setLoading] = useState(true);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-  // Fetch instructions from server
+  // Fetch AI-generated instructions from server
   useEffect(() => {
     const fetchInstructions = async () => {
       try {
         setLoading(true);
         
-        // First, get all devices to find the thermometer
-        const devicesResponse = await fetch('/api/devices');
-        if (devicesResponse.ok) {
-          const devices = await devicesResponse.json();
-          const thermometerDevice = devices.find((device: any) => device.type === 'thermometer');
+        // Check if we're in production
+        const isProduction = window.location.hostname.includes('cloudfront.net') || 
+                           window.location.hostname.includes('amazonaws.com');
+        
+        if (isProduction) {
+          // In production, use AI-generated guidance API
+          const deviceType = config.device === 'thermometer' ? 'digital_oral_thermometer' : 
+                           config.device === 'ear' ? 'digital_ear_thermometer' : 
+                           config.device === 'blood-pressure' ? 'blood_pressure_monitor' : 'digital_oral_thermometer';
           
-          if (thermometerDevice) {
-            // Now fetch instructions for the thermometer device
-            const instructionsResponse = await fetch(`/api/devices/${thermometerDevice.id}/instructions`);
-            if (instructionsResponse.ok) {
-              const data = await instructionsResponse.json();
-              setInstructions(data);
-              setTotalSteps(data.length);
-              if (data.length > 0) {
-                setCurrentInstruction(data[0]); // Start with first step
+          const instructions: Instruction[] = [];
+          
+          // Fetch AI-generated instructions for all 5 steps
+          for (let step = 1; step <= 5; step++) {
+            try {
+              const response = await fetch(
+                `https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/guidance/${deviceType}/${step}?language=${config.language}&style=${config.guidanceStyle}`
+              );
+              
+              if (response.ok) {
+                const data = await response.json();
+                instructions.push({
+                  id: step.toString(),
+                  deviceId: deviceType,
+                  stepNumber: step,
+                  title: data.title,
+                  description: data.description,
+                  translations: { [config.language]: { title: data.title, description: data.description } },
+                  audioUrl: null,
+                  imageUrl: null,
+                  checkpoints: data.checkpoints || []
+                });
+              } else {
+                // Fallback to default instruction
+                instructions.push(getDefaultInstruction(deviceType, step, config.language));
+              }
+            } catch (error) {
+              console.error(`Failed to fetch step ${step}:`, error);
+              instructions.push(getDefaultInstruction(deviceType, step, config.language));
+            }
+          }
+          
+          setInstructions(instructions);
+          setTotalSteps(instructions.length);
+          if (instructions.length > 0) {
+            setCurrentInstruction(instructions[0]);
+          }
+        } else {
+          // In development, fetch from local server
+          const devicesResponse = await fetch('/api/devices');
+          if (devicesResponse.ok) {
+            const devices = await devicesResponse.json();
+            const thermometerDevice = devices.find((device: any) => device.type === 'thermometer');
+            
+            if (thermometerDevice) {
+              const instructionsResponse = await fetch(`/api/devices/${thermometerDevice.id}/instructions`);
+              if (instructionsResponse.ok) {
+                const data = await instructionsResponse.json();
+                setInstructions(data);
+                setTotalSteps(data.length);
+                if (data.length > 0) {
+                  setCurrentInstruction(data[0]);
+                }
               }
             }
-          } else {
-            console.error('Thermometer device not found');
-            setInstructions([]);
-            setTotalSteps(0);
           }
         }
       } catch (error) {

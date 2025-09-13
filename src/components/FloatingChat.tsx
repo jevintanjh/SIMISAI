@@ -25,26 +25,61 @@ const suggestedQuestions = [
   "What's the difference between oral and rectal readings?"
 ];
 
+const welcomeMessage = {
+  id: 'welcome',
+  message: "👋 **Welcome to SIMISAI!**\n\nI'm your AI-powered medical device assistant! 🤖\n\n**🩺 I can help you with:**\n• Digital thermometers\n• Blood pressure monitors\n• Blood glucose meters\n• Nebulizers\n• And other medical devices\n\n**💬 Try asking me:**\n• \"How do I use my thermometer?\"\n• \"Help with blood pressure monitor\"\n• \"What does this error mean?\"\n\n**✨ Let's make medical device usage easy and safe!**",
+  isUser: false,
+  timestamp: new Date().toISOString(),
+  language: 'English'
+};
+
 export default function FloatingChat({ sessionId, language, showToggleButton = true }: FloatingChatProps) {
   const [isOpen, setIsOpen] = useState(!showToggleButton);
   const [message, setMessage] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
+  const [hasShownWelcome, setHasShownWelcome] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
   const { data: messages = [], isLoading } = useQuery<ChatMessage[]>({
     queryKey: ["/api/chat", sessionId],
     enabled: isOpen,
+    queryFn: async () => {
+      // In production, return empty array since we'll use WebSocket
+      const isProduction = window.location.hostname.includes('cloudfront.net') || 
+                         window.location.hostname.includes('amazonaws.com');
+      if (isProduction) {
+        return [];
+      }
+      // In development, fetch from local API
+      const response = await fetch(`/api/chat/${sessionId}`);
+      if (!response.ok) throw new Error('Failed to fetch messages');
+      return response.json();
+    }
   });
 
   const { sendMessage, isConnected } = useWebSocket((newMessage) => {
+    console.log('Received message in FloatingChat:', newMessage);
+    setIsTyping(false);
     // Update the chat messages when receiving new messages
     queryClient.setQueryData(
       ["/api/chat", sessionId],
-      (oldMessages: ChatMessage[] = []) => [...oldMessages, newMessage.message]
+      (oldMessages: ChatMessage[] = []) => {
+        console.log('Adding message to chat:', newMessage.message);
+        return [...oldMessages, newMessage.message];
+      }
     );
   });
+
+  // Show welcome message when chat opens for the first time
+  useEffect(() => {
+    if (isOpen && !hasShownWelcome && messages.length === 0) {
+      setHasShownWelcome(true);
+      queryClient.setQueryData(["/api/chat", sessionId], [welcomeMessage]);
+    }
+  }, [isOpen, hasShownWelcome, messages.length, sessionId, queryClient]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,6 +88,7 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
   const handleSend = () => {
     if (!message.trim()) return;
 
+<<<<<<< Updated upstream
     // Add message to local state immediately for better UX
     const newMessage = {
       id: Date.now(),
@@ -77,6 +113,37 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
       // Fallback: show a message that we're not connected
       console.warn('WebSocket not connected, message saved locally only');
     }
+=======
+    console.log('Sending message:', message);
+    setIsTyping(true);
+
+    const userMessage = {
+      id: Date.now(),
+      sessionId,
+      message: message,
+      isUser: true,
+      language,
+      timestamp: new Date().toISOString()
+    };
+
+    // Add user message immediately to the chat
+    queryClient.setQueryData(
+      ["/api/chat", sessionId],
+      (oldMessages: ChatMessage[] = []) => {
+        console.log('Adding user message to chat:', userMessage);
+        return [...oldMessages, userMessage];
+      }
+    );
+
+    // Send message to backend
+    console.log('Calling sendMessage with:', { type: 'chat_message', sessionId, content: message, language });
+    sendMessage({
+      type: 'chat_message',
+      sessionId,
+      content: message,
+      language
+    });
+>>>>>>> Stashed changes
 
     setMessage("");
     // Keep suggestions visible so users can scroll back to them
@@ -239,7 +306,7 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
                           ? 'bg-white/10 text-white' 
                           : 'text-white'
                       }`}>
-                        <p className="text-sm">{msg.message}</p>
+                        <div className="text-sm whitespace-pre-wrap">{msg.message}</div>
                       </div>
                     </div>
                   ))}
@@ -247,6 +314,21 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
                 </div>
               )}
             </div>
+            
+            {/* Typing Indicator */}
+            {isTyping && (
+              <div className="px-4 py-2 border-t border-gray-200 bg-gray-50">
+                <div className="flex items-center space-x-2">
+                  <Bot className="w-4 h-4 text-gray-500" />
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                  <span className="text-sm text-gray-500">SIMISAI is typing...</span>
+                </div>
+              </div>
+            )}
             
             {/* Chat Input */}
             <div className="pt-4 flex-shrink-0 border-t border-border">
@@ -258,6 +340,7 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
                   placeholder="Ask a question..."
                   className="flex-1 text-sm rounded-lg min-w-0"
                 />
+<<<<<<< Updated upstream
                 <Button
                   onClick={handleSend}
                   disabled={!message.trim()}
@@ -274,6 +357,27 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
                 >
                   <Mic className={`w-4 h-4 ${isListening ? 'text-red-600' : 'text-gray-600'}`} />
                 </Button>
+=======
+                <div className="flex space-x-1 flex-shrink-0">
+                  <Button
+                    onClick={handleSend}
+                    disabled={!message.trim()}
+                    size="sm"
+                    className="medical-blue hover:bg-[hsl(207,90%,50%)] rounded-lg"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={handleVoiceInput}
+                    disabled={isListening}
+                    size="sm"
+                    variant="outline"
+                    className={`rounded-lg ${isListening ? 'bg-red-100 border-red-300' : 'bg-gray-100'}`}
+                  >
+                    <Mic className={`w-4 h-4 ${isListening ? 'text-red-600' : 'text-gray-600'}`} />
+                  </Button>
+                </div>
+>>>>>>> Stashed changes
               </div>
             </div>
           </CardContent>

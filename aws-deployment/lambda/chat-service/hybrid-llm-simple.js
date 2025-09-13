@@ -1,207 +1,50 @@
 /**
- * Hybrid LLM Service - Simple Version (No External Dependencies)
- * OpenAI → Sealion LLM switching for SIMISAI
- * System Architect Deployment
+ * Hybrid LLM Service - Simplified Version for Debugging
+ * Hackathon Demo: Mock responses for testing
  */
 
-const AWS = require('aws-sdk');
-
-// Initialize AWS SDK
-const sagemaker = new AWS.SageMaker({ region: 'us-east-1' });
-const sagemakerRuntime = new AWS.SageMakerRuntime({ region: 'us-east-1' });
-
-// Configuration
-const CONFIG = {
-    sagemaker: {
-        endpoint: process.env.SAGEMAKER_ENDPOINT || 'simisai-sealion-realtime-endpoint',
-        region: process.env.AWS_REGION || 'us-east-1'
-    },
-    openai: {
-        apiKey: process.env.OPENAI_API_KEY || 'YOUR_OPENAI_API_KEY_HERE',
-        endpoint: 'https://api.openai.com/v1/chat/completions',
-        model: 'gpt-4'
-    }
-};
-
-// Current provider (starts with OpenAI)
-let currentProvider = 'openai';
-let sagemakerReady = false;
-let requestCount = 0;
-
-/**
- * Check if SageMaker endpoint is ready
- */
-async function checkSagemakerStatus() {
-    try {
-        const result = await sagemaker.describeEndpoint({
-            EndpointName: CONFIG.sagemaker.endpoint
-        }).promise();
-        
-        return result.EndpointStatus === 'InService';
-    } catch (error) {
-        console.log('SageMaker endpoint not ready:', error.message);
-        return false;
-    }
-}
-
-/**
- * Call OpenAI API using fetch (Node.js 18+)
- */
-async function callOpenAI(messages) {
-    try {
-        const response = await fetch(CONFIG.openai.endpoint, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${CONFIG.openai.apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: CONFIG.openai.model,
-                messages: messages,
-                max_tokens: 1000,
-                temperature: 0.7
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        return data.choices[0].message.content;
-    } catch (error) {
-        console.error('OpenAI API error:', error);
-        throw error;
-    }
-}
-
-/**
- * Call SageMaker endpoint
- */
-async function callSagemaker(messages) {
-    try {
-        const payload = {
-            messages: messages,
-            max_tokens: 1000,
-            temperature: 0.7
-        };
-        
-        const result = await sagemakerRuntime.invokeEndpoint({
-            EndpointName: CONFIG.sagemaker.endpoint,
-            ContentType: 'application/json',
-            Body: JSON.stringify(payload)
-        }).promise();
-        
-        const response = JSON.parse(result.Body.toString());
-        return response.generated_text || response.response || 'No response from SageMaker';
-    } catch (error) {
-        console.error('SageMaker API error:', error);
-        throw error;
-    }
-}
-
-/**
- * Main LLM handler with automatic provider switching
- */
 exports.handler = async (event) => {
     try {
-        console.log('Event:', JSON.stringify(event, null, 2));
-        
-        // Parse the request body
-        let body;
-        if (typeof event.body === 'string') {
-            body = JSON.parse(event.body);
-        } else {
-            body = event.body;
-        }
-        
+        const body = JSON.parse(event.body);
         const { messages } = body;
         
-        if (!messages || !Array.isArray(messages)) {
-            throw new Error('Invalid messages format');
-        }
+        // Extract the last user message
+        const lastMessage = messages[messages.length - 1];
+        const userInput = lastMessage.content;
         
-        // Check if we should switch to SageMaker
-        if (currentProvider === 'openai') {
-            sagemakerReady = await checkSagemakerStatus();
-            requestCount++;
-            
-            // Switch to SageMaker if ready and we've made enough requests
-            if (sagemakerReady && requestCount >= 3) {
-                currentProvider = 'sagemaker';
-                console.log('🔄 Switching to Sealion LLM!');
-            }
-        }
-        
+        // Mock response based on input
         let response;
-        let providerInfo;
-        
-        if (currentProvider === 'openai') {
-            response = await callOpenAI(messages);
-            providerInfo = {
-                provider: 'OpenAI GPT-4',
-                status: 'Demo Mode',
-                note: 'Switching to Sealion LLM when ready...',
-                requestCount: requestCount,
-                sagemakerReady: sagemakerReady
-            };
+        if (userInput.toLowerCase().includes('hello') || userInput.toLowerCase().includes('hi')) {
+            response = "Hello! I'm SIMISAI, your AI-powered medical device assistant. How can I help you with your medical device today?";
+        } else if (userInput.toLowerCase().includes('thermometer')) {
+            response = "For digital thermometers, here's how to use them properly:\n\n1. Clean the thermometer with alcohol\n2. Place under tongue or in armpit\n3. Wait for the beep sound\n4. Read the temperature display\n\nNormal body temperature is 98.6°F (37°C). Contact a doctor if temperature is above 100.4°F (38°C).";
+        } else if (userInput.toLowerCase().includes('blood pressure')) {
+            response = "For blood pressure monitors:\n\n1. Sit comfortably with feet flat on floor\n2. Wrap cuff around upper arm\n3. Position cuff at heart level\n4. Press start button and remain still\n5. Wait for measurement to complete\n\nNormal BP is less than 120/80 mmHg. Consult your doctor for readings above 140/90 mmHg.";
         } else {
-            response = await callSagemaker(messages);
-            providerInfo = {
-                provider: 'Sealion LLM (27B)',
-                status: 'Production Mode',
-                note: 'Custom medical AI model active!',
-                requestCount: requestCount,
-                sagemakerReady: sagemakerReady
-            };
+            response = `I understand you're asking about: "${userInput}". As your medical device assistant, I can help you with:\n\n• Digital thermometers\n• Blood pressure monitors\n• Blood glucose meters\n• Nebulizers\n• And other medical devices\n\nPlease ask me about a specific device for detailed instructions!`;
         }
         
         return {
             statusCode: 200,
             headers: {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
+                'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
                 response: response,
-                provider: providerInfo,
-                timestamp: new Date().toISOString()
+                provider: {
+                    provider: 'SIMISAI Mock LLM',
+                    status: 'Demo Mode',
+                    note: 'Simplified version for debugging - SageMaker integration pending'
+                },
+                requestCount: 1,
+                sagemakerReady: false,
+                debug: 'Simplified version - AWS SDK dependency removed'
             })
         };
         
     } catch (error) {
-        console.error('Handler error:', error);
-        
-        // Fallback to OpenAI if SageMaker fails
-        if (currentProvider === 'sagemaker') {
-            console.log('🔄 Falling back to OpenAI...');
-            currentProvider = 'openai';
-            
-            try {
-                const body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
-                const response = await callOpenAI(body.messages);
-                return {
-                    statusCode: 200,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
-                    },
-                    body: JSON.stringify({
-                        response: response,
-                        provider: {
-                            provider: 'OpenAI GPT-4 (Fallback)',
-                            status: 'Fallback Mode',
-                            note: 'Sealion LLM temporarily unavailable'
-                        },
-                        timestamp: new Date().toISOString()
-                    })
-                };
-            } catch (fallbackError) {
-                console.error('Fallback failed:', fallbackError);
-            }
-        }
+        console.error('Error:', error);
         
         return {
             statusCode: 500,
@@ -210,10 +53,9 @@ exports.handler = async (event) => {
                 'Access-Control-Allow-Origin': '*'
             },
             body: JSON.stringify({
-                error: 'LLM service temporarily unavailable',
-                provider: currentProvider,
+                error: 'Chat service temporarily unavailable',
                 message: error.message,
-                timestamp: new Date().toISOString()
+                debug: 'Simplified version error handling'
             })
         };
     }

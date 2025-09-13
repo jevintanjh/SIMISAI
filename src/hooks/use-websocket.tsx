@@ -9,25 +9,24 @@ export function useWebSocket(onMessage?: (message: any) => void) {
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
-      // Prefer explicit base URL when provided via Vite env
-      const explicitBase = (import.meta as any).env?.VITE_WS_BASE_URL as string | undefined;
+      // Check if we're in production
+      const isProduction = window.location.hostname.includes('cloudfront.net') || 
+                          window.location.hostname.includes('amazonaws.com');
 
-      // For macOS localhost development, try explicit base first, then sensible defaults
       let wsUrl: string;
-      if (explicitBase) {
-        wsUrl = `${explicitBase.replace(/\/$/, '')}/chat-ws`;
-      } else if (process.env.NODE_ENV === 'development') {
+      if (isProduction) {
+        // In production, use AWS API Gateway WebSocket (if available) or fallback to HTTP
+        wsUrl = 'wss://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/chat-ws';
+      } else {
+        // In development, use local WebSocket
         const isLocalhost = window.location.hostname === 'localhost' || 
                             window.location.hostname === '127.0.0.1' ||
                             window.location.hostname.includes('localhost');
         if (isLocalhost) {
-          // API runs on 3001 by default in dev
           wsUrl = `${protocol}//localhost:3001/chat-ws`;
         } else {
           wsUrl = `${protocol}//${window.location.host}/chat-ws`;
         }
-      } else {
-        wsUrl = `${protocol}//${window.location.host}/chat-ws`;
       }
       
       console.log('Attempting WebSocket connection to:', wsUrl);
@@ -83,11 +82,55 @@ export function useWebSocket(onMessage?: (message: any) => void) {
     };
   }, []);
 
-  const sendMessage = (message: any) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+  const sendMessage = async (message: any) => {
+    // Check if we're in production
+    const isProduction = window.location.hostname.includes('cloudfront.net') || 
+                       window.location.hostname.includes('amazonaws.com');
+    
+    // In production, always use HTTP fallback since WebSocket isn't configured
+    if (isProduction && message.type === 'chat_message') {
+      console.log('Using HTTP fallback for chat message:', message.content);
+      try {
+        const response = await fetch('https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages: [{
+              role: 'user',
+              content: message.content
+            }]
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Chat response received:', data);
+          
+          // Simulate receiving a message
+          onMessage?.({
+            type: 'chat_message',
+            message: {
+              id: Date.now(),
+              sessionId: message.sessionId,
+              message: data.response,
+              isUser: false,
+              language: message.language,
+              timestamp: new Date().toISOString()
+            }
+          });
+        } else {
+          console.error('Chat API failed:', response.status, response.statusText);
+        }
+      } catch (error) {
+        console.error('HTTP fallback failed:', error);
+      }
+    } else if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      // Use WebSocket in development
       wsRef.current.send(JSON.stringify(message));
     } else {
-      console.warn('WebSocket is not connected');
+      console.warn('WebSocket not connected and not in production mode');
     }
   };
 

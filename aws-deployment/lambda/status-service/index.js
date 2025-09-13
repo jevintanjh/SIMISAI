@@ -3,16 +3,17 @@
  * Hackathon Demo: Real-time status updates
  */
 
-const AWS = require('aws-sdk');
+const { SageMakerClient, DescribeEndpointCommand } = require('@aws-sdk/client-sagemaker');
 
-const sagemaker = new AWS.SageMaker({ region: 'us-east-1' });
+const sagemaker = new SageMakerClient({ region: 'us-east-1' });
 
 exports.handler = async (event) => {
     try {
         // Check SageMaker endpoint status
-        const endpointStatus = await sagemaker.describeEndpoint({
+        const command = new DescribeEndpointCommand({
             EndpointName: 'simisai-sealion-realtime-endpoint'
-        }).promise();
+        });
+        const endpointStatus = await sagemaker.send(command);
         
         const isReady = endpointStatus.EndpointStatus === 'InService';
         

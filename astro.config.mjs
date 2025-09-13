@@ -2,6 +2,10 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 import icon from 'astro-icon';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://astro.build/config
 export default defineConfig({
@@ -26,9 +30,9 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        '@': new URL('./src', import.meta.url).pathname,
-        '@shared': new URL('./shared', import.meta.url).pathname,
-        '@assets': new URL('./attached_assets', import.meta.url).pathname,
+        '@': path.resolve(__dirname, './src'),
+        '@shared': path.resolve(__dirname, './shared'),
+        '@assets': path.resolve(__dirname, './attached_assets'),
       },
     },
   },
