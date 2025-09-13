@@ -10,6 +10,8 @@ import preferenceOptions from "../../data/preference-options.json";
 interface WelcomeProps {
   onStartSession: (config: SessionConfig) => void;
   onGoToHome?: () => void;
+  initialAdvancedMode?: boolean;
+  onAdvancedModeChange?: (isAdvanced: boolean) => void;
 }
 
 interface SessionConfig {
@@ -21,10 +23,10 @@ interface SessionConfig {
   voiceOption: string;
 }
 
-export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
+export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMode = false, onAdvancedModeChange }: WelcomeProps) {
   const [selectedDevice, setSelectedDevice] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [showAdvancedView, setShowAdvancedView] = useState<boolean>(false);
+  const [showAdvancedView, setShowAdvancedView] = useState<boolean>(initialAdvancedMode);
   const [showSmartDefaults, setShowSmartDefaults] = useState<boolean>(false);
   const [showHowItWorks, setShowHowItWorks] = useState<boolean>(false);
   
@@ -180,12 +182,19 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openPopover]);
 
+  // Track advanced mode changes and notify parent
+  useEffect(() => {
+    if (onAdvancedModeChange) {
+      onAdvancedModeChange(showAdvancedView);
+    }
+  }, [showAdvancedView, onAdvancedModeChange]);
+
   // Smart Defaults Screen - Now as a modal overlay with editable settings
   if (showSmartDefaults) {
     const selectedDeviceData = popularDevices.find(d => d.value === selectedDevice);
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="w-full max-w-lg bg-white/10 border border-white/20 rounded-2xl p-6 mx-auto shadow-2xl backdrop-blur-md relative">
+        <div className="w-full max-w-lg bg-primary/10 border border-primary/30 rounded-2xl p-6 mx-auto shadow-2xl backdrop-blur-md relative">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-white mb-2">
               Ready to guide you through using your <span className="text-primary">{selectedDeviceData?.label}</span>
@@ -196,7 +205,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
           <div className="space-y-3 mb-6">
             {/* Language Setting */}
             <div className="relative">
-              <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg p-3 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-colors" onClick={() => setOpenPopover('language')}>
+              <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg p-3 cursor-pointer hover:bg-primary/10 hover:border-primary/40 transition-colors" onClick={() => setOpenPopover('language')}>
                 <div>
                   <p className="text-white font-medium text-sm">Language</p>
                   <p className="text-white/70 text-xs">{languages.find(l => l.value === language)?.label}</p>
@@ -242,7 +251,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             
             {/* Voice Setting */}
             <div className="relative">
-              <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg p-3 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-colors" onClick={() => setOpenPopover('voice')}>
+              <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg p-3 cursor-pointer hover:bg-primary/10 hover:border-primary/40 transition-colors" onClick={() => setOpenPopover('voice')}>
                 <div>
                   <p className="text-white font-medium text-sm">Voice</p>
                   <p className="text-white/70 text-xs">{voiceOptions.find(v => v.value === voiceOption)?.label}</p>
@@ -288,7 +297,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
             
             {/* Style Setting */}
             <div className="relative">
-              <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg p-3 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-colors" onClick={() => setOpenPopover('style')}>
+              <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg p-3 cursor-pointer hover:bg-primary/10 hover:border-primary/40 transition-colors" onClick={() => setOpenPopover('style')}>
                 <div>
                   <p className="text-white font-medium text-sm">Style</p>
                   <p className="text-white/70 text-xs">{guidanceOptions.find(g => g.value === guidanceStyle)?.label}</p>
