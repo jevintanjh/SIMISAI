@@ -194,28 +194,28 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
           </div>
 
           <div className="space-y-4 mb-8">
-            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4">
+            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4 cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setOpenPopover('language')}>
               <div>
                 <p className="text-white font-medium">Language</p>
                 <p className="text-white/70 text-sm">{languages.find(l => l.value === autoDetectLanguage())?.label}</p>
               </div>
-              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50" />
+              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50 hover:text-white transition-colors" />
             </div>
             
-            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4">
+            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4 cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setOpenPopover('voice')}>
               <div>
                 <p className="text-white font-medium">Voice</p>
                 <p className="text-white/70 text-sm">Female voice guidance</p>
               </div>
-              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50" />
+              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50 hover:text-white transition-colors" />
             </div>
             
-            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4">
+            <div className="flex items-center justify-between bg-card/50 rounded-lg p-4 cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setOpenPopover('style')}>
               <div>
                 <p className="text-white font-medium">Style</p>
                 <p className="text-white/70 text-sm">Gentle, step-by-step style</p>
               </div>
-              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50" />
+              <Icon icon="mingcute:edit-line" className="w-5 h-5 text-white/50 hover:text-white transition-colors" />
             </div>
           </div>
 
@@ -235,7 +235,8 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
               size="lg"
               className="font-semibold"
             >
-              Start Guidance
+              Start
+              <Icon icon="mingcute:play-fill" className="w-8 h-8 ml-1" />
             </Button>
           </div>
         </div>
