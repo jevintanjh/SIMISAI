@@ -188,7 +188,7 @@ export default function Welcome({ onStartSession, onGoToHome }: WelcomeProps) {
         <div className="w-full max-w-lg bg-card/95 border border-border rounded-2xl p-6 mx-auto shadow-2xl backdrop-blur-sm relative">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-white mb-2">
-              Ready to guide you through using your {selectedDeviceData?.label}
+              Ready to guide you through using your <span className="text-primary">{selectedDeviceData?.label}</span>
             </h1>
             <p className="text-white/70 text-sm">Customize your settings:</p>
           </div>
