@@ -194,7 +194,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
     const selectedDeviceData = popularDevices.find(d => d.value === selectedDevice);
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="w-full max-w-lg bg-primary/10 border border-primary/30 rounded-2xl p-6 mx-auto shadow-2xl backdrop-blur-md relative">
+        <div className="w-full max-w-lg bg-primary/10 border border-primary/30 rounded-2xl p-6 mx-auto shadow-2xl backdrop-blur-md relative z-10">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-white mb-2">
               Ready to guide you through using your <span className="text-primary">{selectedDeviceData?.label}</span>
@@ -216,7 +216,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
               {/* Language Popover */}
               {openPopover === 'language' && (
                 <div 
-                  className="absolute z-[9998] mt-2 left-0 w-full bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                  className="absolute z-[10001] mt-2 left-0 w-full bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                   data-popover="language"
                 >
                   <div className="relative">
@@ -262,7 +262,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
               {/* Voice Popover */}
               {openPopover === 'voice' && (
                 <div 
-                  className="absolute z-[9998] mt-2 left-0 w-full bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                  className="absolute z-[10001] mt-2 left-0 w-full bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                   data-popover="voice"
                 >
                   <div className="relative">
@@ -308,7 +308,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
               {/* Style Popover */}
               {openPopover === 'style' && (
                 <div 
-                  className="absolute z-[9998] mt-2 left-0 w-full bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                  className="absolute z-[10001] mt-2 left-0 w-full bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                   data-popover="style"
                 >
                   <div className="relative">
@@ -525,7 +525,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                     {/* Device Type Popover */}
                     {openPopover === 'device' && (
                       <div 
-                        className="absolute z-[10000] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                        className="absolute z-[10001] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                         data-popover="device"
                       >
                         <div className="relative">
@@ -723,7 +723,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                 {/* Language Popover */}
                 {openPopover === 'language' && (
                   <div 
-                    className="absolute z-[9998] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                    className="absolute z-[10001] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                     data-popover="language"
                   >
                     <div className="relative">
@@ -795,7 +795,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                 {/* Guidance Popover */}
                 {openPopover === 'guidance' && (
                   <div 
-                    className="absolute z-[9998] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                    className="absolute z-[10001] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                     data-popover="guidance"
                   >
                     <div className="relative">
@@ -827,7 +827,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                               
                               {/* Hover Tooltip */}
                               {hoveredGuidance === style.value && (
-                                <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 w-64 bg-background border border-border rounded-lg p-3 shadow-lg z-[9997]">
+                                <div className="absolute left-full ml-2 top-1/2 transform -translate-y-1/2 w-64 bg-background border border-border rounded-lg p-3 shadow-lg z-[10002]">
                                   <p className="text-white/80 text-sm">{style.description}</p>
                                 </div>
                               )}
