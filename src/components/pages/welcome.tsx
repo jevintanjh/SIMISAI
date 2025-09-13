@@ -416,15 +416,15 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
           
           {/* Search Bar */}
           <div className="mb-8">
-            <div className="relative max-w-2xl mx-auto">
-              <Icon icon="mingcute:search-line" className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
-              <input
-                type="text"
-                placeholder="Search for your device..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary/50 focus:bg-white/15"
-              />
+            <div className="relative max-w-xl mx-auto">
+              <Icon icon="mingcute:search-line" className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/70" />
+                <input
+                  type="text"
+                  placeholder="Search for your device..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-4 bg-black/20 border border-border rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                />
             </div>
           </div>
 
@@ -539,7 +539,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
               
               {/* Device Selection Section */}
               <div className="mb-12 relative z-20">
-                <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-4">
                   <span className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">1</span>
                   Select your device
                 </h4>
@@ -748,7 +748,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
 
               {/* AI Preferences Section */}
                 <div className="mb-8 relative z-10">
-                <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+                <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-4">
                   <span className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">2</span>
                   Set preferences
                 </h4>
