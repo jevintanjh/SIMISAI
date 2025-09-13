@@ -45,6 +45,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   const [currentInstruction, setCurrentInstruction] = useState<Instruction | null>(null);
   const [totalSteps, setTotalSteps] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   // Fetch instructions from server
   useEffect(() => {
@@ -240,7 +241,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
           {/* Session Configuration */}
           <div className="flex gap-4">
             {/* Device Option Box */}
-            <Card className="bg-card/50 border-border backdrop-blur-sm">
+            <Card className="bg-card/50 border-border backdrop-blur-sm cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setShowSettingsModal(true)}>
               <CardContent className="px-6 py-2">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -260,7 +261,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
             </Card>
 
             {/* Language Option Box */}
-            <Card className="bg-card/50 border-border backdrop-blur-sm">
+            <Card className="bg-card/50 border-border backdrop-blur-sm cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setShowSettingsModal(true)}>
               <CardContent className="px-6 py-2">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -280,7 +281,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
             </Card>
 
             {/* Guidance Style Option Box */}
-            <Card className="bg-card/50 border-border backdrop-blur-sm">
+            <Card className="bg-card/50 border-border backdrop-blur-sm cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setShowSettingsModal(true)}>
               <CardContent className="px-6 py-2">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -298,7 +299,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
             </Card>
 
             {/* Voice Option Box */}
-            <Card className="bg-card/50 border-border backdrop-blur-sm">
+            <Card className="bg-card/50 border-border backdrop-blur-sm cursor-pointer hover:bg-card/60 transition-colors" onClick={() => setShowSettingsModal(true)}>
               <CardContent className="px-6 py-2">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -405,6 +406,39 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
           </div>
         </div>
       </main>
+
+      {/* Settings Change Confirmation Modal */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card border border-border rounded-2xl p-8 max-w-md mx-4">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Icon icon="mingcute:warning-line" className="w-8 h-8 text-orange-500" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Change Settings?</h3>
+              <p className="text-white/70 mb-6">
+                To change your settings, you'll need to end this session and start over. Your current progress will be saved.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => onBack()}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Change settings
+                </Button>
+                <Button
+                  onClick={() => setShowSettingsModal(false)}
+                  variant="default"
+                  className="flex-1"
+                >
+                  Continue without changing
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
