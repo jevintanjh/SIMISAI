@@ -28,7 +28,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showAllDevices, setShowAllDevices] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [showAdvancedView, setShowAdvancedView] = useState<boolean>(initialAdvancedMode);
+  const [showAdvancedView, setShowAdvancedView] = useState<boolean>(false);
   const [showSmartDefaults, setShowSmartDefaults] = useState<boolean>(false);
   const [showHowItWorks, setShowHowItWorks] = useState<boolean>(false);
   const [modalDeviceInfo, setModalDeviceInfo] = useState<{type: string, label: string, brand?: string, model?: string} | null>(null);
@@ -153,11 +153,17 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
 
   // Load user preferences on mount
   useEffect(() => {
-    const savedAdvancedView = localStorage.getItem('simis-advanced-view');
-    if (savedAdvancedView === 'true') {
+    console.log('Welcome component mounted with initialAdvancedMode:', initialAdvancedMode);
+    // Only show advanced view if explicitly requested via initialAdvancedMode prop
+    if (initialAdvancedMode === true) {
+      console.log('Setting advanced view to true');
       setShowAdvancedView(true);
+    } else {
+      console.log('Setting advanced view to false');
+      // Ensure advanced view is false by default
+      setShowAdvancedView(false);
     }
-  }, []);
+  }, [initialAdvancedMode]);
 
   const canStart = true;
 
