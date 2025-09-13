@@ -180,7 +180,7 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
               {isLoading ? (
                 <div className="text-center text-gray-500">Loading messages...</div>
               ) : (
-                <div className="space-y-3 px-4">
+                <div className="space-y-3 p-4">
                   {/* SIMIS Introduction Message - Always shown */}
                   <div className="flex justify-start">
                     <div className="rounded-lg p-3 text-white">
