@@ -284,29 +284,37 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
         
         {/* Camera View with Overlay Controls - Full Width/Height */}
         <div className="flex-1 relative overflow-hidden bg-card backdrop-blur-md">
-          {/* Video element */}
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          
-          {/* Canvas for drawing detection results */}
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          
-          {/* Overlay canvas for bounding boxes */}
-          <canvas
-            ref={overlayCanvasRef}
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          />
+          {/* Video container with overlay */}
+          <div className="relative w-full h-full">
+            {/* Video element */}
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="absolute inset-0 w-full h-full object-cover z-0"
+            />
+            
+            {/* Canvas for drawing detection results */}
+            <canvas
+              ref={canvasRef}
+              className="absolute inset-0 w-full h-full object-cover z-10"
+            />
+            
+            {/* Dark translucent overlay when camera is off - only covers video area */}
+            {!isCameraActive && (
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-20" />
+            )}
+            
+            {/* Overlay canvas for bounding boxes */}
+            <canvas
+              ref={overlayCanvasRef}
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none z-30"
+            />
+          </div>
           
           {/* Status Indicators - Top Right with increased padding */}
-          <div className="absolute top-4 right-4 flex items-center space-x-2 z-10">
+          <div className="absolute top-4 right-4 flex items-center space-x-2 z-40">
             {isDetecting ? (
               <div className="text-xs text-white bg-black/50 px-4 py-2 rounded-full flex items-center space-x-2">
                 <div className={`w-2 h-2 rounded-full ${isProcessing ? 'bg-yellow-500 animate-pulse' : 'bg-primary'}`} />
@@ -322,7 +330,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
           
           {/* Detection Results - Center Above Camera Controls */}
           {detections.length > 0 && (
-            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full bg-black/50 text-white text-sm flex items-center space-x-2 z-10">
+            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full bg-black/50 text-white text-sm flex items-center space-x-2 z-40">
               <div className="w-3 h-3 rounded-full bg-primary"></div>
               <span>{detections.length} detection{detections.length !== 1 ? 's' : ''} found</span>
             </div>
@@ -344,7 +352,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
           
           {/* No camera message - only show when no error and camera is off */}
           {!isCameraActive && !error && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center z-50">
               <div className="text-center text-foreground">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
                   <Icon icon="mingcute:camera-2-off-line" className="w-8 h-8 text-primary" />
@@ -359,7 +367,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
           )}
           
           {/* Camera Controls */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-10">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-40">
             {/* Camera Start/Stop Button */}
             <Button
               onClick={handleCameraToggle}
