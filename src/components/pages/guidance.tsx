@@ -365,7 +365,10 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full">
-                      <p className="text-sm text-muted-foreground">No instructions available</p>
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold text-white mb-2">Instructions</h3>
+                        <p className="text-sm text-muted-foreground">No instructions available</p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -374,10 +377,10 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 <div className="mt-4 flex-shrink-0">
                   <Button 
                     onClick={toggleInstructions}
-                    className="w-full bg-primary text-white hover:bg-primary transition-colors text-base font-semibold py-4"
+                    className="w-full bg-primary text-white hover:bg-primary/90 transition-colors text-sm font-semibold py-4"
                   >
-                    Chat with Assistant
-                    <Icon icon="mingcute:chat-4-fill" className="w-5 h-5" />
+                    <Icon icon="mingcute:message-3-fill" className="w-4 h-4 mr-2" />
+                    Chat with SIMIS
                   </Button>
                 </div>
               </div>
@@ -387,9 +390,9 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 <div className="mb-4 flex-shrink-0">
                   <Button 
                     onClick={toggleInstructions}
-                    className="w-full bg-primary text-white hover:bg-primary transition-colors text-base font-semibold py-4"
+                    className="w-full bg-primary text-white hover:bg-primary/90 transition-colors text-sm font-semibold py-4"
                   >
-                    <Icon icon="mingcute:list-expansion-fill" className="w-5 h-5" />
+                    <Icon icon="mingcute:list-expansion-fill" className="w-4 h-4 mr-2" />
                     View Instructions
                   </Button>
                 </div>
@@ -399,6 +402,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                   <FloatingChat 
                     sessionId="guidance-session"
                     language={config.language}
+                    showToggleButton={false}
                   />
                 </div>
               </div>
