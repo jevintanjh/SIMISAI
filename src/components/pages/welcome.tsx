@@ -489,8 +489,20 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                       setShowAllDevices(false); // Reset browse all when user types
                     }
                   }}
-                className="w-full pl-12 pr-4 py-4 bg-background border border-border rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                className="w-full pl-12 pr-12 py-4 bg-background border border-border rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      setShowAllDevices(false);
+                    }}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                    title="Clear search"
+                  >
+                    <Icon icon="mingcute:close-line" className="w-5 h-5" />
+                  </button>
+                )}
             </div>
           </div>
 
