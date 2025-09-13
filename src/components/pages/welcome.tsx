@@ -64,11 +64,30 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
     return supportedLang ? browserLang : 'en';
   };
 
-  // Search functionality
+  // Search functionality - includes devices, brands, and models
   const filteredDevices = devices.filter(device => 
     device.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
     device.value.toLowerCase().includes(searchQuery.toLowerCase())
-  ).slice(0, 8);
+  );
+
+  const filteredBrands = deviceBrands.filter(brand => 
+    brand.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    brand.value.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredModels = deviceModels.filter(model => 
+    model.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    model.value.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (deviceBrand && model.brand === deviceBrand && 
+     (model.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      model.value.toLowerCase().includes(searchQuery.toLowerCase())))
+  );
+
+  const allSearchResults = [
+    ...filteredDevices.map(d => ({ ...d, type: 'device' })),
+    ...filteredBrands.map(b => ({ ...b, type: 'brand' })),
+    ...filteredModels.map(m => ({ ...m, type: 'model' }))
+  ].slice(0, 8);
 
   // Toggle advanced view
   const toggleAdvancedView = () => {
@@ -404,21 +423,33 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-white mb-4">Search Results</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredDevices.map((device) => (
+                {allSearchResults.map((item) => (
                   <Card 
-                    key={device.value}
+                    key={`${item.type}-${item.value}`}
                     className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 cursor-pointer"
-                    onClick={() => handleDeviceSelect(device.value)}
+                    onClick={() => {
+                      if (item.type === 'device') {
+                        handleDeviceSelect(item.value);
+                      } else if (item.type === 'brand') {
+                        setDeviceBrand(item.value);
+                        setDeviceModel(''); // Reset model when brand changes
+                      } else if (item.type === 'model') {
+                        setDeviceModel(item.value);
+                      }
+                    }}
                   >
                     <CardContent className="p-6 text-center">
-                      <div className="text-4xl mb-3">{device.icon}</div>
-                      <h4 className="text-white font-semibold mb-2">{device.label}</h4>
-                      <p className="text-white/70 text-sm">{device.enabled ? 'Available' : 'Coming soon'}</p>
+                      <div className="text-4xl mb-3">
+                        {item.type === 'device' ? item.icon : 
+                         item.type === 'brand' ? '🏷️' : '⚙️'}
+                      </div>
+                      <h4 className="text-white font-semibold mb-2">{item.label}</h4>
+                      <p className="text-white/70 text-sm capitalize">{item.type}</p>
                     </CardContent>
                   </Card>
                 ))}
               </div>
-              {filteredDevices.length === 0 && (
+              {allSearchResults.length === 0 && (
                 <div className="text-center text-white/70 py-8">
                   <p>No devices found matching "{searchQuery}"</p>
                   <p className="text-sm mt-2">Try browsing popular devices below</p>
@@ -624,22 +655,39 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
               </Card>
 
               {/* Device Model */}
-              <Card className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
+              <Card className={`border-border backdrop-blur-sm transition-all duration-300 relative ${
+                !deviceBrand 
+                  ? 'bg-card/30 border-white/10 opacity-50' 
+                  : 'bg-card/50 hover:bg-card/70'
+              }`}>
                 <CardContent className="px-6 py-3">
                   <div 
-                    className="flex items-center space-x-3 cursor-pointer"
+                    className={`flex items-center space-x-3 ${
+                      !deviceBrand ? 'cursor-not-allowed' : 'cursor-pointer'
+                    }`}
                     data-option-box="model"
-                    onClick={() => togglePopover('model')}
+                    onClick={() => deviceBrand && togglePopover('model')}
                   >
-                    <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mingcute:barcode-line" className="w-7 h-7 text-white/70" />
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      !deviceBrand ? 'bg-white/10' : 'bg-primary/20'
+                    }`}>
+                      <Icon icon="mingcute:barcode-line" className={`w-7 h-7 ${
+                        !deviceBrand ? 'text-white/30' : 'text-white/70'
+                      }`} />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-white">
-                        {deviceModel ? deviceModels.find(m => m.value === deviceModel)?.label : "Model"}
+                      <p className={`text-sm font-bold ${
+                        !deviceBrand ? 'text-white/50' : 'text-white'
+                      }`}>
+                        {!deviceBrand 
+                          ? "No brand selected" 
+                          : deviceModel 
+                            ? deviceModels.find(m => m.value === deviceModel)?.label 
+                            : "Model"
+                        }
                       </p>
                     </div>
-                    <div className="text-white/50">
+                    <div className={!deviceBrand ? 'text-white/30' : 'text-white/50'}>
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
@@ -647,7 +695,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                   </div>
 
                   {/* Model Popover */}
-                  {openPopover === 'model' && (
+                  {openPopover === 'model' && deviceBrand && (
                     <div 
                       className="absolute z-[10000] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                       data-popover="model"
