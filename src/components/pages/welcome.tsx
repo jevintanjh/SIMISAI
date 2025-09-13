@@ -423,7 +423,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                   placeholder="Search for your device..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-black/20 border border-border rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                className="w-full pl-12 pr-4 py-4 bg-background border border-border rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 />
             </div>
           </div>
@@ -986,7 +986,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                   onClick={() => setShowHowItWorks(true)}
                   variant="outline"
                   size="lg"
-                  className="font-semibold"
+                  className="font-semibold text-base hover:bg-white/10 hover:border-white/50"
                 >
                   How it works
                 </Button>
@@ -996,7 +996,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                   disabled={!canStart}
                   variant="default"
                   size="lg"
-                  className="font-semibold disabled:opacity-20 disabled:cursor-not-allowed"
+                  className="font-semibold text-base disabled:opacity-20 disabled:cursor-not-allowed hover:bg-primary/90"
                 >
                   Start
                   <Icon icon="mingcute:play-fill" className="w-8 h-8 ml-1" />
