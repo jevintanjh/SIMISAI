@@ -4,12 +4,14 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { MessageCircle, X, Send, Mic, Bot } from "lucide-react";
+import { Icon } from "@iconify/react";
 import { useWebSocket } from "../hooks/use-websocket";
 import type { ChatMessage } from "../../shared/schema";
 
 interface FloatingChatProps {
   sessionId: string;
   language: string;
+  showToggleButton?: boolean;
 }
 
 const suggestedQuestions = [
@@ -23,8 +25,8 @@ const suggestedQuestions = [
   "What's the difference between oral and rectal readings?"
 ];
 
-export default function FloatingChat({ sessionId, language }: FloatingChatProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function FloatingChat({ sessionId, language, showToggleButton = true }: FloatingChatProps) {
+  const [isOpen, setIsOpen] = useState(!showToggleButton);
   const [message, setMessage] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
@@ -51,20 +53,38 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
   const handleSend = () => {
     if (!message.trim()) return;
 
-    sendMessage({
-      type: 'chat_message',
-      sessionId,
-      content: message,
-      language
-    });
+    // Add message to local state immediately for better UX
+    const newMessage = {
+      id: Date.now(),
+      isUser: true,
+      message: message
+    };
+    
+    queryClient.setQueryData(
+      ["/api/chat", sessionId],
+      (oldMessages: any[] = []) => [...oldMessages, newMessage]
+    );
+
+    // Try to send via WebSocket if connected
+    if (isConnected) {
+      sendMessage({
+        type: 'chat_message',
+        sessionId,
+        content: message,
+        language
+      });
+    } else {
+      // Fallback: show a message that we're not connected
+      console.warn('WebSocket not connected, message saved locally only');
+    }
 
     setMessage("");
-    setShowSuggestions(false);
+    // Keep suggestions visible so users can scroll back to them
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     setMessage(suggestion);
-    setShowSuggestions(false);
+    // Don't hide suggestions immediately - let them scroll up naturally
   };
 
   const handleVoiceInput = () => {
@@ -125,43 +145,43 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
   return (
     <div className="relative">
       {isOpen && (
-        <Card className="w-full mb-4 shadow-xl border border-gray-200">
-          <CardHeader className="medical-blue text-white p-4 rounded-t-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <MessageCircle className="w-4 h-4" />
-                <span className="font-medium">Live Assistance</span>
+        <Card className="w-full h-full shadow-xl">
+          <CardHeader className="text-white p-4 rounded-t-xl">
+              <div className="flex items-center justify-center space-x-2">
+                <div title={isConnected ? 'Connected' : 'Disconnected'}>
+                  <Icon 
+                    icon="mingcute:message-3-fill" 
+                    className={`w-4 h-4 ${isConnected ? 'text-green-400' : 'text-red-400'}`}
+                  />
+                </div>
+                <span className="font-medium text-sm">Chat with SIMIS</span>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsOpen(false)}
-                className="text-white hover:text-gray-200 p-1"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
           </CardHeader>
           
-          <CardContent className="p-0">
+          <CardContent className="p-0 flex flex-col h-full">
             {/* Chat Messages */}
-            <div className="max-h-64 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4">
               {isLoading ? (
                 <div className="text-center text-gray-500">Loading messages...</div>
-              ) : messages.length === 0 ? (
-                <div className="text-center text-gray-500">
-                  <Bot className="w-8 h-8 mx-auto mb-2 text-[hsl(207,90%,54%)]" />
-                  <p className="text-sm">Hi! I'm here to help with your medical device guidance. What can I assist you with?</p>
+              ) : (
+                <div className="space-y-3">
+                  {/* SIMIS Introduction Message - Always shown */}
+                  <div className="flex justify-start">
+                    <div className="rounded-lg p-3 max-w-xs text-white">
+                      <p className="text-sm">Hi! I'm here to help with your medical device guidance. What can I assist you with?</p>
+                    </div>
+                  </div>
                   
+                  {/* Quick Questions - Always shown */}
                   {showSuggestions && (
                     <div className="mt-4">
-                      <p className="text-xs text-gray-400 mb-2">Quick questions:</p>
+                      <p className="text-xs text-white/70 mb-2">Quick questions:</p>
                       <div className="grid grid-cols-1 gap-2">
                         {suggestedQuestions.slice(0, 4).map((question, index) => (
                           <button
                             key={index}
                             onClick={() => handleSuggestionClick(question)}
-                            className="text-left text-xs bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg p-2 transition-colors"
+                            className="text-left text-sm bg-background hover:bg-background/80 text-white border border-border rounded-lg px-4 py-2 transition-colors"
                           >
                             {question}
                           </button>
@@ -169,20 +189,14 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
                       </div>
                     </div>
                   )}
-                </div>
-              ) : (
-                <div className="space-y-3">
+                  
+                  {/* Chat Messages */}
                   {messages.map((msg) => (
-                    <div key={msg.id} className={`flex space-x-2 ${msg.isUser ? 'justify-end' : ''}`}>
-                      {!msg.isUser && (
-                        <div className="medical-blue text-white p-2 rounded-full w-8 h-8 flex items-center justify-center text-xs flex-shrink-0">
-                          <Bot className="w-3 h-3" />
-                        </div>
-                      )}
-                      <div className={`chat-bubble rounded-lg p-3 max-w-xs ${
+                    <div key={msg.id} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'} mb-4`}>
+                      <div className={`rounded-lg p-3 max-w-xs ${
                         msg.isUser 
-                          ? 'medical-blue text-white' 
-                          : 'bg-gray-100 text-gray-800'
+                          ? 'bg-white/10 text-white' 
+                          : 'text-white'
                       }`}>
                         <p className="text-sm">{msg.message}</p>
                       </div>
@@ -194,7 +208,7 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
             </div>
             
             {/* Chat Input */}
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 flex-shrink-0">
               <div className="flex space-x-2">
                 <Input
                   value={message}
@@ -206,7 +220,7 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
                 <div className="flex space-x-1 flex-shrink-0">
                   <Button
                     onClick={handleSend}
-                    disabled={!message.trim() || !isConnected}
+                    disabled={!message.trim()}
                     size="sm"
                     className="medical-blue hover:bg-[hsl(207,90%,50%)] rounded-lg"
                   >
@@ -229,13 +243,15 @@ export default function FloatingChat({ sessionId, language }: FloatingChatProps)
       )}
       
       {/* Chat Toggle Button */}
-      <Button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full medical-blue hover:bg-[hsl(207,90%,50%)] text-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-      >
-        <MessageCircle className="w-5 h-5 mr-2" />
-        <span>Chat with SIMIS</span>
-      </Button>
+      {showToggleButton && (
+        <Button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full medical-blue hover:bg-[hsl(207,90%,50%)] text-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+        >
+          <MessageCircle className="w-5 h-5 mr-2" />
+          <span>Chat with SIMIS</span>
+        </Button>
+      )}
     </div>
   );
 }
