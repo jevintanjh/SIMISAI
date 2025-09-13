@@ -24,3 +24,71 @@ aws-deployment/lambda/chat-service/env-with-openai.json
 
 # Temporary files
 temp/
+
+# AWS Deployment Files
+aws-deployment/lambda/*/package-lock.json
+aws-deployment/lambda/*/package.json
+aws-deployment/lambda/*/*.zip
+aws-deployment/lambda/*/*-test.js
+aws-deployment/lambda/*/*-debug.js
+aws-deployment/lambda/*/*-fixed.js
+aws-deployment/lambda/*/*-working.js
+aws-deployment/lambda/*/*-simple.js
+aws-deployment/lambda/*/*-asean.js
+aws-deployment/lambda/*/*-multilingual.js
+aws-deployment/lambda/*/*-optimized.js
+aws-deployment/lambda/*/*-production.js
+aws-deployment/lambda/*/*-robust.js
+aws-deployment/lambda/*/*-sagemaker-first.js
+aws-deployment/lambda/*/*-sealion.js
+aws-deployment/lambda/*/*-refined-*.zip
+# Keep main implementation files: hybrid-llm-refined.js, index.js, etc.
+
+# AWS Test Files
+*-test-payload.json
+*-test-response.json
+*-debug-response.json
+*-final-response.json
+*-fixed-response.json
+lambda-test-*.json
+chatman-test-*.json
+direct-sagemaker-*.json
+simple-test.json
+test-llm-payload.json
+test-security-payload.json
+security-response.json
+response.json
+test-response.json
+
+# AWS Deployment Archives
+*.zip
+hybrid-llm-*.zip
+backend-service.zip
+status-service-*.zip
+
+# AWS Configuration Files (keep only essential ones)
+aws-permissions-policy.json
+cloudfront-config.json
+ealion-sagemaker-deploy
+nul
+tash
+
+# SageMaker Model Files (large files)
+sagemaker-sealion/container/model/*.gguf
+sagemaker-sealion/container/model/*.tar.gz
+sagemaker-sealion/container/model-fixed.tar.gz
+sagemaker-sealion/container/model-fixed-v2.tar.gz
+
+# AWS Debugging Files
+aws-deployment/DEBUGGING-WORKFLOW.md
+aws-deployment/MULTILINGUAL-TESTING-REPORT.md
+aws-deployment/PRODUCTION-DEBUGGING-SUMMARY.md
+aws-deployment/cloudwatch/
+aws-deployment/database/
+aws-deployment/lambda/backend-service/
+aws-deployment/lambda/chatman-security/
+aws-deployment/lambda/guidance-service/
+aws-deployment/lambda/status-service/index-simple.js
+aws-deployment/lambda/status-service/package-lock.json
+aws-deployment/lambda/status-service/package.json
+aws-deployment/lambda/status-service/status-service.zip
