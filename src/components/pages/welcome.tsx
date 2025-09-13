@@ -27,9 +27,11 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
   const [selectedDevice, setSelectedDevice] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showAllDevices, setShowAllDevices] = useState<boolean>(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [showAdvancedView, setShowAdvancedView] = useState<boolean>(initialAdvancedMode);
   const [showSmartDefaults, setShowSmartDefaults] = useState<boolean>(false);
   const [showHowItWorks, setShowHowItWorks] = useState<boolean>(false);
+  const [modalDeviceInfo, setModalDeviceInfo] = useState<{type: string, label: string, brand?: string, model?: string} | null>(null);
   
   // Advanced view states (only used when advanced view is enabled)
   const [language, setLanguage] = useState<string>("en");
@@ -93,6 +95,23 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
     );
   });
 
+  // Get models for selected category
+  const categoryModels = selectedCategory ? deviceModels.filter(model => {
+    // Map device categories to model categories
+    const categoryMap: Record<string, string[]> = {
+      'thermometer': ['oral', 'ear', 'forehead', 'rectal'],
+      'blood-pressure': ['arm', 'wrist'],
+      'glucose': ['glucose-meter'],
+      'pulse-oximeter': ['pulse-oximeter'],
+      'weight-scale': ['weight-scale']
+    };
+    
+    const modelCategories = categoryMap[selectedCategory] || [];
+    // For now, show all models since we don't have category info in the model data
+    // In a real implementation, you would filter by model.category
+    return true;
+  }) : [];
+
   // Combine all results, prioritizing models for brand searches (no brands shown)
   const allSearchResults = showAllDevices 
     ? filteredModels.map(m => ({ ...m, type: 'model' })).slice(0, 12) // Show only models when browsing all
@@ -101,6 +120,8 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
         ...filteredModels.map(m => ({ ...m, type: 'model' })),
         ...brandMatchedModels.map(m => ({ ...m, type: 'model' }))
       ].slice(0, 8);
+
+
 
   // Toggle advanced view
   const toggleAdvancedView = () => {
@@ -114,16 +135,19 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
     setShowSmartDefaults(true);
   };
 
+
   // Handle smart defaults start
   const handleSmartDefaultsStart = () => {
+    const deviceType = modalDeviceInfo ? modalDeviceInfo.type : selectedDevice;
     const config: SessionConfig = {
       language: autoDetectLanguage(),
-      device: selectedDevice,
+      device: deviceType,
       deviceBrand: "",
       deviceModel: "",
       guidanceStyle: "gentle",
       voiceOption: "female"
     };
+    setModalDeviceInfo(null); // Clear modal info
     onStartSession(config);
   };
 
@@ -223,13 +247,30 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
 
   // Smart Defaults Screen - Now as a modal overlay with editable settings
   if (showSmartDefaults) {
-    const selectedDeviceData = popularDevices.find(d => d.value === selectedDevice);
+    const selectedDeviceData = modalDeviceInfo ? 
+      { label: modalDeviceInfo.label } : 
+      popularDevices.find(d => d.value === selectedDevice);
+    
+    // Create display text for the device
+    const getDeviceDisplayText = () => {
+      if (modalDeviceInfo) {
+        if (modalDeviceInfo.brand && modalDeviceInfo.model) {
+          return `${modalDeviceInfo.brand} ${modalDeviceInfo.model}`;
+        } else if (modalDeviceInfo.brand) {
+          return `${modalDeviceInfo.brand} ${modalDeviceInfo.label}`;
+        } else {
+          return modalDeviceInfo.label;
+        }
+      }
+      return selectedDeviceData?.label || 'device';
+    };
+    
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div className="w-full max-w-lg bg-primary/10 border border-primary/30 rounded-2xl p-6 mx-auto shadow-2xl backdrop-blur-md relative z-10">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-white mb-2">
-              Ready to guide you through using your <span className="text-primary">{selectedDeviceData?.label}</span>
+              Ready to guide you through using your <span className="text-primary">{getDeviceDisplayText()}</span>
             </h1>
             <p className="text-white/70 text-sm">Customize your settings:</p>
           </div>
@@ -378,12 +419,23 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
 
           <div className="flex gap-3">
             <Button
-              onClick={() => setShowSmartDefaults(false)}
+              onClick={() => {
+                setShowSmartDefaults(false);
+                setModalDeviceInfo(null);
+              }}
               variant="outline"
               size="sm"
               className="flex-1 text-xs"
             >
               Back
+            </Button>
+            <Button
+              onClick={() => setShowHowItWorks(true)}
+              variant="outline"
+              size="sm"
+              className="flex-1 text-xs"
+            >
+              How it works
             </Button>
             <Button
               onClick={handleSmartDefaultsStart}
@@ -449,14 +501,20 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                     className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 cursor-pointer"
                     onClick={() => {
                       if (item.type === 'device') {
-                        handleDeviceSelect(item.value);
+                        // For devices, set modal info and trigger smart defaults modal
+                        setModalDeviceInfo({ type: item.value, label: item.label });
+                        setShowSmartDefaults(true);
                       } else if (item.type === 'model') {
-                        // Find the brand for this model and set both
+                        // For models, find the brand and set complete info
                         const model = deviceModels.find(m => m.value === item.value);
-                        if (model) {
-                          setDeviceBrand(model.brand);
-                          setDeviceModel(model.value);
-                        }
+                        const brand = model ? deviceBrands.find(b => b.value === model.brand) : null;
+                        setModalDeviceInfo({ 
+                          type: 'model', 
+                          label: item.label,
+                          brand: brand?.label,
+                          model: item.label
+                        });
+                        setShowSmartDefaults(true);
                       }
                     }}
                   >
@@ -490,7 +548,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
           )}
 
           {/* Popular Devices */}
-          {!searchQuery && !showAllDevices && (
+          {!searchQuery && !showAllDevices && !selectedCategory && (
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-white mb-6 text-center">Popular Devices</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -498,7 +556,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                   <Card 
                     key={device.value}
                     className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 cursor-pointer device-tile"
-                    onClick={() => handleDeviceSelect(device.value)}
+                    onClick={() => setSelectedCategory(device.value)}
                   >
                     <CardContent className="p-6 text-center">
                       <div className="text-4xl mb-3">{device.icon}</div>
@@ -518,6 +576,57 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                   Browse All Devices
                 </Button>
               </div>
+            </div>
+          )}
+
+          {/* Category Models */}
+          {selectedCategory && !searchQuery && !showAllDevices && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-white">
+                  {popularDevices.find(d => d.value === selectedCategory)?.label} Models
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedCategory("")}
+                  className="text-white/70 hover:text-white"
+                >
+                  ← Back to Categories
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {categoryModels.map((model) => (
+                  <Card 
+                    key={model.value}
+                    className="bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 cursor-pointer"
+                    onClick={() => {
+                      // Find the brand for this model and set complete info
+                      const brand = deviceBrands.find(b => b.value === model.brand);
+                      setModalDeviceInfo({ 
+                        type: 'model', 
+                        label: model.label,
+                        brand: brand?.label,
+                        model: model.label
+                      });
+                      setShowSmartDefaults(true);
+                    }}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="text-4xl mb-3">⚙️</div>
+                      <h4 className="text-white font-semibold mb-2">{model.label}</h4>
+                      <p className="text-white/70 text-sm">
+                        {deviceBrands.find(b => b.value === model.brand)?.label || 'Unknown Brand'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              {categoryModels.length === 0 && (
+                <div className="text-center text-white/70 py-8">
+                  <p>No models found for this category</p>
+                </div>
+              )}
             </div>
           )}
 
