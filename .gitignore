@@ -16,3 +16,4 @@ yolov8l.pt
 #logs
 *.log
 logs/
+temp/
