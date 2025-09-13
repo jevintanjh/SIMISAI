@@ -87,7 +87,19 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
     // Don't hide suggestions immediately - let them scroll up naturally
   };
 
+  const recognitionRef = useRef<any>(null);
+
   const handleVoiceInput = () => {
+    if (isListening) {
+      // Cancel current recognition
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        recognitionRef.current = null;
+      }
+      setIsListening(false);
+      return;
+    }
+
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       alert('Speech recognition is not supported in this browser');
       return;
@@ -95,6 +107,7 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
 
     const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
     
     // Map language codes to proper locale identifiers for speech recognition
     const languageMap: Record<string, string> = {
@@ -122,14 +135,17 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
       const transcript = event.results[0][0].transcript;
       setMessage(transcript);
       setIsListening(false);
+      recognitionRef.current = null;
     };
 
     recognition.onerror = () => {
       setIsListening(false);
+      recognitionRef.current = null;
     };
 
     recognition.onend = () => {
       setIsListening(false);
+      recognitionRef.current = null;
     };
 
     recognition.start();
@@ -145,7 +161,7 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
   return (
     <div className="relative">
       {isOpen && (
-        <Card className="w-full h-full shadow-xl">
+        <Card className="w-full h-full border-0 shadow-none">
           <CardHeader className="text-white p-4 rounded-t-xl">
               <div className="flex items-center justify-center space-x-2">
                 <div title={isConnected ? 'Connected' : 'Disconnected'}>
@@ -158,16 +174,16 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
               </div>
           </CardHeader>
           
-          <CardContent className="p-0 flex flex-col h-full">
+          <CardContent className="p-0 flex flex-col h-full min-h-0">
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto min-h-0">
               {isLoading ? (
                 <div className="text-center text-gray-500">Loading messages...</div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-3 px-4">
                   {/* SIMIS Introduction Message - Always shown */}
                   <div className="flex justify-start">
-                    <div className="rounded-lg p-3 max-w-xs text-white">
+                    <div className="rounded-lg p-3 text-white">
                       <p className="text-sm">Hi! I'm here to help with your medical device guidance. What can I assist you with?</p>
                     </div>
                   </div>
@@ -193,7 +209,7 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
                   {/* Chat Messages */}
                   {messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-                      <div className={`rounded-lg p-3 max-w-xs ${
+                      <div className={`rounded-lg p-3 ${
                         msg.isUser 
                           ? 'bg-white/10 text-white' 
                           : 'text-white'
