@@ -1,0 +1,74 @@
+{
+  "welcome_sequences": {
+    "initial_greeting": {
+      "english": "👋 **Welcome to SIMISAI!**\n\nI'm your AI-powered medical device assistant, here to help you use your medical devices safely and effectively.\n\n**🩺 I can assist you with:**\n• Digital thermometers\n• Blood pressure monitors\n• Blood glucose meters\n• Nebulizers\n• And other medical devices\n\n**💬 How can I help you today?**",
+      "indonesian": "👋 **Selamat datang di SIMISAI!**\n\nSaya asisten perangkat medis bertenaga AI Anda, siap membantu Anda menggunakan perangkat medis dengan aman dan efektif.\n\n**🩺 Saya dapat membantu Anda dengan:**\n• Termometer digital\n• Monitor tekanan darah\n• Meter glukosa darah\n• Nebulizer\n• Dan perangkat medis lainnya\n\n**💬 Bagaimana saya bisa membantu Anda hari ini?**",
+      "malay": "👋 **Selamat datang ke SIMISAI!**\n\nSaya pembantu peranti perubatan AI anda, siap membantu anda menggunakan peranti perubatan dengan selamat dan berkesan.\n\n**🩺 Saya boleh membantu anda dengan:**\n• Termometer digital\n• Monitor tekanan darah\n• Meter glukosa darah\n• Nebulizer\n• Dan peranti perubatan lain\n\n**💬 Bagaimana saya boleh membantu anda hari ini?**"
+    },
+    "returning_user": {
+      "english": "👋 **Welcome back!**\n\nGreat to see you again! I'm here to continue helping you with your medical device needs.\n\n**💡 Quick reminder:** I can help with thermometers, blood pressure monitors, and other medical devices.\n\n**💬 What would you like assistance with today?**",
+      "indonesian": "👋 **Selamat datang kembali!**\n\nSenang bertemu Anda lagi! Saya siap melanjutkan bantuan untuk kebutuhan perangkat medis Anda.\n\n**💡 Pengingat cepat:** Saya dapat membantu dengan termometer, monitor tekanan darah, dan perangkat medis lainnya.\n\n**💬 Apa yang ingin Anda bantu hari ini?**"
+    }
+  },
+  "conversation_starters": {
+    "device_selection": {
+      "english": "**🩺 Which device do you need help with?**\n\n🌡️ **Digital Thermometer**\n🩸 **Blood Pressure Monitor**\n🍬 **Blood Glucose Meter**\n💨 **Nebulizer**\n🏥 **Other Medical Device**\n\n**💬 Just tell me which one, and I'll provide detailed guidance!**",
+      "indonesian": "**🩺 Perangkat mana yang Anda butuhkan bantuan?**\n\n🌡️ **Termometer Digital**\n🩸 **Monitor Tekanan Darah**\n🍬 **Meter Glukosa Darah**\n💨 **Nebulizer**\n🏥 **Perangkat Medis Lainnya**\n\n**💬 Cukup beri tahu saya yang mana, dan saya akan memberikan panduan detail!**"
+    },
+    "quick_help": {
+      "english": "**⚡ Quick Help Available:**\n\n• \"How do I use my thermometer?\"\n• \"How do I position the device correctly?\"\n• \"Why won't my BP machine work?\"\n• \"What's a normal reading?\"\n\n**💬 Ask me anything about your medical device!**",
+      "indonesian": "**⚡ Bantuan Cepat Tersedia:**\n\n• \"Bagaimana cara menggunakan termometer saya?\"\n• \"Bagaimana cara memposisikan perangkat dengan benar?\"\n• \"Mengapa mesin BP saya tidak berfungsi?\"\n• \"Apa pembacaan normal?\"\n\n**💬 Tanyakan apa saja tentang perangkat medis Anda!**"
+    }
+  },
+  "closure_protocols": {
+    "successful_completion": {
+      "english": "**✅ Perfect! You're all set!**\n\nI hope I've helped you use your medical device safely and effectively.\n\n**💡 Remember:**\n• Follow all safety guidelines\n• Take multiple readings for accuracy\n• Consult your doctor if readings are concerning\n\n**👋 Thank you for using SIMISAI! Have a great day!**",
+      "indonesian": "**✅ Sempurna! Anda sudah siap!**\n\nSaya harap saya telah membantu Anda menggunakan perangkat medis dengan aman dan efektif.\n\n**💡 Ingat:**\n• Ikuti semua panduan keselamatan\n• Ambil beberapa pembacaan untuk akurasi\n• Konsultasikan dengan dokter jika pembacaan mengkhawatirkan\n\n**👋 Terima kasih telah menggunakan SIMISAI! Semoga hari Anda menyenangkan!**"
+    },
+    "follow_up_offer": {
+      "english": "**🤔 Need more help?**\n\nI'm here if you have any other questions about your medical device or need assistance with other devices.\n\n**💬 Just ask me anything!**\n\n**👋 Thank you for choosing SIMISAI!**",
+      "indonesian": "**🤔 Butuh bantuan lebih lanjut?**\n\nSaya di sini jika Anda memiliki pertanyaan lain tentang perangkat medis Anda atau membutuhkan bantuan dengan perangkat lain.\n\n**💬 Tanyakan saja apa saja!**\n\n**👋 Terima kasih telah memilih SIMISAI!**"
+    },
+    "error_recovery": {
+      "english": "**😔 I apologize for any confusion.**\n\nLet me try to help you better. Could you please rephrase your question or tell me more specifically what you need help with?\n\n**💬 I'm here to assist you!**",
+      "indonesian": "**😔 Saya minta maaf atas kebingungan yang terjadi.**\n\nBiarkan saya mencoba membantu Anda dengan lebih baik. Bisakah Anda mengulangi pertanyaan Anda atau memberi tahu saya lebih spesifik apa yang Anda butuhkan bantuan?\n\n**💬 Saya di sini untuk membantu Anda!**"
+    }
+  },
+  "formatting_standards": {
+    "headers": {
+      "device_guide": "🌡️ **Device Name Guide**",
+      "troubleshooting": "🔧 **Troubleshooting**",
+      "important_notes": "⚠️ **Important Notes**",
+      "positioning_tips": "💡 **Positioning Tips**"
+    },
+    "step_formatting": {
+      "numbered_steps": "1️⃣ **Step Name**: Description",
+      "bullet_points": "• **Item**: Description",
+      "sub_bullets": "  - Sub-item description"
+    },
+    "safety_formatting": {
+      "warning": "⚠️ **Warning**: Important safety information",
+      "note": "💡 **Note**: Helpful tip or reminder",
+      "important": "🔴 **Important**: Critical information"
+    }
+  },
+  "quality_checklist": {
+    "response_validation": [
+      "Proper line breaks rendered",
+      "Emojis display correctly",
+      "Device type correctly identified",
+      "Medical information accurate",
+      "Tone professional and helpful",
+      "Instructions clear and actionable",
+      "Safety information highlighted",
+      "Mobile-friendly formatting"
+    ],
+    "conversation_flow": [
+      "Appropriate greeting",
+      "Clear question understanding",
+      "Helpful response provided",
+      "Follow-up options offered",
+      "Professional closure"
+    ]
+  }
+}
