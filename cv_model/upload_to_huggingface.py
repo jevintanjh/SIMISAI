@@ -23,7 +23,7 @@ def upload_model_to_hf():
         print("Preparing model files...")
         
         # Copy the model weights
-        shutil.copy("models/poc2/weights/best.pt", upload_dir / "best.pt")
+        shutil.copy("models/poc2/best.pt", upload_dir / "best.pt")
         
         # Copy config files
         shutil.copy("config.json", upload_dir / "config.json")
