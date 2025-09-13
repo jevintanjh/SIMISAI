@@ -1,101 +1,55 @@
-# SIMIS AI Thermometer Detection Model
+# SIMIS - Oral Thermometer Detection Model
 
-This is a YOLOv8 model trained to detect thermometers and their various states for the SIMIS AI medical device assistance application.
+This is a YOLOv8 model trained to detect oral thermometers and their various states for the SIMIS application.
 
-## Model Information
+## Model Details
 
-- **Model Type**: YOLOv8 Object Detection
-- **Classes Detected**:
-  - `thermometer (Lo error)` - Thermometer showing low battery error
-  - `thermometer (measuring)` - Thermometer actively measuring temperature
-  - `thermometer (no display found)` - Thermometer with no visible display
-  - `thermometer (off)` - Thermometer in off state
-  - `thermometer button` - Thermometer control button
-  - `thermometer in ear` - Thermometer positioned in ear
-  - `thermometer in mouth` - Thermometer positioned in mouth
-  - `thermometer in nose` - Thermometer positioned in nose
-  - `thermometer on face` - Thermometer positioned on face
+- **Model Type**: YOLOv8 (transfer learned)
+- **Task**: Object Detection
+- **Classes**: 9 different thermometer states and positions
+- **Training Data**: Custom dataset of oral thermometers in various states
+- **Model Size**: ~84MB
+
+## Classes Detected
+
+1. **thermometer (Lo error)** - Thermometer showing low error state
+2. **thermometer (measuring)** - Thermometer actively measuring temperature
+3. **thermometer (no display found)** - Thermometer with no readable display
+4. **thermometer (off)** - Thermometer in off state
+5. **thermometer button** - Thermometer control buttons
+6. **thermometer in ear** - Thermometer positioned in ear
+7. **thermometer in mouth** - Thermometer positioned in mouth
+8. **thermometer in nose** - Thermometer positioned in nose
+9. **thermometer on face** - Thermometer positioned on face
 
 ## Usage
 
-### Via Hugging Face Spaces API
+This model can be used with the Hugging Face Transformers library or directly with YOLOv8.
 
-The model is deployed as a REST API endpoint. You can call it with base64-encoded image data:
+### Using with Transformers
 
 ```python
-import requests
-import base64
+from transformers import AutoImageProcessor, AutoModelForObjectDetection
 
-# Encode your image
-with open("image.jpg", "rb") as f:
-    image_data = base64.b64encode(f.read()).decode()
-
-# Call the API
-response = requests.post(
-    "https://your-username-simisai1-0.hf.space/predict",
-    json={"data": [image_data]}
-)
-
-result = response.json()
-print(result)
+processor = AutoImageProcessor.from_pretrained("your-username/simisai1.0")
+model = AutoModelForObjectDetection.from_pretrained("your-username/simisai1.0")
 ```
 
-### Via JavaScript/Frontend
+### Using with YOLOv8
 
-```javascript
-// Convert image to base64
-const canvas = document.createElement('canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = image.width;
-canvas.height = image.height;
-ctx.drawImage(image, 0, 0);
-const base64Data = canvas.toDataURL('image/jpeg').split(',')[1];
+```python
+from ultralytics import YOLO
 
-// Call the API
-const response = await fetch('https://your-username-simisai1-0.hf.space/predict', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        data: [base64Data]
-    })
-});
-
-const result = await response.json();
-console.log(result);
-```
-
-## API Response Format
-
-The API returns results in the following format:
-
-```json
-{
-    "detections": [
-        {
-            "class": "thermometer (measuring)",
-            "confidence": 0.95,
-            "bbox": [100, 150, 200, 300],
-            "class_id": 1
-        }
-    ],
-    "processing_time": 1500,
-    "image_size": [640, 480]
-}
+model = YOLO("your-username/simisai1.0")
+results = model("path/to/image.jpg")
 ```
 
 ## Model Performance
 
-- **Training Data**: Custom dataset of thermometer images
-- **Validation Accuracy**: [To be added]
-- **Inference Speed**: ~1.5 seconds per image
-- **Model Size**: 84MB
+- **mAP@0.5**: [Add your metrics here]
+- **Precision**: [Add your metrics here]
+- **Recall**: [Add your metrics here]
 
 ## License
 
-This model is part of the SIMIS AI project and is intended for medical device assistance applications.
-
-## Support
-
-For questions or issues, please refer to the main SIMIS AI repository.
+[Add your license information]
