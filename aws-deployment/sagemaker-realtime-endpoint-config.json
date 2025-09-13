@@ -1,0 +1,11 @@
+{
+    "EndpointConfigName": "simisai-sealion-realtime-config",
+    "ProductionVariants": [
+        {
+            "VariantName": "primary",
+            "ModelName": "simisai-sealion-gguf-model-v5",
+            "InstanceType": "ml.m5.xlarge",
+            "InitialInstanceCount": 1
+        }
+    ]
+}
