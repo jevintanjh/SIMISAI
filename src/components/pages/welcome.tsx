@@ -528,7 +528,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
               {/* Device Selection Section */}
               <div className="mb-12">
                 <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                  <span className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center text-primary text-sm font-bold">1</span>
+                  <span className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">1</span>
                   Select your device
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -620,7 +620,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                   {/* Brand Popover */}
                   {openPopover === 'brand' && (
                     <div 
-                      className="absolute z-[10000] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                      className="absolute z-[10001] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                       data-popover="brand"
                     >
                       <div className="relative">
@@ -697,7 +697,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                   {/* Model Popover */}
                   {openPopover === 'model' && deviceBrand && (
                     <div 
-                      className="absolute z-[10000] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
+                      className="absolute z-[10001] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden"
                       data-popover="model"
                     >
                       <div className="relative">
@@ -737,7 +737,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
               {/* AI Preferences Section */}
               <div className="mb-8 relative z-0">
                 <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                  <span className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center text-primary text-sm font-bold">2</span>
+                  <span className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-sm font-bold">2</span>
                   Set preferences
                 </h4>
             
@@ -923,7 +923,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
 
                 {/* Voice Popover */}
                 {openPopover === 'voice' && (
-                  <div className="absolute z-[9998] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden">
+                  <div className="absolute z-[10001] mt-3 left-0 w-80 bg-background rounded-xl shadow-2xl border border-border overflow-hidden">
                     <div className="relative">
                       <div className="p-4 max-h-48 overflow-y-auto">
                         <div className="space-y-0.5">
