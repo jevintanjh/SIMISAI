@@ -225,33 +225,31 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
             
             {/* Chat Input */}
             <div className="p-4 flex-shrink-0">
-              <div className="flex space-x-2">
+              <div className="flex gap-2">
                 <Input
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Ask a question..."
-                  className="flex-1 text-sm rounded-lg"
+                  className="flex-1 text-sm rounded-lg min-w-0"
                 />
-                <div className="flex space-x-1 flex-shrink-0">
-                  <Button
-                    onClick={handleSend}
-                    disabled={!message.trim()}
-                    size="sm"
-                    className="medical-blue hover:bg-[hsl(207,90%,50%)] rounded-lg"
-                  >
-                    <Send className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    onClick={handleVoiceInput}
-                    disabled={isListening}
-                    size="sm"
-                    variant="outline"
-                    className={`rounded-lg ${isListening ? 'bg-red-100 border-red-300' : 'bg-gray-100'}`}
-                  >
-                    <Mic className={`w-4 h-4 ${isListening ? 'text-red-600' : 'text-gray-600'}`} />
-                  </Button>
-                </div>
+                <Button
+                  onClick={handleSend}
+                  disabled={!message.trim()}
+                  size="sm"
+                  className="medical-blue hover:bg-[hsl(207,90%,50%)] rounded-lg w-10 h-10 p-0 flex-shrink-0"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+                <Button
+                  onClick={handleVoiceInput}
+                  disabled={isListening}
+                  size="sm"
+                  variant="outline"
+                  className={`rounded-lg w-10 h-10 p-0 flex-shrink-0 ${isListening ? 'bg-red-100 border-red-300' : 'bg-gray-100'}`}
+                >
+                  <Mic className={`w-4 h-4 ${isListening ? 'text-red-600' : 'text-gray-600'}`} />
+                </Button>
               </div>
             </div>
           </CardContent>
