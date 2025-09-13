@@ -21,6 +21,7 @@ interface SessionConfig {
 function Router({ onShowSessionSummary }: { onShowSessionSummary: () => void }) {
   const [currentView, setCurrentView] = useState<'welcome' | 'guidance' | 'home'>('welcome');
   const [sessionConfig, setSessionConfig] = useState<SessionConfig | null>(null);
+  const [wasInAdvancedMode, setWasInAdvancedMode] = useState<boolean>(false);
 
   const handleStartSession = (config: SessionConfig) => {
     setSessionConfig(config);
@@ -30,6 +31,7 @@ function Router({ onShowSessionSummary }: { onShowSessionSummary: () => void }) 
   const handleBackToWelcome = () => {
     setCurrentView('welcome');
     setSessionConfig(null);
+    // Keep the advanced mode state when returning from guidance
   };
 
   const handleGoToHome = () => {
@@ -41,7 +43,7 @@ function Router({ onShowSessionSummary }: { onShowSessionSummary: () => void }) 
   };
 
   if (currentView === 'welcome') {
-    return <Welcome onStartSession={handleStartSession} />;
+    return <Welcome onStartSession={handleStartSession} initialAdvancedMode={wasInAdvancedMode} onAdvancedModeChange={setWasInAdvancedMode} />;
   }
 
   if (currentView === 'guidance' && sessionConfig) {
