@@ -83,10 +83,20 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
       model.value.toLowerCase().includes(searchQuery.toLowerCase())))
   );
 
+  // Find models that match the searched brand
+  const brandMatchedModels = deviceModels.filter(model => {
+    const brand = deviceBrands.find(b => b.value === model.brand);
+    return brand && (
+      brand.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      brand.value.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+
+  // Combine all results, prioritizing models for brand searches (no brands shown)
   const allSearchResults = [
     ...filteredDevices.map(d => ({ ...d, type: 'device' })),
-    ...filteredBrands.map(b => ({ ...b, type: 'brand' })),
-    ...filteredModels.map(m => ({ ...m, type: 'model' }))
+    ...filteredModels.map(m => ({ ...m, type: 'model' })),
+    ...brandMatchedModels.map(m => ({ ...m, type: 'model' }))
   ].slice(0, 8);
 
   // Toggle advanced view
@@ -430,11 +440,13 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                     onClick={() => {
                       if (item.type === 'device') {
                         handleDeviceSelect(item.value);
-                      } else if (item.type === 'brand') {
-                        setDeviceBrand(item.value);
-                        setDeviceModel(''); // Reset model when brand changes
                       } else if (item.type === 'model') {
-                        setDeviceModel(item.value);
+                        // Find the brand for this model and set both
+                        const model = deviceModels.find(m => m.value === item.value);
+                        if (model) {
+                          setDeviceBrand(model.brand);
+                          setDeviceModel(model.value);
+                        }
                       }
                     }}
                   >
