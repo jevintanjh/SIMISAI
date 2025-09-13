@@ -1,0 +1,22 @@
+[
+  {
+    "ParameterKey": "Environment",
+    "ParameterValue": "production"
+  },
+  {
+    "ParameterKey": "DomainName",
+    "ParameterValue": "simisai.com"
+  },
+  {
+    "ParameterKey": "SageMakerEndpointName",
+    "ParameterValue": "sealion-chat-endpoint"
+  },
+  {
+    "ParameterKey": "CVServiceEndpoint",
+    "ParameterValue": "https://cv-service.example.com"
+  },
+  {
+    "ParameterKey": "DatabasePassword",
+    "ParameterValue": "Simisai2024!SecurePass"
+  }
+]

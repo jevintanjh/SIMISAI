@@ -1,0 +1,13 @@
+{
+    "EndpointConfigName": "simisai-sealion-serverless-config-v8",
+    "ProductionVariants": [
+        {
+            "VariantName": "primary",
+            "ModelName": "simisai-sealion-gguf-model-v5",
+            "ServerlessConfig": {
+                "MemorySizeInMB": 3072,
+                "MaxConcurrency": 10
+            }
+        }
+    ]
+}

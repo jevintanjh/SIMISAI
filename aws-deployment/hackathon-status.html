@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMISAI - Hackathon Demo Status</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-size: 1.2em;
+        }
+        .ready {
+            background: #d4edda;
+            color: #155724;
+        }
+        .deploying {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .icon {
+            font-size: 1.5em;
+            margin-right: 15px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 75%;
+            animation: progress 2s ease-in-out;
+        }
+        @keyframes progress {
+            from { width: 0%; }
+            to { width: 75%; }
+        }
+        .eta {
+            text-align: center;
+            font-size: 1.1em;
+            color: #666;
+            margin-top: 20px;
+        }
+        .demo-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            transition: background 0.3s;
+        }
+        .demo-link:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 SIMISAI Demo Status</h1>
+        
+        <div class="status-item ready">
+            <span class="icon">✅</span>
+            <span>Frontend (React + Astro): Ready</span>
+        </div>
+        
+        <div class="status-item ready">
+            <span class="icon">✅</span>
+            <span>Backend API (Node.js): Ready</span>
+        </div>
+        
+        <div class="status-item ready">
+            <span class="icon">✅</span>
+            <span>Database (PostgreSQL): Ready</span>
+        </div>
+        
+        <div class="status-item deploying">
+            <span class="icon">🔄</span>
+            <span>AI Model (Sealion LLM): Deploying...</span>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+        
+        <div class="eta">
+            <strong>ETA: 10-15 minutes</strong><br>
+            <small>Large language models require significant resources to deploy</small>
+        </div>
+        
+        <a href="#" class="demo-link" onclick="alert('Demo will be available once AI model is deployed!')">
+            🚀 Start Live Demo
+        </a>
+    </div>
+</body>
+</html>
