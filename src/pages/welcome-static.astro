@@ -1,0 +1,112 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StaticHeader from '../components/StaticHeader.astro';
+---
+
+<Layout title="Welcome to SIMIS">
+  <div class="min-h-screen bg-gradient-to-br from-[#1E1B4B] to-[#312E81] flex flex-col items-center justify-center">
+    <div class="flex justify-center pt-16">
+      <div class="text-center">
+        <h1 class="text-5xl font-bold mb-6">
+          Welcome to <span class="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">SIMIS</span>
+        </h1>
+        <p class="text-white/70 text-lg mb-4">Your AI-powered medical device guidance assistant</p>
+      </div>
+    </div>
+    
+    <div class="flex items-center justify-center min-h-[60vh]">
+      <div class="w-full max-w-6xl border border-border rounded-3xl px-12 py-20 mx-auto">
+        <h2 class="text-3xl font-bold text-white mb-8 text-center">Configure session</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2 mb-6">
+          <!-- Device Selection -->
+          <div class="rounded-lg border text-card-foreground shadow-sm bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
+            <div class="p-6 px-6 py-3">
+              <div class="flex items-center space-x-3 cursor-pointer">
+                <div class="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span></span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-bold text-white">Digital thermometer</p>
+                </div>
+                <div class="text-white/50">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Language Selection -->
+          <div class="rounded-lg border text-card-foreground shadow-sm bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
+            <div class="p-6 px-6 py-3">
+              <div class="flex items-center space-x-3 cursor-pointer">
+                <div class="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span></span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-bold text-white">English</p>
+                </div>
+                <div class="text-white/50">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Guidance Style -->
+          <div class="rounded-lg border text-card-foreground shadow-sm bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
+            <div class="p-6 px-6 py-3">
+              <div class="flex items-center space-x-3 cursor-pointer">
+                <div class="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span></span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-bold text-white">Direct instructions</p>
+                </div>
+                <div class="text-white/50">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Voice Option -->
+          <div class="rounded-lg border text-card-foreground shadow-sm bg-card/50 border-border backdrop-blur-sm hover:bg-card/70 transition-all duration-300 relative">
+            <div class="p-6 px-6 py-3">
+              <div class="flex items-center space-x-3 cursor-pointer">
+                <div class="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span></span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-bold text-white">Female</p>
+                </div>
+                <div class="text-white/50">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center space-y-4">
+          <div class="flex justify-center space-x-8">
+            <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-11 bg-transparent text-white font-semibold px-6 py-3 text-md rounded-xl border border-border hover:border-white/60 transition-all duration-300">
+              How it works
+            </button>
+            <button class="inline-flex justify-center gap-2 whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none h-11 bg-primary hover:bg-white text-white hover:text-primary font-semibold px-6 py-3 text-md rounded-xl disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-200 border border-primary hover:border-white items-center">
+              Start
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

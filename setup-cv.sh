@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Setting up SIMIS AI CV Environment..."
+echo "🚀 Setting up SIMIS CV Environment..."
 
 # Check if Python is installed
 if ! command -v python3 &> /dev/null; then

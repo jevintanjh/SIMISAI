@@ -5,16 +5,9 @@ import { storage } from "./storage";
 import { insertChatMessageSchema, insertGuidanceSessionSchema } from "@shared/schema";
 import { z } from "zod";
 import { cvService } from "./cv-service";
-import { cvServiceHF } from "./cv-service-hf";
-import { cvServiceRemote } from "./cv-service-remote";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
-  // Log selected CV backend at startup
-  const cvMode = process.env.CV_REMOTE_URL
-    ? `remote (${process.env.CV_REMOTE_URL})`
-    : (process.env.HF_SPACES_URL ? `hf (${process.env.HF_SPACES_URL})` : 'local');
-  console.log(`[CV] Selected backend: ${cvMode}`);
   
   // Setup WebSocket for real-time chat on a specific path to avoid conflicts
   const wss = new WebSocketServer({ 
@@ -253,12 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('CV detection request received');
       console.log('Image data length:', imageData.length);
       
-      // Prefer remote microservice if configured, else HF if configured, else local
-      const service = process.env.CV_REMOTE_URL
-        ? cvServiceRemote
-        : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
-      console.log('[CV] detect using:', process.env.CV_REMOTE_URL ? 'remote' : (process.env.HF_SPACES_URL ? 'hf' : 'local'));
-      const result = await service.detectObjectsFromBase64(imageData);
+      const result = await cvService.detectObjectsFromBase64(imageData);
       
       console.log('CV detection completed');
       console.log('Detections found:', result.detections.length);
@@ -277,25 +265,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/cv/health', async (req, res) => {
     try {
       console.log('CV health check requested');
-
-      const service = process.env.CV_REMOTE_URL
-        ? cvServiceRemote
-        : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
-      console.log('[CV] health using:', process.env.CV_REMOTE_URL ? 'remote' : (process.env.HF_SPACES_URL ? 'hf' : 'local'));
-
-      const isHealthy = await service.healthCheck();
-      const modelInfo = service.getModelInfo?.() ?? { model_type: 'unknown' };
-
+      
+      const isHealthy = await cvService.healthCheck();
+      const modelInfo = cvService.getModelInfo();
+      
       console.log('CV health check result:', { isHealthy, modelInfo });
-
+      
       res.json({
         healthy: isHealthy,
         model_info: modelInfo,
         timestamp: new Date().toISOString(),
         environment: {
           NODE_ENV: process.env.NODE_ENV,
-          CV_REMOTE_URL: process.env.CV_REMOTE_URL ? 'SET' : 'NOT_SET',
-          HF_SPACES_URL: process.env.HF_SPACES_URL ? 'SET' : 'NOT_SET',
           CV_MODEL_PATH: process.env.CV_MODEL_PATH,
           HUGGINGFACE_TOKEN: process.env.HUGGINGFACE_TOKEN ? 'SET' : 'NOT_SET'
         }
@@ -319,11 +300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // For real-time streaming, you might want to implement WebSocket
       // This is a placeholder for future real-time detection
-      const service = process.env.CV_REMOTE_URL
-        ? cvServiceRemote
-        : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
-      console.log('[CV] stream using:', process.env.CV_REMOTE_URL ? 'remote' : (process.env.HF_SPACES_URL ? 'hf' : 'local'));
-      const result = await service.detectObjectsFromBase64(imageData);
+      const result = await cvService.detectObjectsFromBase64(imageData);
       res.json(result);
     } catch (error) {
       console.error('CV stream error:', error);
@@ -373,9 +350,8 @@ async function generateSealionResponse(args: { sessionId: string; userMessage: s
       {
         role: "system",
         content: [
-          "You are SIMIS AI, a multilingual medical device assistant.",
-          "- Detect the language of the user's most recent message and respond strictly in that same language.",
-          "- Do not translate the user's message into a different language.",
+          "You are SIMIS, a multilingual medical device assistant.",
+          `- Answer strictly in the user's language (ISO code: ${language}). Do not switch languages.`,
           "- Explain step-by-step, short and clear.",
           "- If safety-critical, recommend checking the device manual and consulting a clinician.",
           "- Keep responses under 120 words.",
@@ -387,12 +363,7 @@ async function generateSealionResponse(args: { sessionId: string; userMessage: s
       { role: "user", content: userMessage }
     ];
 
-    // Normalize base URL (handle trailing slash and accidental /v1)
-    const normalizedBase = (apiBaseUrl || '')
-      .trim()
-      .replace(/\/+$/, '')
-      .replace(/\/v1$/i, '');
-    const endpoint = `${normalizedBase}/v1/chat/completions`;
+    const endpoint = `${apiBaseUrl.replace(/\/$/, "")}/v1/chat/completions`;
     console.log('[chat] Calling Sealion:', { endpoint, model });
     const res = await fetch(endpoint, {
       method: "POST",

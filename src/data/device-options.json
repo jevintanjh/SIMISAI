@@ -1,0 +1,27 @@
+{
+  "deviceTypes": [
+    { "value": "thermometer", "label": "Type", "icon": "🌡️", "enabled": true },
+    { "value": "ear", "label": "Ear thermometer", "icon": "👂", "enabled": false },
+    { "value": "forehead", "label": "Forehead thermometer", "icon": "🤒", "enabled": false },
+    { "value": "blood-pressure", "label": "Blood pressure monitor", "icon": "🩸", "enabled": false },
+    { "value": "glucose", "label": "Blood glucose meter", "icon": "🍬", "enabled": false }
+  ],
+  "deviceBrands": [
+    { "value": "omron", "label": "Omron" },
+    { "value": "braun", "label": "Braun" },
+    { "value": "exergen", "label": "Exergen" },
+    { "value": "vicks", "label": "Vicks" },
+    { "value": "kinsa", "label": "Kinsa" },
+    { "value": "thermoworks", "label": "ThermoWorks" }
+  ],
+  "deviceModels": [
+    { "value": "mc-246", "label": "MC-246", "brand": "omron" },
+    { "value": "mc-245", "label": "MC-245", "brand": "omron" },
+    { "value": "thermoscan-7", "label": "ThermoScan 7", "brand": "braun" },
+    { "value": "thermoscan-5", "label": "ThermoScan 5", "brand": "braun" },
+    { "value": "temporal-artery", "label": "Temporal Artery", "brand": "exergen" },
+    { "value": "smart-thermometer", "label": "Smart Thermometer", "brand": "vicks" },
+    { "value": "quickcare", "label": "QuickCare", "brand": "kinsa" },
+    { "value": "dot", "label": "Dot", "brand": "thermoworks" }
+  ]
+}
