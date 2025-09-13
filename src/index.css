@@ -236,3 +236,14 @@
     transform: translateX(0); 
   }
 }
+
+@keyframes glow {
+  0% { 
+    box-shadow: 0 0 35px rgba(139, 92, 246, 0.9);
+    border-color: rgba(139, 92, 246, 1);
+  }
+  100% { 
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+    border-color: rgba(139, 92, 246, 0.8);
+  }
+}
