@@ -59,6 +59,11 @@ test-security-payload.json
 security-response.json
 response.json
 test-response.json
+test-*.json
+test-*.html
+
+# TorchServe Model Archives
+*.mar
 
 # AWS Deployment Archives
 *.zip
