@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+import subprocess
+import sys
+import os
+
+def main():
+    """
+    SageMaker serve entry point
+    """
+    # Set environment variables for Gunicorn
+    os.environ.setdefault('GUNICORN_CMD_ARGS', '--bind=0.0.0.0:8080 --workers=1 --timeout=300')
+    
+    # Start the Flask app with Gunicorn
+    cmd = [
+        'gunicorn',
+        '--bind=0.0.0.0:8080',
+        '--workers=1',  # Single worker for the large model
+        '--timeout=300',  # 5 minute timeout for inference
+        '--worker-class=sync',
+        'predictor:app'
+    ]
+    
+    print("Starting SageMaker inference server...")
+    print(f"Command: {' '.join(cmd)}")
+    
+    # Change to the program directory
+    os.chdir('/opt/program')
+    
+    # Execute gunicorn
+    subprocess.run(cmd)
+
+if __name__ == '__main__':
+    main()

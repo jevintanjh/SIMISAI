@@ -68,7 +68,16 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
       ["/api/chat", sessionId],
       (oldMessages: ChatMessage[] = []) => {
         console.log('Adding message to chat:', newMessage.message);
-        return [...oldMessages, newMessage.message];
+        console.log('Current messages before adding:', oldMessages.length);
+        // Ensure we don't add duplicate messages
+        const existingIds = oldMessages.map(msg => msg.id);
+        if (!existingIds.includes(newMessage.message.id)) {
+          const newMessages = [...oldMessages, newMessage.message];
+          console.log('New messages after adding:', newMessages.length);
+          return newMessages;
+        }
+        console.log('Duplicate message detected, not adding');
+        return oldMessages;
       }
     );
   });
@@ -81,6 +90,11 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
     }
   }, [isOpen, hasShownWelcome, messages.length, sessionId, queryClient]);
 
+  // Debug: Log messages when they change
+  useEffect(() => {
+    console.log('FloatingChat messages updated:', messages);
+  }, [messages]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -88,32 +102,6 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
   const handleSend = () => {
     if (!message.trim()) return;
 
-<<<<<<< Updated upstream
-    // Add message to local state immediately for better UX
-    const newMessage = {
-      id: Date.now(),
-      isUser: true,
-      message: message
-    };
-    
-    queryClient.setQueryData(
-      ["/api/chat", sessionId],
-      (oldMessages: any[] = []) => [...oldMessages, newMessage]
-    );
-
-    // Try to send via WebSocket if connected
-    if (isConnected) {
-      sendMessage({
-        type: 'chat_message',
-        sessionId,
-        content: message,
-        language
-      });
-    } else {
-      // Fallback: show a message that we're not connected
-      console.warn('WebSocket not connected, message saved locally only');
-    }
-=======
     console.log('Sending message:', message);
     setIsTyping(true);
 
@@ -137,13 +125,13 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
 
     // Send message to backend
     console.log('Calling sendMessage with:', { type: 'chat_message', sessionId, content: message, language });
+    console.log('WebSocket connection status:', isConnected);
     sendMessage({
       type: 'chat_message',
       sessionId,
       content: message,
       language
     });
->>>>>>> Stashed changes
 
     setMessage("");
     // Keep suggestions visible so users can scroll back to them
@@ -301,12 +289,17 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
                   {/* Chat Messages */}
                   {messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-                      <div className={`rounded-lg p-3 ${
+                      <div className={`rounded-lg p-3 max-w-[80%] ${
                         msg.isUser 
                           ? 'bg-white/10 text-white' 
-                          : 'text-white'
+                          : 'bg-white/5 text-white border border-white/20'
                       }`}>
-                        <div className="text-sm whitespace-pre-wrap">{msg.message}</div>
+                        <div className="text-sm whitespace-pre-wrap" dangerouslySetInnerHTML={{
+                          __html: msg.message
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/\n/g, '<br/>')
+                            .replace(/•/g, '&bull;')
+                        }} />
                       </div>
                     </div>
                   ))}
@@ -340,24 +333,6 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
                   placeholder="Ask a question..."
                   className="flex-1 text-sm rounded-lg min-w-0"
                 />
-<<<<<<< Updated upstream
-                <Button
-                  onClick={handleSend}
-                  disabled={!message.trim()}
-                  size="sm"
-                  className="medical-blue hover:bg-white hover:text-primary rounded-lg w-10 h-10 p-0 flex-shrink-0"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
-                <Button
-                  onClick={handleVoiceInput}
-                  size="sm"
-                  variant="outline"
-                  className={`rounded-lg w-10 h-10 p-0 flex-shrink-0 ${isListening ? 'bg-red-100 border-red-300 hover:bg-red-200' : 'bg-gray-100 hover:bg-gray-200'}`}
-                >
-                  <Mic className={`w-4 h-4 ${isListening ? 'text-red-600' : 'text-gray-600'}`} />
-                </Button>
-=======
                 <div className="flex space-x-1 flex-shrink-0">
                   <Button
                     onClick={handleSend}
@@ -377,7 +352,6 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
                     <Mic className={`w-4 h-4 ${isListening ? 'text-red-600' : 'text-gray-600'}`} />
                   </Button>
                 </div>
->>>>>>> Stashed changes
               </div>
             </div>
           </CardContent>

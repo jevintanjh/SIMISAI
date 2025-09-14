@@ -70,7 +70,17 @@ export function useWebSocket(onMessage?: (message: any) => void) {
   };
 
   useEffect(() => {
-    connect();
+    // Check if we're in production
+    const isProduction = window.location.hostname.includes('cloudfront.net') || 
+                       window.location.hostname.includes('amazonaws.com');
+    
+    // Only try to connect WebSocket in development
+    if (!isProduction) {
+      connect();
+    } else {
+      console.log('Production mode: Skipping WebSocket connection, using HTTP API');
+      setIsConnected(true); // Mark as connected since we'll use HTTP
+    }
     
     return () => {
       if (reconnectTimeoutRef.current) {
@@ -87,9 +97,9 @@ export function useWebSocket(onMessage?: (message: any) => void) {
     const isProduction = window.location.hostname.includes('cloudfront.net') || 
                        window.location.hostname.includes('amazonaws.com');
     
-    // In production, always use HTTP fallback since WebSocket isn't configured
+    // In production, always use HTTP since WebSocket isn't configured
     if (isProduction && message.type === 'chat_message') {
-      console.log('Using HTTP fallback for chat message:', message.content);
+      console.log('Using HTTP API for chat message:', message.content);
       try {
         const response = await fetch('https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/chat', {
           method: 'POST',
@@ -104,6 +114,8 @@ export function useWebSocket(onMessage?: (message: any) => void) {
           })
         });
         
+        console.log('HTTP response status:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
           console.log('Chat response received:', data);
@@ -112,7 +124,7 @@ export function useWebSocket(onMessage?: (message: any) => void) {
           onMessage?.({
             type: 'chat_message',
             message: {
-              id: Date.now(),
+              id: Date.now() + Math.random(), // Ensure unique ID
               sessionId: message.sessionId,
               message: data.response,
               isUser: false,
@@ -122,10 +134,35 @@ export function useWebSocket(onMessage?: (message: any) => void) {
           });
         } else {
           console.error('Chat API failed:', response.status, response.statusText);
+          // Still try to show an error message
+          onMessage?.({
+            type: 'chat_message',
+            message: {
+              id: Date.now() + Math.random(),
+              sessionId: message.sessionId,
+              message: `Sorry, I'm having trouble connecting right now. Please try again.`,
+              isUser: false,
+              language: message.language,
+              timestamp: new Date().toISOString()
+            }
+          });
         }
       } catch (error) {
-        console.error('HTTP fallback failed:', error);
+        console.error('HTTP API failed:', error);
+        // Show error message to user
+        onMessage?.({
+          type: 'chat_message',
+          message: {
+            id: Date.now() + Math.random(),
+            sessionId: message.sessionId,
+            message: `Connection error: ${error.message}`,
+            isUser: false,
+            language: message.language,
+            timestamp: new Date().toISOString()
+          }
+        });
       }
+      return; // Don't try WebSocket in production
     } else if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       // Use WebSocket in development
       wsRef.current.send(JSON.stringify(message));
