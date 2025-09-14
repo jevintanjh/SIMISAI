@@ -31,6 +31,15 @@ export default defineConfig({
         '@assets': new URL('./attached_assets', import.meta.url).pathname,
       },
     },
+    server: {
+      proxy: {
+        '/api': 'http://localhost:3001',
+        '/chat-ws': {
+          target: 'ws://localhost:3001',
+          ws: true,
+        },
+      },
+    },
   },
   // Configure the public directory
   publicDir: './attached_assets',

@@ -1,19 +1,67 @@
-node_modules
-dist
-.DS_Store
-server/public
-vite.config.ts.*
-*.tar.gz
+# Dependencies
+node_modules/
+*.pnp
+.pnp.js
+
+# Production builds
+dist/
+build/
+.astro/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+logs/
 server-dev.log
 server-prod.log
 vite-dev.log
 
-cv_model/data
-# cv_model/models
-yolov8l.pt
-.env
-
-#logs
-*.log
-logs/
+# Temporary folders
+tmp/
 temp/
+.tmp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# CV Model files and data
+cv_model/data/
+cv_model/models/*.pt
+yolov8l.pt
+
+# AWS and deployment files
+*.pem
+*.key
+AWSCLIV2.pkg
+
+# Claude AI files
+CLAUDE.md
+HANDOVER.md
+
+# Build artifacts
+*.tar.gz
+vite.config.ts.*
+server/public
+
+# Package manager files
+.pnpm-debug.log*
+pnpm-lock.yaml.backup
