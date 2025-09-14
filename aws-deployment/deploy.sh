@@ -137,7 +137,7 @@ deploy_frontend() {
         --output text)
     
     # Sync to S3
-    aws s3 sync dist/ s3://$BUCKET_NAME --delete
+    aws s3 sync dist/ s3://$BUCKET_NAME --delete --exclude "sealion_model/*"
     
     # Invalidate CloudFront cache
     DISTRIBUTION_ID=$(aws cloudformation describe-stacks \

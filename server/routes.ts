@@ -33,12 +33,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const message = JSON.parse(data.toString());
         
         if (message.type === 'chat_message') {
-          // Save user message
+          // Enhanced language context processing
+          const languageContext = {
+            selectedLanguage: message.language || 'en',
+            deviceType: message.deviceType || 'general',
+            languagePreference: message.languagePreference || 'strict',
+            sessionContext: message.context || {}
+          };
+
+          console.log('Processing chat message with language context:', languageContext);
+
+          // Save user message with enhanced context
           const userMessage = await storage.createChatMessage({
             sessionId: message.sessionId,
             message: message.content,
             isUser: true,
-            language: message.language || 'en'
+            language: languageContext.selectedLanguage,
+            deviceType: languageContext.deviceType,
+            metadata: {
+              languagePreference: languageContext.languagePreference,
+              context: languageContext.sessionContext
+            }
           });
           
           // Broadcast user message
@@ -51,17 +66,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           });
           
-          // Generate AI response via Sealion AI (with safe fallback)
+          // Generate AI response with enhanced language context
           const aiResponse = await generateSealionResponse({
             sessionId: message.sessionId,
             userMessage: message.content,
-            language: message.language || 'en'
+            language: languageContext.selectedLanguage,
+            deviceType: languageContext.deviceType,
+            languagePreference: languageContext.languagePreference,
+            context: languageContext.sessionContext
           });
           const aiMessage = await storage.createChatMessage({
             sessionId: message.sessionId,
             message: aiResponse,
             isUser: false,
-            language: message.language || 'en'
+            language: languageContext.selectedLanguage,
+            deviceType: languageContext.deviceType,
+            metadata: {
+              languagePreference: languageContext.languagePreference,
+              context: languageContext.sessionContext
+            }
           });
           
           // Broadcast AI response
@@ -314,8 +337,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
-async function generateSealionResponse(args: { sessionId: string; userMessage: string; language: string; extraContext?: string }): Promise<string> {
-  const { sessionId, userMessage, language, extraContext } = args;
+async function generateSealionResponse(args: { 
+  sessionId: string; 
+  userMessage: string; 
+  language: string; 
+  deviceType?: string;
+  languagePreference?: string;
+  context?: any;
+  extraContext?: string 
+}): Promise<string> {
+  const { sessionId, userMessage, language, deviceType, languagePreference, context, extraContext } = args;
 
   const apiKey = process.env.SEALION_API_KEY;
   const apiBaseUrl = process.env.SEALION_API_URL || process.env.OPENAI_BASE_URL;
@@ -346,16 +377,47 @@ async function generateSealionResponse(args: { sessionId: string; userMessage: s
       }
     } catch {}
 
+    // Enhanced language-specific and device-specific prompts
+    const languagePrompts = {
+      'id': {
+        instruction: `Jawab dalam bahasa Indonesia untuk perangkat medis. Gunakan istilah medis yang tepat dalam bahasa Indonesia.`,
+        deviceContext: deviceType ? `Perangkat: ${deviceType}` : ''
+      },
+      'th': {
+        instruction: `ตอบเป็นภาษาไทยสำหรับอุปกรณ์ทางการแพทย์ ใช้คำศัพท์ทางการแพทย์ที่เหมาะสมในภาษาไทย`,
+        deviceContext: deviceType ? `อุปกรณ์: ${deviceType}` : ''
+      },
+      'fil': {
+        instruction: `Sagutin sa Filipino para sa medical device. Gumamit ng angkop na medical terminology sa Filipino.`,
+        deviceContext: deviceType ? `Device: ${deviceType}` : ''
+      },
+      'vi': {
+        instruction: `Trả lời bằng tiếng Việt cho thiết bị y tế. Sử dụng thuật ngữ y tế phù hợp bằng tiếng Việt.`,
+        deviceContext: deviceType ? `Thiết bị: ${deviceType}` : ''
+      },
+      'ms': {
+        instruction: `Jawab dalam bahasa Melayu untuk peranti perubatan. Gunakan terminologi perubatan yang sesuai dalam bahasa Melayu.`,
+        deviceContext: deviceType ? `Peranti: ${deviceType}` : ''
+      }
+    };
+
+    const languagePrompt = languagePrompts[language as keyof typeof languagePrompts] || {
+      instruction: `Answer in the user's language (${language}). Use appropriate medical terminology.`,
+      deviceContext: deviceType ? `Device: ${deviceType}` : ''
+    };
+
     const messages = [
       {
         role: "system",
         content: [
           "You are SIMIS, a multilingual medical device assistant.",
-          `- Answer strictly in the user's language (ISO code: ${language}). Do not switch languages.`,
+          `- ${languagePrompt.instruction}`,
+          `- Language preference: ${languagePreference || 'strict'}`,
           "- Explain step-by-step, short and clear.",
           "- If safety-critical, recommend checking the device manual and consulting a clinician.",
           "- Keep responses under 120 words.",
-          deviceContext ? `\n${deviceContext}` : '',
+          languagePrompt.deviceContext,
+          deviceContext ? `\nCurrent device context: ${deviceContext}` : '',
           extraContext ? `\n${extraContext}` : ''
         ].filter(Boolean).join('\n')
       },

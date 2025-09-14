@@ -144,12 +144,12 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
   const handleSmartDefaultsStart = () => {
     const deviceType = modalDeviceInfo ? modalDeviceInfo.type : selectedDevice;
     const config: SessionConfig = {
-      language: autoDetectLanguage(),
+      language: showAdvancedView ? language : autoDetectLanguage(), // Use selected language if in advanced view
       device: deviceType,
       deviceBrand: "",
       deviceModel: "",
-      guidanceStyle: "gentle",
-      voiceOption: "female"
+      guidanceStyle: showAdvancedView ? guidanceStyle : "gentle", // Use selected style if in advanced view
+      voiceOption: showAdvancedView ? voiceOption : "female" // Use selected voice if in advanced view
     };
     setModalDeviceInfo(null); // Clear modal info
     onStartSession(config);

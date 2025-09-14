@@ -92,3 +92,26 @@ aws-deployment/lambda/status-service/index-simple.js
 aws-deployment/lambda/status-service/package-lock.json
 aws-deployment/lambda/status-service/package.json
 aws-deployment/lambda/status-service/status-service.zip
+
+# Development Tools and Agents (NOT for production deployment)
+ml-exp/
+ml-exp-*
+SIMIS-DEV-TOOLS/
+dev-tools/
+monitoring-agents/
+troubleshooting-tools/
+ml-optimization/
+ai-agents/
+development-agents/
+*.dev-agent/
+*.monitoring/
+*.troubleshooting/
+
+# Development and Testing Tools
+test-agents/
+debug-agents/
+optimization-tools/
+performance-monitors/
+system-diagnostics/
+ml-debugging/
+ai-testing/

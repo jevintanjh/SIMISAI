@@ -1,0 +1,9 @@
+{
+    "httpMethod": "POST",
+    "path": "/chat",
+    "headers": {
+        "Content-Type": "application/json"
+    },
+    "body": "{\"message\": \"Hello, can you help me with medical device troubleshooting?\", \"language\": \"English\"}"
+}
+

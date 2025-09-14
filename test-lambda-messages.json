@@ -1,0 +1,9 @@
+{
+    "messages": [
+        {
+            "role": "user",
+            "content": "Hello, can you help me with medical device troubleshooting?"
+        }
+    ]
+}
+
