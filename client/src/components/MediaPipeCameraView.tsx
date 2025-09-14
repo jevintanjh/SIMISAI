@@ -48,8 +48,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
   const [detections, setDetections] = useState<DetectionResult[]>([]);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [imageSize, setImageSize] = useState<[number, number]>([640, 480]);
-  const lastRunRef = useRef<number>(0);
-  const DETECTION_INTERVAL = 500; // ms - 2 seconds to reduce server load while keeping video smooth
+  const detectionInProgressRef = useRef<boolean>(false);
 
   // Color mapping for different classes
   const getClassColor = (className: string): string => {
@@ -117,88 +116,6 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
     return () => clearInterval(renderInterval);
   }, [isCameraActive]);
 
-  // Separate detection loop (runs at lower frequency)
-  useEffect(() => {
-    if (!isDetecting || !isCameraActive || !videoRef.current) return;
-
-    const detectFrame = async () => {
-      const now = Date.now();
-      if (now - lastRunRef.current < DETECTION_INTERVAL) return;
-      lastRunRef.current = now;
-
-      if (isProcessing) return;
-      setIsProcessing(true);
-
-      try {
-        const canvas = canvasRef.current;
-        const video = videoRef.current;
-        
-        if (!canvas || !video) {
-          setIsProcessing(false);
-          return;
-        }
-
-        // Create a temporary canvas for detection (don't interfere with video rendering)
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = canvas.height;
-        const tempCtx = tempCanvas.getContext('2d');
-        
-        if (!tempCtx) {
-          setIsProcessing(false);
-          return;
-        }
-
-        // Draw current video frame to temporary canvas
-        tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
-        
-        // Get image data as base64
-        const imageData = tempCanvas.toDataURL('image/jpeg', 0.8);
-        const base64Data = imageData.split(',')[1];
-
-        // Call CV API
-        const response = await fetch('/api/cv/detect', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            imageData: base64Data,
-            sessionId: sessionId || 'default-session'
-          }),
-        });
-
-        if (response.ok) {
-          const result: CVResponse = await response.json();
-          
-          if (result.detections && result.detections.length > 0) {
-            setDetections(result.detections);
-            
-            // Call the callback with detection results
-            if (onThermometerDetected) {
-              onThermometerDetected(result.detections);
-            }
-
-            // Draw bounding boxes (this will persist until next detection)
-            drawBoundingBoxes(result.detections);
-          } else {
-            setDetections([]);
-            clearBoundingBoxes();
-          }
-        } else {
-          console.error('CV API error:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Detection error:', error);
-      } finally {
-        setIsProcessing(false);
-      }
-    };
-
-    const interval = setInterval(detectFrame, DETECTION_INTERVAL);
-    return () => clearInterval(interval);
-  }, [isDetecting, isCameraActive, onThermometerDetected, sessionId]);
-
   // Draw bounding boxes on overlay canvas
   const drawBoundingBoxes = useCallback((detections: DetectionResult[]) => {
     const overlayCanvas = overlayCanvasRef.current;
@@ -245,6 +162,102 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
     }
   }, []);
 
+  // Detection function that processes the latest frame
+  const processLatestFrame = useCallback(async () => {
+    if (!isDetecting || !isCameraActive || !videoRef.current || detectionInProgressRef.current) {
+      return;
+    }
+
+    detectionInProgressRef.current = true;
+    setIsProcessing(true);
+
+    try {
+      const canvas = canvasRef.current;
+      const video = videoRef.current;
+      
+      if (!canvas || !video) {
+        return;
+      }
+
+      // Create a temporary canvas for detection (don't interfere with video rendering)
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      
+      if (!tempCtx) {
+        return;
+      }
+
+      // Draw current video frame to temporary canvas (always get the latest frame)
+      tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+      
+      // Get image data as base64
+      const imageData = tempCanvas.toDataURL('image/jpeg', 0.8);
+      const base64Data = imageData.split(',')[1];
+
+      console.log('Sending frame for detection at:', new Date().toISOString());
+
+      // Call CV API
+      const response = await fetch('/api/cv/detect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageData: base64Data,
+          sessionId: sessionId || 'default-session'
+        }),
+      });
+
+      if (response.ok) {
+        const result: CVResponse = await response.json();
+        
+        console.log('Detection result received at:', new Date().toISOString());
+        console.log('Processing time:', result.processing_time, 'ms');
+        
+        if (result.detections && result.detections.length > 0) {
+          setDetections(result.detections);
+          
+          // Call the callback with detection results
+          if (onThermometerDetected) {
+            onThermometerDetected(result.detections);
+          }
+
+          // Draw bounding boxes (this will persist until next detection)
+          drawBoundingBoxes(result.detections);
+        } else {
+          setDetections([]);
+          clearBoundingBoxes();
+        }
+      } else {
+        console.error('CV API error:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Detection error:', error);
+    } finally {
+      setIsProcessing(false);
+      detectionInProgressRef.current = false;
+      
+      // Schedule next detection only after current one completes
+      // This ensures we always get the latest frame and avoid queuing
+      if (isDetecting && isCameraActive) {
+        // Use requestAnimationFrame for better timing control
+        requestAnimationFrame(() => {
+          processLatestFrame();
+        });
+      }
+    }
+  }, [isDetecting, isCameraActive, onThermometerDetected, sessionId, canvasRef, videoRef, drawBoundingBoxes, clearBoundingBoxes]);
+
+  // Start detection when conditions are met
+  useEffect(() => {
+    if (isDetecting && isCameraActive && !detectionInProgressRef.current) {
+      console.log('Starting detection loop');
+      processLatestFrame();
+    }
+  }, [isDetecting, isCameraActive, processLatestFrame]);
+
   const handleCameraToggle = useCallback(() => {
     if (isCameraActive) {
       stopCamera();
@@ -252,6 +265,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
       setIsDetecting(false);
       setDetections([]);
       clearBoundingBoxes();
+      detectionInProgressRef.current = false;
     } else {
       startCamera();
       setIsCameraActive(true);
@@ -263,11 +277,16 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
   }, [isCameraActive, startCamera, stopCamera, clearBoundingBoxes]);
 
   const handleDetectionToggle = useCallback(() => {
-    setIsDetecting(!isDetecting);
-    if (!isDetecting) {
+    const newDetectingState = !isDetecting;
+    setIsDetecting(newDetectingState);
+    
+    if (!newDetectingState) {
+      // Stop detection
       setDetections([]);
       clearBoundingBoxes();
+      detectionInProgressRef.current = false;
     }
+    // If starting detection, the useEffect will handle starting processLatestFrame
   }, [isDetecting, clearBoundingBoxes]);
 
   const handleReset = useCallback(() => {
