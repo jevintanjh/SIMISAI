@@ -1,0 +1,1 @@
+{"statusCode":200,"body":"{\"message\":\"Database setup completed successfully\",\"database\":\"simisai_guidance\",\"tables\":[\"device_types\",\"supported_languages\",\"guidance_styles\",\"guidance_steps\",\"guidance_content\"],\"timestamp\":\"2025-09-14T16:42:42.965Z\"}"}

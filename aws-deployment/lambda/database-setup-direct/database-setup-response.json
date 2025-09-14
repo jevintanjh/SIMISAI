@@ -1,0 +1,1 @@
+{"statusCode":500,"body":"{\"error\":\"Database setup failed\",\"message\":\"connect ETIMEDOUT 172.31.79.252:5432\",\"timestamp\":\"2025-09-14T16:34:24.388Z\"}"}
