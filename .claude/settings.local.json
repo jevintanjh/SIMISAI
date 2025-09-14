@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git pull:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm run check:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(timeout 10s npm run dev:vite)",
+      "Bash(npx vite:*)",
+      "Bash(git checkout:*)",
+      "Bash(aws:*)",
+      "Bash(docker:*)",
+      "Bash(zip:*)",
+      "Bash(cat:*)",
+      "Bash(cmd:*)",
+      "Bash(curl:*)",
+      "Bash(powershell:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

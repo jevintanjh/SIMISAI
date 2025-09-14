@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMISAI Chat Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a2e; color: white; }
+        .chat-container { max-width: 600px; margin: 0 auto; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 8px; }
+        .user-message { background: #16213e; text-align: right; }
+        .ai-message { background: #0f3460; }
+        .input-container { display: flex; gap: 10px; margin-top: 20px; }
+        input { flex: 1; padding: 10px; border: 1px solid #555; border-radius: 4px; background: #16213e; color: white; }
+        button { padding: 10px 20px; background: #8b5cf6; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #065f46; color: #d1fae5; }
+        .error { background: #7f1d1d; color: #fecaca; }
+        .debug { background: #1e3a8a; color: #dbeafe; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>SIMISAI Chat Test</h1>
+        <div id="status" class="status"></div>
+        <div id="debug" class="status debug" style="display: none;"></div>
+        <div id="messages"></div>
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Type your message..." />
+            <button onclick="sendMessage()">Send</button>
+            <button onclick="toggleDebug()">Debug</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/chat';
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const statusDiv = document.getElementById('status');
+        const debugDiv = document.getElementById('debug');
+
+        function log(message) {
+            console.log(message);
+            debugDiv.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+        }
+
+        function toggleDebug() {
+            debugDiv.style.display = debugDiv.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function showStatus(message, isError = false) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${isError ? 'error' : 'success'}`;
+        }
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            messageDiv.textContent = content;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            log(`Sending message: ${message}`);
+            addMessage(message, true);
+            messageInput.value = '';
+
+            try {
+                showStatus('Sending message...');
+                
+                const requestBody = {
+                    messages: [{
+                        role: 'user',
+                        content: message
+                    }]
+                };
+                
+                log(`Request body: ${JSON.stringify(requestBody)}`);
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                log(`Response status: ${response.status} ${response.statusText}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                log(`Response data: ${JSON.stringify(data, null, 2)}`);
+
+                // Add AI response
+                addMessage(data.response || 'No response received');
+                showStatus(`Message sent successfully. Provider: ${data.provider?.provider || 'Unknown'}`);
+
+            } catch (error) {
+                log(`Error: ${error.message}`);
+                addMessage(`Error: ${error.message}`);
+                showStatus(`Error: ${error.message}`, true);
+            }
+        }
+
+        // Allow Enter key to send message
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initial test message
+        addMessage("Hello! This is a test of the SIMISAI chat system. Try sending a message!");
+        log("Chat test initialized");
+    </script>
+</body>
+</html>
