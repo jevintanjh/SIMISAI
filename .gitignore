@@ -17,3 +17,7 @@ yolov8l.pt
 *.log
 logs/
 temp/
+
+CLAUDE.md
+AWSCLIV2.pkg
+models
