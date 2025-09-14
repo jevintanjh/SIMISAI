@@ -28,6 +28,49 @@ async function callOpenAI(messages) {
     return data.choices[0].message.content;
 }
 
+/**
+ * Call AI Singapore SEA-LION API as final fallback
+ */
+async function callAISingaporeSealion(prompt, language) {
+    try {
+        console.log('Calling AI Singapore SEA-LION API...');
+        
+        const response = await fetch('https://api.aisingapore.org/sealion/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer sk-RAeP4ckOeiPR8eCRNEz7TQ`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'sealion-27b',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are SEA-LION, an advanced AI assistant specialized in medical device troubleshooting and ASEAN language support. Provide helpful, accurate, and concise responses.'
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                max_tokens: 500,
+                temperature: 0.7
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`AI Singapore API error: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        return data.choices[0].message.content;
+        
+    } catch (error) {
+        console.error('AI Singapore SEA-LION API error:', error);
+        throw error;
+    }
+}
+
 exports.handler = async (event) => {
     try {
         console.log('Event received:', JSON.stringify(event, null, 2));
@@ -47,8 +90,17 @@ exports.handler = async (event) => {
         
         const { messages } = body;
         
+        // Validate messages array
+        if (!messages || !Array.isArray(messages) || messages.length === 0) {
+            throw new Error('Invalid or empty messages array');
+        }
+        
         // Extract the last user message
         const lastMessage = messages[messages.length - 1];
+        if (!lastMessage || !lastMessage.content) {
+            throw new Error('Invalid message format - missing content');
+        }
+        
         const userInput = lastMessage.content;
         
         // Detect language with refined ASEAN algorithm
@@ -94,33 +146,49 @@ exports.handler = async (event) => {
                     aseanLanguages: ['Chinese (Mandarin)', 'Thai', 'Vietnamese', 'Bahasa Malay', 'Indonesian']
                 };
             } catch (openaiError) {
-                console.log('OpenAI fallback failed, using local responses:', openaiError.message);
+                console.log('OpenAI fallback failed, trying AI Singapore SEA-LION API:', openaiError.message);
                 
-                // Final fallback to refined mock responses
-                const fallbackResponse = generateRefinedASEANResponse(userInput, language);
-                
-                // Handle new response format with clarification needs
-                if (typeof fallbackResponse === 'object' && fallbackResponse.needsClarification) {
-                    response = fallbackResponse.response;
+                // Try AI Singapore SEA-LION API as final fallback
+                try {
+                    const aiSingaporeResponse = await callAISingaporeSealion(userInput, language);
+                    response = aiSingaporeResponse;
                     providerInfo = {
-                        provider: 'SIMISAI ASEAN Refined',
-                        status: 'Clarification Mode',
-                        note: 'SEA-LION temporarily unavailable - asking for clarification',
-                        detectedLanguage: language,
-                        supportedLanguages: ['English', 'Mandarin', 'Indonesian', 'Malay', 'Thai', 'Vietnamese', 'Tagalog', 'Tamil', 'Khmer', 'Lao', 'Burmese'],
-                        aseanLanguages: ['Chinese (Mandarin)', 'Thai', 'Vietnamese', 'Bahasa Malay', 'Indonesian'],
-                        needsClarification: true
-                    };
-                } else {
-                    response = fallbackResponse;
-                    providerInfo = {
-                        provider: 'SIMISAI ASEAN Refined',
-                        status: 'Fallback Mode',
-                        note: 'SEA-LION temporarily unavailable - using refined ASEAN responses',
+                        provider: 'AI Singapore SEA-LION API',
+                        status: 'Final Fallback Mode',
+                        note: 'SageMaker and OpenAI unavailable - using AI Singapore SEA-LION API',
                         detectedLanguage: language,
                         supportedLanguages: ['English', 'Mandarin', 'Indonesian', 'Malay', 'Thai', 'Vietnamese', 'Tagalog', 'Tamil', 'Khmer', 'Lao', 'Burmese'],
                         aseanLanguages: ['Chinese (Mandarin)', 'Thai', 'Vietnamese', 'Bahasa Malay', 'Indonesian']
                     };
+                } catch (aiSingaporeError) {
+                    console.log('AI Singapore SEA-LION API failed, using local responses:', aiSingaporeError.message);
+                    
+                    // Final fallback to refined mock responses
+                    const fallbackResponse = generateRefinedASEANResponse(userInput, language);
+                    
+                    // Handle new response format with clarification needs
+                    if (typeof fallbackResponse === 'object' && fallbackResponse.needsClarification) {
+                        response = fallbackResponse.response;
+                        providerInfo = {
+                            provider: 'SIMISAI ASEAN Refined (Local)',
+                            status: 'Emergency Mode',
+                            note: 'All AI providers unavailable - using local responses',
+                            detectedLanguage: language,
+                            supportedLanguages: ['English', 'Mandarin', 'Indonesian', 'Malay', 'Thai', 'Vietnamese', 'Tagalog', 'Tamil', 'Khmer', 'Lao', 'Burmese'],
+                            aseanLanguages: ['Chinese (Mandarin)', 'Thai', 'Vietnamese', 'Bahasa Malay', 'Indonesian'],
+                            needsClarification: true
+                        };
+                    } else {
+                        response = fallbackResponse;
+                        providerInfo = {
+                            provider: 'SIMISAI ASEAN Refined (Local)',
+                            status: 'Emergency Mode',
+                            note: 'All AI providers unavailable - using local responses',
+                            detectedLanguage: language,
+                            supportedLanguages: ['English', 'Mandarin', 'Indonesian', 'Malay', 'Thai', 'Vietnamese', 'Tagalog', 'Tamil', 'Khmer', 'Lao', 'Burmese'],
+                            aseanLanguages: ['Chinese (Mandarin)', 'Thai', 'Vietnamese', 'Bahasa Malay', 'Indonesian']
+                        };
+                    }
                 }
             }
         }
@@ -163,6 +231,12 @@ exports.handler = async (event) => {
  * Improved Indonesian vs Malay distinction
  */
 function detectRefinedASEANLanguage(text) {
+    // Validate input
+    if (!text || typeof text !== 'string') {
+        console.log('Invalid text input for language detection, defaulting to English');
+        return 'English';
+    }
+    
     // Remove extra whitespace and normalize
     const normalizedText = text.trim();
     const textLower = normalizedText.toLowerCase();

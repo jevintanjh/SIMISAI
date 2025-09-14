@@ -1,0 +1,6 @@
+{
+    "prompt": "Hello, can you help me with medical device troubleshooting?",
+    "max_tokens": 100,
+    "temperature": 0.7
+}
+

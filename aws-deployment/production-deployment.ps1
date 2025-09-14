@@ -43,7 +43,7 @@ Write-Host "`n🌐 Step 2: Deploying frontend to S3..." -ForegroundColor Yellow
 
 # Upload all built files
 Write-Host "Uploading built files to S3..." -ForegroundColor Yellow
-aws s3 sync ./dist/public/ s3://$S3Bucket/ --delete
+aws s3 sync ./dist/public/ s3://$S3Bucket/ --delete --exclude "sealion_model/*"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ S3 upload failed!" -ForegroundColor Red

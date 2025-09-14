@@ -1,0 +1,16 @@
+{
+    "ModelName": "simisai-sealion-torchserve-model-v8",
+    "PrimaryContainer": {
+        "Image": "763104351884.dkr.ecr.us-east-1.amazonaws.com/pytorch-inference:2.0.0-cpu-py310-ubuntu20.04-sagemaker",
+        "ModelDataUrl": "s3://simis-model-storage/sealion_model/sealion-v1.1.mar",
+        "Mode": "SingleModel",
+        "Environment": {
+            "TS_MODEL_NAME": "sealion",
+            "TS_MODEL_VERSION": "1.1",
+            "TS_DEFAULT_MODEL_NAME": "sealion",
+            "TS_INSTALL_PY_DEPENDENCIES": "true"
+        }
+    },
+    "ExecutionRoleArn": "arn:aws:iam::710743745504:role/SageMakerExecutionRole"
+}
+

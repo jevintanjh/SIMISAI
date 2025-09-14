@@ -1,0 +1,13 @@
+{
+    "EndpointConfigName": "simisai-sealion-torchserve-config-v8",
+    "ProductionVariants": [
+        {
+            "VariantName": "primary",
+            "ModelName": "simisai-sealion-torchserve-model-v8",
+            "InitialInstanceCount": 1,
+            "InstanceType": "ml.m5.2xlarge",
+            "InitialVariantWeight": 1.0
+        }
+    ]
+}
+

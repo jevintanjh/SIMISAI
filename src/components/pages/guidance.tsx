@@ -21,6 +21,7 @@ interface Instruction {
   audioUrl: string | null;
   imageUrl: string | null;
   checkpoints: string[] | null;
+  isLoading?: boolean;
 }
 
 interface GuidanceProps {
@@ -91,6 +92,64 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   const [loading, setLoading] = useState(true);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
+  // Get multilingual loading messages
+  const getLoadingMessages = (language: string) => {
+    const messages = {
+      en: {
+        loadingStep: "Loading step",
+        pleaseWait: "Please wait while we load the instruction...",
+        loadingInstructions: "Loading instructions..."
+      },
+      id: {
+        loadingStep: "Memuat langkah",
+        pleaseWait: "Silakan tunggu sementara kami memuat instruksi...",
+        loadingInstructions: "Memuat instruksi..."
+      },
+      ms: {
+        loadingStep: "Memuat langkah",
+        pleaseWait: "Sila tunggu sementara kami memuatkan arahan...",
+        loadingInstructions: "Memuatkan arahan..."
+      },
+      th: {
+        loadingStep: "กำลังโหลดขั้นตอน",
+        pleaseWait: "กรุณารอสักครู่ขณะที่เรากำลังโหลดคำแนะนำ...",
+        loadingInstructions: "กำลังโหลดคำแนะนำ..."
+      },
+      vi: {
+        loadingStep: "Đang tải bước",
+        pleaseWait: "Vui lòng đợi trong khi chúng tôi tải hướng dẫn...",
+        loadingInstructions: "Đang tải hướng dẫn..."
+      },
+      fil: {
+        loadingStep: "Naglo-load na hakbang",
+        pleaseWait: "Mangyaring maghintay habang naglo-load kami ng mga tagubilin...",
+        loadingInstructions: "Naglo-load na mga tagubilin..."
+      },
+      my: {
+        loadingStep: "အဆင့်ကို ဖွင့်နေသည်",
+        pleaseWait: "လမ်းညွှန်ချက်များကို ဖွင့်နေစဉ် ကျေးဇူးပြု၍ စောင့်ဆိုင်းပါ...",
+        loadingInstructions: "လမ်းညွှန်ချက်များကို ဖွင့်နေသည်..."
+      },
+      lo: {
+        loadingStep: "ກຳລັງໂຫຼດຂັ້ນຕອນ",
+        pleaseWait: "ກະລຸນາລໍຖ້າສັ້ນໆ ຂະນະທີ່ພວກເຮົາກຳລັງໂຫຼດຄຳແນະນຳ...",
+        loadingInstructions: "ກຳລັງໂຫຼດຄຳແນະນຳ..."
+      },
+      km: {
+        loadingStep: "កំពុងផ្ទុកជំហាន",
+        pleaseWait: "សូមរង់ចាំបន្តិច ខណៈដែលយើងកំពុងផ្ទុកការណែនាំ...",
+        loadingInstructions: "កំពុងផ្ទុកការណែនាំ..."
+      },
+      bn: {
+        loadingStep: "Memuat langkah",
+        pleaseWait: "Sila tunggu sementara kami memuatkan arahan...",
+        loadingInstructions: "Memuatkan arahan..."
+      }
+    };
+    
+    return messages[language as keyof typeof messages] || messages.en;
+  };
+
   // Fetch AI-generated instructions from server
   useEffect(() => {
     const fetchInstructions = async () => {
@@ -102,15 +161,40 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                            window.location.hostname.includes('amazonaws.com');
         
         if (isProduction) {
-          // In production, use AI-generated guidance API
+          // In production, use AI-generated guidance API with optimized loading
           const deviceType = config.device === 'thermometer' ? 'digital_oral_thermometer' : 
                            config.device === 'ear' ? 'digital_ear_thermometer' : 
                            config.device === 'blood-pressure' ? 'blood_pressure_monitor' : 'digital_oral_thermometer';
           
+          // Initialize with empty instructions structure
           const instructions: Instruction[] = [];
+          setTotalSteps(5); // Set total steps immediately
           
-          // Fetch AI-generated instructions for all 5 steps
+          // Create placeholder instructions for all 5 steps
+          const loadingMessages = getLoadingMessages(config.language);
           for (let step = 1; step <= 5; step++) {
+            instructions.push({
+              id: step.toString(),
+              deviceId: deviceType,
+              stepNumber: step,
+              title: `${loadingMessages.loadingStep} ${step}...`,
+              description: loadingMessages.pleaseWait,
+              translations: { [config.language]: { title: `${loadingMessages.loadingStep} ${step}...`, description: loadingMessages.pleaseWait } },
+              audioUrl: null,
+              imageUrl: null,
+              checkpoints: [],
+              isLoading: true
+            });
+          }
+          
+          setInstructions(instructions);
+          if (instructions.length > 0) {
+            setCurrentInstruction(instructions[0]);
+          }
+          setLoading(false); // Show UI immediately
+          
+          // Load instructions in parallel with lazy loading
+          const loadStepInstruction = async (step: number) => {
             try {
               const response = await fetch(
                 `https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/guidance/${deviceType}/${step}?language=${config.language}&style=${config.guidanceStyle}`
@@ -118,7 +202,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
               
               if (response.ok) {
                 const data = await response.json();
-                instructions.push({
+                const updatedInstruction = {
                   id: step.toString(),
                   deviceId: deviceType,
                   stepNumber: step,
@@ -127,23 +211,57 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                   translations: { [config.language]: { title: data.title, description: data.description } },
                   audioUrl: null,
                   imageUrl: null,
-                  checkpoints: data.checkpoints || []
-                });
+                  checkpoints: data.checkpoints || [],
+                  isLoading: false
+                };
+                
+                // Update the specific instruction
+                setInstructions(prev => prev.map(inst => 
+                  inst.stepNumber === step ? updatedInstruction : inst
+                ));
+                
+                // If this is the current step, update it
+                setCurrentInstruction(prev => 
+                  prev?.stepNumber === step ? updatedInstruction : prev
+                );
               } else {
                 // Fallback to default instruction
-                instructions.push(getDefaultInstruction(deviceType, step, config.language));
+                const defaultInst = getDefaultInstruction(deviceType, step, config.language);
+                const fallbackInstruction = {
+                  ...defaultInst,
+                  isLoading: false
+                };
+                
+                setInstructions(prev => prev.map(inst => 
+                  inst.stepNumber === step ? fallbackInstruction : inst
+                ));
+                
+                setCurrentInstruction(prev => 
+                  prev?.stepNumber === step ? fallbackInstruction : prev
+                );
               }
             } catch (error) {
               console.error(`Failed to fetch step ${step}:`, error);
-              instructions.push(getDefaultInstruction(deviceType, step, config.language));
+              const defaultInst = getDefaultInstruction(deviceType, step, config.language);
+              const fallbackInstruction = {
+                ...defaultInst,
+                isLoading: false
+              };
+              
+              setInstructions(prev => prev.map(inst => 
+                inst.stepNumber === step ? fallbackInstruction : inst
+              ));
+              
+              setCurrentInstruction(prev => 
+                prev?.stepNumber === step ? fallbackInstruction : prev
+              );
             }
-          }
+          };
           
-          setInstructions(instructions);
-          setTotalSteps(instructions.length);
-          if (instructions.length > 0) {
-            setCurrentInstruction(instructions[0]);
-          }
+          // Load all steps in parallel (much faster!)
+          const loadPromises = Array.from({ length: 5 }, (_, i) => loadStepInstruction(i + 1));
+          await Promise.allSettled(loadPromises);
+          
         } else {
           // In development, fetch from local server
           const devicesResponse = await fetch('/api/devices');
@@ -434,23 +552,35 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                        <p className="text-sm text-muted-foreground">Loading instructions...</p>
+                        <p className="text-sm text-muted-foreground">{getLoadingMessages(config.language).loadingInstructions}</p>
                       </div>
                     </div>
                   ) : instruction ? (
-                    <InstructionCard 
-                      language={config.language}
-                      sessionId="guidance-session"
-                      currentStep={currentStep}
-                      totalSteps={totalSteps}
-                      title={instruction.title}
-                      description={instruction.description}
-                      checkpoints={instruction.checkpoints}
-                      onNextStep={handleNextStep}
-                      onPreviousStep={handlePreviousStep}
-                      canGoNext={currentStep < totalSteps}
-                      canGoPrevious={currentStep > 1}
-                    />
+                    <div>
+                      {currentInstruction?.isLoading && (
+                        <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                          <div className="flex items-center space-x-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                            <span className="text-sm text-blue-400">
+                              {getLoadingMessages(config.language).loadingStep} {currentStep}...
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      <InstructionCard 
+                        language={config.language}
+                        sessionId="guidance-session"
+                        currentStep={currentStep}
+                        totalSteps={totalSteps}
+                        title={instruction.title}
+                        description={instruction.description}
+                        checkpoints={instruction.checkpoints}
+                        onNextStep={handleNextStep}
+                        onPreviousStep={handlePreviousStep}
+                        canGoNext={currentStep < totalSteps}
+                        canGoPrevious={currentStep > 1}
+                      />
+                    </div>
                   ) : (
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center">
@@ -490,6 +620,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                   <FloatingChat 
                     sessionId="guidance-session"
                     language={config.language}
+                    deviceType={config.device}
                     showToggleButton={false}
                   />
                 </div>

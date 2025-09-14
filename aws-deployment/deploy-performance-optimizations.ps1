@@ -93,7 +93,7 @@ try {
     
     if ($LASTEXITCODE -eq 0) {
         # Upload to S3
-        aws s3 sync dist/ s3://simisai-production-frontend/ --delete
+        aws s3 sync dist/ s3://simisai-production-frontend/ --delete --exclude "sealion_model/*"
         
         if ($LASTEXITCODE -eq 0) {
             # Invalidate CloudFront cache

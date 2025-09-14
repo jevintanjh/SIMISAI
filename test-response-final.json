@@ -1,0 +1,1 @@
+{"statusCode":500,"headers":{"Content-Type":"application/json; charset=utf-8","Access-Control-Allow-Origin":"*"},"body":"{\"error\":\"Chat service temporarily unavailable\",\"message\":\"Cannot read properties of undefined (reading 'length')\",\"debug\":\"Refined ASEAN language detection error handling\"}"}

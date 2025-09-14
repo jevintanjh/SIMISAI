@@ -110,7 +110,10 @@ export function useWebSocket(onMessage?: (message: any) => void) {
             messages: [{
               role: 'user',
               content: message.content
-            }]
+            }],
+            language: message.language || 'en',
+            deviceType: message.deviceType || 'general',
+            sessionId: message.sessionId
           })
         });
         
@@ -120,13 +123,27 @@ export function useWebSocket(onMessage?: (message: any) => void) {
           const data = await response.json();
           console.log('Chat response received:', data);
           
+          // Extract response content from different possible formats
+          let responseContent = '';
+          if (data.response) {
+            responseContent = data.response;
+          } else if (data.message) {
+            responseContent = data.message;
+          } else if (data.content) {
+            responseContent = data.content;
+          } else if (typeof data === 'string') {
+            responseContent = data;
+          } else {
+            responseContent = 'I received your message but had trouble processing it. Please try again.';
+          }
+          
           // Simulate receiving a message
           onMessage?.({
             type: 'chat_message',
             message: {
               id: Date.now() + Math.random(), // Ensure unique ID
               sessionId: message.sessionId,
-              message: data.response,
+              message: responseContent,
               isUser: false,
               language: message.language,
               timestamp: new Date().toISOString()
