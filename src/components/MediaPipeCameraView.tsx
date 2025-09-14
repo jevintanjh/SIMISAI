@@ -49,7 +49,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [imageSize, setImageSize] = useState<[number, number]>([640, 480]);
   const lastRunRef = useRef<number>(0);
-  const DETECTION_INTERVAL = 500; // ms - 2 seconds to reduce server load while keeping video smooth
+  const DETECTION_INTERVAL = 2000; // ms - 2 seconds to reduce server load while keeping video smooth
 
   // Color mapping for different classes
   const getClassColor = (className: string): string => {
