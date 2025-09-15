@@ -21,7 +21,15 @@
       "Bash(git push:*)",
       "Bash(git config:*)",
       "Bash(git filter-branch:*)",
-      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter \"git rm --cached --ignore-unmatch sealion.mar\" --prune-empty --tag-name-filter cat -- --all)"
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter \"git rm --cached --ignore-unmatch sealion.mar\" --prune-empty --tag-name-filter cat -- --all)",
+      "Bash(npm run dev:full:*)",
+      "Bash(npm run dev:vite:*)",
+      "Bash(set NODE_ENV=development)",
+      "Bash(tsx:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git rm:*)",
+      "Bash(xargs git rm:*)"
     ],
     "deny": [],
     "ask": []
