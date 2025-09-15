@@ -9,24 +9,25 @@ export function useWebSocket(onMessage?: (message: any) => void) {
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
-      // Check if we're in production
-      const isProduction = window.location.hostname.includes('cloudfront.net') || 
-                          window.location.hostname.includes('amazonaws.com');
+      // Prefer explicit base URL when provided via Vite env
+      const explicitBase = (import.meta as any).env?.VITE_WS_BASE_URL as string | undefined;
 
+      // For macOS localhost development, try explicit base first, then sensible defaults
       let wsUrl: string;
-      if (isProduction) {
-        // In production, use AWS API Gateway WebSocket (if available) or fallback to HTTP
-        wsUrl = 'wss://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/chat-ws';
-      } else {
-        // In development, use local WebSocket
+      if (explicitBase) {
+        wsUrl = `${explicitBase.replace(/\/$/, '')}/chat-ws`;
+      } else if (process.env.NODE_ENV === 'development') {
         const isLocalhost = window.location.hostname === 'localhost' || 
                             window.location.hostname === '127.0.0.1' ||
                             window.location.hostname.includes('localhost');
         if (isLocalhost) {
+          // API runs on 3001 by default in dev
           wsUrl = `${protocol}//localhost:3001/chat-ws`;
         } else {
           wsUrl = `${protocol}//${window.location.host}/chat-ws`;
         }
+      } else {
+        wsUrl = `${protocol}//${window.location.host}/chat-ws`;
       }
       
       console.log('Attempting WebSocket connection to:', wsUrl);
@@ -70,17 +71,7 @@ export function useWebSocket(onMessage?: (message: any) => void) {
   };
 
   useEffect(() => {
-    // Check if we're in production
-    const isProduction = window.location.hostname.includes('cloudfront.net') || 
-                       window.location.hostname.includes('amazonaws.com');
-    
-    // Only try to connect WebSocket in development
-    if (!isProduction) {
-      connect();
-    } else {
-      console.log('Production mode: Skipping WebSocket connection, using HTTP API');
-      setIsConnected(true); // Mark as connected since we'll use HTTP
-    }
+    connect();
     
     return () => {
       if (reconnectTimeoutRef.current) {
@@ -92,99 +83,11 @@ export function useWebSocket(onMessage?: (message: any) => void) {
     };
   }, []);
 
-  const sendMessage = async (message: any) => {
-    // Check if we're in production
-    const isProduction = window.location.hostname.includes('cloudfront.net') || 
-                       window.location.hostname.includes('amazonaws.com');
-    
-    // In production, always use HTTP since WebSocket isn't configured
-    if (isProduction && message.type === 'chat_message') {
-      console.log('Using HTTP API for chat message:', message.content);
-      try {
-        const response = await fetch('https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            messages: [{
-              role: 'user',
-              content: message.content
-            }],
-            language: message.language || 'en',
-            deviceType: message.deviceType || 'general',
-            sessionId: message.sessionId
-          })
-        });
-        
-        console.log('HTTP response status:', response.status);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Chat response received:', data);
-          
-          // Extract response content from different possible formats
-          let responseContent = '';
-          if (data.response) {
-            responseContent = data.response;
-          } else if (data.message) {
-            responseContent = data.message;
-          } else if (data.content) {
-            responseContent = data.content;
-          } else if (typeof data === 'string') {
-            responseContent = data;
-          } else {
-            responseContent = 'I received your message but had trouble processing it. Please try again.';
-          }
-          
-          // Simulate receiving a message
-          onMessage?.({
-            type: 'chat_message',
-            message: {
-              id: Date.now() + Math.random(), // Ensure unique ID
-              sessionId: message.sessionId,
-              message: responseContent,
-              isUser: false,
-              language: message.language,
-              timestamp: new Date().toISOString()
-            }
-          });
-        } else {
-          console.error('Chat API failed:', response.status, response.statusText);
-          // Still try to show an error message
-          onMessage?.({
-            type: 'chat_message',
-            message: {
-              id: Date.now() + Math.random(),
-              sessionId: message.sessionId,
-              message: `Sorry, I'm having trouble connecting right now. Please try again.`,
-              isUser: false,
-              language: message.language,
-              timestamp: new Date().toISOString()
-            }
-          });
-        }
-      } catch (error) {
-        console.error('HTTP API failed:', error);
-        // Show error message to user
-        onMessage?.({
-          type: 'chat_message',
-          message: {
-            id: Date.now() + Math.random(),
-            sessionId: message.sessionId,
-            message: `Connection error: ${error.message}`,
-            isUser: false,
-            language: message.language,
-            timestamp: new Date().toISOString()
-          }
-        });
-      }
-      return; // Don't try WebSocket in production
-    } else if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      // Use WebSocket in development
+  const sendMessage = (message: any) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(message));
     } else {
-      console.warn('WebSocket not connected and not in production mode');
+      console.warn('WebSocket is not connected');
     }
   };
 

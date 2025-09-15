@@ -125,12 +125,8 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
 
   // Toggle advanced view
   const toggleAdvancedView = () => {
-    const newValue = !showAdvancedView;
-    setShowAdvancedView(newValue);
-    localStorage.setItem('simis-advanced-view', newValue.toString());
-    if (onAdvancedModeChange) {
-      onAdvancedModeChange(newValue);
-    }
+    setShowAdvancedView(!showAdvancedView);
+    localStorage.setItem('simis-advanced-view', (!showAdvancedView).toString());
   };
 
   // Handle device selection
@@ -144,12 +140,12 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
   const handleSmartDefaultsStart = () => {
     const deviceType = modalDeviceInfo ? modalDeviceInfo.type : selectedDevice;
     const config: SessionConfig = {
-      language: showAdvancedView ? language : autoDetectLanguage(), // Use selected language if in advanced view
+      language: autoDetectLanguage(),
       device: deviceType,
       deviceBrand: "",
       deviceModel: "",
-      guidanceStyle: showAdvancedView ? guidanceStyle : "gentle", // Use selected style if in advanced view
-      voiceOption: showAdvancedView ? voiceOption : "female" // Use selected voice if in advanced view
+      guidanceStyle: "gentle",
+      voiceOption: "female"
     };
     setModalDeviceInfo(null); // Clear modal info
     onStartSession(config);
@@ -167,7 +163,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
       // Ensure advanced view is false by default
       setShowAdvancedView(false);
     }
-  }, []); // Remove initialAdvancedMode from dependencies to prevent loop
+  }, [initialAdvancedMode]);
 
   const canStart = true;
 
@@ -248,13 +244,12 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [openPopover]);
 
-  // Track advanced mode changes and notify parent (only when user manually toggles)
-  const handleAdvancedModeToggle = (newValue: boolean) => {
-    setShowAdvancedView(newValue);
+  // Track advanced mode changes and notify parent
+  useEffect(() => {
     if (onAdvancedModeChange) {
-      onAdvancedModeChange(newValue);
+      onAdvancedModeChange(showAdvancedView);
     }
-  };
+  }, [showAdvancedView, onAdvancedModeChange]);
 
   // Smart Defaults Screen - Now as a modal overlay with editable settings
   if (showSmartDefaults) {
@@ -680,7 +675,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
               <div className="flex justify-between items-center mb-8">
                 <h3 className="text-xl font-semibold text-white">Advanced Setup</h3>
                 <button
-                  onClick={() => handleAdvancedModeToggle(false)}
+                  onClick={() => setShowAdvancedView(false)}
                   className="flex items-center gap-2 px-4 py-2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-all duration-200 border border-white/20 hover:border-white/40"
                 >
                   <Icon icon="mingcute:arrow-left-line" className="w-4 h-4" />

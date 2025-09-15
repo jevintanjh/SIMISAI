@@ -21,7 +21,6 @@ interface Instruction {
   audioUrl: string | null;
   imageUrl: string | null;
   checkpoints: string[] | null;
-  isLoading?: boolean;
 }
 
 interface GuidanceProps {
@@ -36,50 +35,6 @@ interface SessionConfig {
   voiceOption: string;
 }
 
-// Helper function to get default instruction
-const getDefaultInstruction = (deviceType: string, stepNumber: number, language: string): Instruction => {
-  const defaultInstructions = {
-    'blood_pressure_monitor': {
-      1: { title: 'Prepare the cuff', description: 'Remove the blood pressure cuff from its case and ensure it is clean and properly inflated.' },
-      2: { title: 'Position the cuff', description: 'Wrap the cuff around your upper arm, about 1 inch above your elbow.' },
-      3: { title: 'Start measurement', description: 'Press the start button and remain still during the measurement.' },
-      4: { title: 'Wait for completion', description: 'Keep the cuff in place until you hear a beep or see the measurement complete.' },
-      5: { title: 'Read results', description: 'Read the blood pressure values from the display and record them.' }
-    },
-    'digital_oral_thermometer': {
-      1: { title: 'Prepare thermometer', description: 'Remove the thermometer from its case and ensure it is clean and dry.' },
-      2: { title: 'Turn on device', description: 'Press the power button to turn on the thermometer and wait for the ready indicator.' },
-      3: { title: 'Position under tongue', description: 'Place the thermometer tip under your tongue and close your mouth gently.' },
-      4: { title: 'Wait for measurement', description: 'Keep the thermometer in place until you hear a beep or see the temperature reading.' },
-      5: { title: 'Read and clean', description: 'Read the temperature from the display and clean the thermometer before storing.' }
-    },
-    'digital_ear_thermometer': {
-      1: { title: 'Prepare thermometer', description: 'Remove the thermometer from its case and ensure it is clean and dry.' },
-      2: { title: 'Turn on device', description: 'Press the power button to turn on the thermometer and wait for the ready indicator.' },
-      3: { title: 'Position in ear', description: 'Gently insert the thermometer tip into the ear canal until it fits snugly.' },
-      4: { title: 'Wait for measurement', description: 'Keep the thermometer in place until you hear a beep or see the temperature reading.' },
-      5: { title: 'Read and clean', description: 'Read the temperature from the display and clean the thermometer before storing.' }
-    }
-  };
-  
-  const instruction = defaultInstructions[deviceType as keyof typeof defaultInstructions]?.[stepNumber] || {
-    title: 'Step Instruction',
-    description: 'Please follow the device instructions carefully.'
-  };
-  
-  return {
-    id: stepNumber.toString(),
-    deviceId: deviceType,
-    stepNumber: stepNumber,
-    title: instruction.title,
-    description: instruction.description,
-    translations: { [language]: { title: instruction.title, description: instruction.description } },
-    audioUrl: null,
-    imageUrl: null,
-    checkpoints: ['Complete the step']
-  };
-};
-
 export default function Guidance({ config, onBack }: GuidanceProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [progress, setProgress] = useState(25);
@@ -92,194 +47,33 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   const [loading, setLoading] = useState(true);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-  // Get multilingual loading messages
-  const getLoadingMessages = (language: string) => {
-    const messages = {
-      en: {
-        loadingStep: "Loading step",
-        pleaseWait: "Please wait while we load the instruction...",
-        loadingInstructions: "Loading instructions..."
-      },
-      id: {
-        loadingStep: "Memuat langkah",
-        pleaseWait: "Silakan tunggu sementara kami memuat instruksi...",
-        loadingInstructions: "Memuat instruksi..."
-      },
-      ms: {
-        loadingStep: "Memuat langkah",
-        pleaseWait: "Sila tunggu sementara kami memuatkan arahan...",
-        loadingInstructions: "Memuatkan arahan..."
-      },
-      th: {
-        loadingStep: "กำลังโหลดขั้นตอน",
-        pleaseWait: "กรุณารอสักครู่ขณะที่เรากำลังโหลดคำแนะนำ...",
-        loadingInstructions: "กำลังโหลดคำแนะนำ..."
-      },
-      vi: {
-        loadingStep: "Đang tải bước",
-        pleaseWait: "Vui lòng đợi trong khi chúng tôi tải hướng dẫn...",
-        loadingInstructions: "Đang tải hướng dẫn..."
-      },
-      fil: {
-        loadingStep: "Naglo-load na hakbang",
-        pleaseWait: "Mangyaring maghintay habang naglo-load kami ng mga tagubilin...",
-        loadingInstructions: "Naglo-load na mga tagubilin..."
-      },
-      my: {
-        loadingStep: "အဆင့်ကို ဖွင့်နေသည်",
-        pleaseWait: "လမ်းညွှန်ချက်များကို ဖွင့်နေစဉ် ကျေးဇူးပြု၍ စောင့်ဆိုင်းပါ...",
-        loadingInstructions: "လမ်းညွှန်ချက်များကို ဖွင့်နေသည်..."
-      },
-      lo: {
-        loadingStep: "ກຳລັງໂຫຼດຂັ້ນຕອນ",
-        pleaseWait: "ກະລຸນາລໍຖ້າສັ້ນໆ ຂະນະທີ່ພວກເຮົາກຳລັງໂຫຼດຄຳແນະນຳ...",
-        loadingInstructions: "ກຳລັງໂຫຼດຄຳແນະນຳ..."
-      },
-      km: {
-        loadingStep: "កំពុងផ្ទុកជំហាន",
-        pleaseWait: "សូមរង់ចាំបន្តិច ខណៈដែលយើងកំពុងផ្ទុកការណែនាំ...",
-        loadingInstructions: "កំពុងផ្ទុកការណែនាំ..."
-      },
-      bn: {
-        loadingStep: "Memuat langkah",
-        pleaseWait: "Sila tunggu sementara kami memuatkan arahan...",
-        loadingInstructions: "Memuatkan arahan..."
-      }
-    };
-    
-    return messages[language as keyof typeof messages] || messages.en;
-  };
-
-  // Fetch AI-generated instructions from server
+  // Fetch instructions from server
   useEffect(() => {
     const fetchInstructions = async () => {
       try {
         setLoading(true);
         
-        // Check if we're in production
-        const isProduction = window.location.hostname.includes('cloudfront.net') || 
-                           window.location.hostname.includes('amazonaws.com');
-        
-        if (isProduction) {
-          // In production, use AI-generated guidance API with optimized loading
-          const deviceType = config.device === 'thermometer' ? 'digital_oral_thermometer' : 
-                           config.device === 'ear' ? 'digital_ear_thermometer' : 
-                           config.device === 'blood-pressure' ? 'blood_pressure_monitor' : 'digital_oral_thermometer';
+        // First, get all devices to find the thermometer
+        const devicesResponse = await fetch('/api/devices');
+        if (devicesResponse.ok) {
+          const devices = await devicesResponse.json();
+          const thermometerDevice = devices.find((device: any) => device.type === 'thermometer');
           
-          // Initialize with empty instructions structure
-          const instructions: Instruction[] = [];
-          setTotalSteps(5); // Set total steps immediately
-          
-          // Create placeholder instructions for all 5 steps
-          const loadingMessages = getLoadingMessages(config.language);
-          for (let step = 1; step <= 5; step++) {
-            instructions.push({
-              id: step.toString(),
-              deviceId: deviceType,
-              stepNumber: step,
-              title: `${loadingMessages.loadingStep} ${step}...`,
-              description: loadingMessages.pleaseWait,
-              translations: { [config.language]: { title: `${loadingMessages.loadingStep} ${step}...`, description: loadingMessages.pleaseWait } },
-              audioUrl: null,
-              imageUrl: null,
-              checkpoints: [],
-              isLoading: true
-            });
-          }
-          
-          setInstructions(instructions);
-          if (instructions.length > 0) {
-            setCurrentInstruction(instructions[0]);
-          }
-          setLoading(false); // Show UI immediately
-          
-          // Load instructions in parallel with lazy loading
-          const loadStepInstruction = async (step: number) => {
-            try {
-              const response = await fetch(
-                `https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/guidance/${deviceType}/${step}?language=${config.language}&style=${config.guidanceStyle}`
-              );
-              
-              if (response.ok) {
-                const data = await response.json();
-                const updatedInstruction = {
-                  id: step.toString(),
-                  deviceId: deviceType,
-                  stepNumber: step,
-                  title: data.title,
-                  description: data.description,
-                  translations: { [config.language]: { title: data.title, description: data.description } },
-                  audioUrl: null,
-                  imageUrl: null,
-                  checkpoints: data.checkpoints || [],
-                  isLoading: false
-                };
-                
-                // Update the specific instruction
-                setInstructions(prev => prev.map(inst => 
-                  inst.stepNumber === step ? updatedInstruction : inst
-                ));
-                
-                // If this is the current step, update it
-                setCurrentInstruction(prev => 
-                  prev?.stepNumber === step ? updatedInstruction : prev
-                );
-              } else {
-                // Fallback to default instruction
-                const defaultInst = getDefaultInstruction(deviceType, step, config.language);
-                const fallbackInstruction = {
-                  ...defaultInst,
-                  isLoading: false
-                };
-                
-                setInstructions(prev => prev.map(inst => 
-                  inst.stepNumber === step ? fallbackInstruction : inst
-                ));
-                
-                setCurrentInstruction(prev => 
-                  prev?.stepNumber === step ? fallbackInstruction : prev
-                );
-              }
-            } catch (error) {
-              console.error(`Failed to fetch step ${step}:`, error);
-              const defaultInst = getDefaultInstruction(deviceType, step, config.language);
-              const fallbackInstruction = {
-                ...defaultInst,
-                isLoading: false
-              };
-              
-              setInstructions(prev => prev.map(inst => 
-                inst.stepNumber === step ? fallbackInstruction : inst
-              ));
-              
-              setCurrentInstruction(prev => 
-                prev?.stepNumber === step ? fallbackInstruction : prev
-              );
-            }
-          };
-          
-          // Load all steps in parallel (much faster!)
-          const loadPromises = Array.from({ length: 5 }, (_, i) => loadStepInstruction(i + 1));
-          await Promise.allSettled(loadPromises);
-          
-        } else {
-          // In development, fetch from local server
-          const devicesResponse = await fetch('/api/devices');
-          if (devicesResponse.ok) {
-            const devices = await devicesResponse.json();
-            const thermometerDevice = devices.find((device: any) => device.type === 'thermometer');
-            
-            if (thermometerDevice) {
-              const instructionsResponse = await fetch(`/api/devices/${thermometerDevice.id}/instructions`);
-              if (instructionsResponse.ok) {
-                const data = await instructionsResponse.json();
-                setInstructions(data);
-                setTotalSteps(data.length);
-                if (data.length > 0) {
-                  setCurrentInstruction(data[0]);
-                }
+          if (thermometerDevice) {
+            // Now fetch instructions for the thermometer device
+            const instructionsResponse = await fetch(`/api/devices/${thermometerDevice.id}/instructions`);
+            if (instructionsResponse.ok) {
+              const data = await instructionsResponse.json();
+              setInstructions(data);
+              setTotalSteps(data.length);
+              if (data.length > 0) {
+                setCurrentInstruction(data[0]); // Start with first step
               }
             }
+          } else {
+            console.error('Thermometer device not found');
+            setInstructions([]);
+            setTotalSteps(0);
           }
         }
       } catch (error) {
@@ -552,35 +346,23 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                        <p className="text-sm text-muted-foreground">{getLoadingMessages(config.language).loadingInstructions}</p>
+                        <p className="text-sm text-muted-foreground">Loading instructions...</p>
                       </div>
                     </div>
                   ) : instruction ? (
-                    <div>
-                      {currentInstruction?.isLoading && (
-                        <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                          <div className="flex items-center space-x-2">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                            <span className="text-sm text-blue-400">
-                              {getLoadingMessages(config.language).loadingStep} {currentStep}...
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                      <InstructionCard 
-                        language={config.language}
-                        sessionId="guidance-session"
-                        currentStep={currentStep}
-                        totalSteps={totalSteps}
-                        title={instruction.title}
-                        description={instruction.description}
-                        checkpoints={instruction.checkpoints}
-                        onNextStep={handleNextStep}
-                        onPreviousStep={handlePreviousStep}
-                        canGoNext={currentStep < totalSteps}
-                        canGoPrevious={currentStep > 1}
-                      />
-                    </div>
+                    <InstructionCard 
+                      language={config.language}
+                      sessionId="guidance-session"
+                      currentStep={currentStep}
+                      totalSteps={totalSteps}
+                      title={instruction.title}
+                      description={instruction.description}
+                      checkpoints={instruction.checkpoints}
+                      onNextStep={handleNextStep}
+                      onPreviousStep={handlePreviousStep}
+                      canGoNext={currentStep < totalSteps}
+                      canGoPrevious={currentStep > 1}
+                    />
                   ) : (
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center">
@@ -620,7 +402,6 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                   <FloatingChat 
                     sessionId="guidance-session"
                     language={config.language}
-                    deviceType={config.device}
                     showToggleButton={false}
                   />
                 </div>

@@ -1,9 +1,9 @@
 {
   "deviceTypes": [
-    { "value": "thermometer", "label": "Digital Oral Thermometer", "icon": "🌡️", "enabled": true },
-    { "value": "ear", "label": "Digital Ear Thermometer", "icon": "👂", "enabled": true },
+    { "value": "thermometer", "label": "Type", "icon": "🌡️", "enabled": true },
+    { "value": "ear", "label": "Ear thermometer", "icon": "👂", "enabled": false },
     { "value": "forehead", "label": "Forehead thermometer", "icon": "🤒", "enabled": false },
-    { "value": "blood-pressure", "label": "Blood Pressure Monitor", "icon": "🩸", "enabled": true },
+    { "value": "blood-pressure", "label": "Blood pressure monitor", "icon": "🩸", "enabled": false },
     { "value": "glucose", "label": "Blood glucose meter", "icon": "🍬", "enabled": false }
   ],
   "deviceBrands": [
