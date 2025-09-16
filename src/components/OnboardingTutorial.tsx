@@ -18,7 +18,8 @@ interface OnboardingTutorialProps {
   onSkip: () => void;
 }
 
-const tutorialSteps: TutorialStep[] = [
+// Welcome page tutorial steps
+const welcomeTutorialSteps: TutorialStep[] = [
   {
     id: 'welcome',
     target: 'welcome-title',
@@ -93,12 +94,48 @@ const tutorialSteps: TutorialStep[] = [
   }
 ];
 
+// Guidance page tutorial steps
+const guidanceTutorialSteps: TutorialStep[] = [
+  {
+    id: 'camera-view',
+    target: 'camera-view',
+    title: 'Camera View',
+    description: 'This is your camera view where SIMIS will detect and guide you through using your medical device.',
+    position: 'right',
+    action: 'Position your device in view'
+  },
+  {
+    id: 'instructions-panel',
+    target: 'instructions-panel',
+    title: 'Instructions Panel',
+    description: 'Here you\'ll see step-by-step instructions for your device. Follow along as SIMIS guides you.',
+    position: 'left',
+    action: 'Read the instructions carefully'
+  },
+  {
+    id: 'chat-toggle',
+    target: 'chat-toggle',
+    title: 'Chat with SIMIS',
+    description: 'Click here to switch to chat mode where you can ask questions or get help from SIMIS.',
+    position: 'top',
+    action: 'Try chatting with SIMIS'
+  }
+];
+
 export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: OnboardingTutorialProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
 
+  // Determine which tutorial steps to use based on current page
+  const getTutorialSteps = (): TutorialStep[] => {
+    // Check if we're on the guidance page by looking for guidance-specific elements
+    const hasGuidanceElements = document.querySelector('[data-tutorial="camera-view"]') !== null;
+    return hasGuidanceElements ? guidanceTutorialSteps : welcomeTutorialSteps;
+  };
+
+  const tutorialSteps = getTutorialSteps();
   const currentTutorialStep = tutorialSteps[currentStep];
 
   // Find and position the target element
@@ -109,6 +146,17 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
     if (element) {
       setTargetElement(element);
       updateTooltipPosition(element);
+    } else {
+      // If element not found, center the tooltip in the viewport
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      setTargetElement(null);
+      setTooltipPosition({
+        top: viewportHeight / 2 + scrollTop,
+        left: viewportWidth / 2
+      });
     }
   }, [isVisible, currentStep, currentTutorialStep]);
 
@@ -125,6 +173,8 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
     const rect = element.getBoundingClientRect();
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
 
     let top = rect.top + scrollTop;
     let left = rect.left + scrollLeft;
@@ -147,6 +197,24 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
         top = rect.top + scrollTop + rect.height / 2;
         left = rect.right + scrollLeft + 20;
         break;
+    }
+
+    // Ensure tooltip stays within viewport bounds
+    const tooltipWidth = 320; // max-w-sm = 24rem = 384px, but we'll use 320 for safety
+    const tooltipHeight = 200; // estimated height
+
+    // Horizontal bounds checking
+    if (left < 20) {
+      left = 20;
+    } else if (left + tooltipWidth > viewportWidth - 20) {
+      left = viewportWidth - tooltipWidth - 20;
+    }
+
+    // Vertical bounds checking
+    if (top < 20) {
+      top = 20;
+    } else if (top + tooltipHeight > viewportHeight + scrollTop - 20) {
+      top = viewportHeight + scrollTop - tooltipHeight - 20;
     }
 
     setTooltipPosition({ top, left });
@@ -199,11 +267,13 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
         style={{
           top: tooltipPosition.top,
           left: tooltipPosition.left,
-          transform: currentTutorialStep.position === 'top' || currentTutorialStep.position === 'bottom' 
-            ? 'translateX(-50%)' 
-            : currentTutorialStep.position === 'right' 
-            ? 'translateY(-50%)' 
-            : 'translateY(-50%) translateX(-100%)',
+          transform: targetElement 
+            ? (currentTutorialStep.position === 'top' || currentTutorialStep.position === 'bottom' 
+                ? 'translateX(-50%)' 
+                : currentTutorialStep.position === 'right' 
+                ? 'translateY(-50%)' 
+                : 'translateY(-50%) translateX(-100%)')
+            : 'translate(-50%, -50%)', // Center when no target element
         }}
       >
         <Card className="bg-background border-2 border-primary shadow-2xl">
