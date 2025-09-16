@@ -65,3 +65,31 @@ server/public
 # Package manager files
 .pnpm-debug.log*
 pnpm-lock.yaml.backup
+
+# Database and AWS deployment artifacts
+*test*.json
+*response*.json
+chatman-*.json
+lambda-*.json
+sagemaker-*.json
+security-*.json
+aws-permissions-*.json
+
+# AWS deployment directory (except core configs)
+aws-deployment/lambda/*/package*.json
+aws-deployment/cloudwatch/
+aws-deployment/database/
+aws-deployment/lambda/*/node_modules/
+aws-deployment/lambda/*/*.zip
+*.zip
+
+# Temporary deployment files
+*.mar
+direct-sagemaker-test.json
+simple-test.json
+test-*.json
+refined-*.zip
+hybrid-*.zip
+sealion.mar
+tash
+nul

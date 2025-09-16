@@ -338,7 +338,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
           
           {/* Error message */}
           {error && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center z-50">
               <div className="text-center text-foreground max-w-sm mx-auto px-6">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-destructive/20 flex items-center justify-center">
                   <Icon icon="mingcute:alert-fill" className="w-8 h-8 text-destructive" />
