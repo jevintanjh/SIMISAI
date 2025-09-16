@@ -15,7 +15,7 @@ export default defineConfig({
   ],
   // Configure the build output
   build: {
-    outDir: './dist/public',
+    outDir: './dist',
   },
   // Configure the dev server
   server: {
@@ -31,6 +31,24 @@ export default defineConfig({
         '@assets': new URL('./attached_assets', import.meta.url).pathname,
       },
     },
+    optimizeDeps: {
+      // Exclude problematic dependencies from pre-bundling
+      exclude: [
+        '@mediapipe/tasks-vision',
+        'ws',
+        'bufferutil'
+      ],
+      // Force re-optimization of dependencies
+      force: true
+    },
+    // Clear cache on startup to prevent stale chunk references
+    clearScreen: false,
+    server: {
+      // Ensure proper dependency resolution
+      fs: {
+        strict: false
+      }
+    }
   },
   // Configure the public directory
   publicDir: './attached_assets',
