@@ -77,7 +77,7 @@ const guidanceTutorialSteps: TutorialStep[] = [
     target: 'chat-toggle',
     title: 'Chat with SIMIS',
     description: 'Click here to switch to chat mode where you can ask questions or get help from SIMIS.',
-    position: 'top',
+    position: 'left',
     action: 'Try chatting with SIMIS'
   }
 ];
@@ -107,16 +107,27 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
       setTargetElement(element);
       updateTooltipPosition(element);
     } else {
-      // If element not found, center the tooltip in the viewport
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      
-      setTargetElement(null);
-      setTooltipPosition({
-        top: viewportHeight / 2 + scrollTop,
-        left: viewportWidth / 2
-      });
+      // If element not found, try to find it after a short delay (for dynamic content)
+      const timeoutId = setTimeout(() => {
+        const retryElement = document.querySelector(`[data-tutorial="${currentTutorialStep.target}"]`) as HTMLElement;
+        if (retryElement) {
+          setTargetElement(retryElement);
+          updateTooltipPosition(retryElement);
+        } else {
+          // Still not found, center the tooltip in the viewport
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          
+          setTargetElement(null);
+          setTooltipPosition({
+            top: viewportHeight / 2 + scrollTop,
+            left: viewportWidth / 2
+          });
+        }
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [isVisible, currentStep, currentTutorialStep]);
 
@@ -140,41 +151,43 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
     let left = rect.left + scrollLeft;
 
     // Adjust position based on tooltip position preference
+    const tooltipWidth = 320; // max-w-sm = 24rem = 384px, but we'll use 320 for safety
+    const tooltipHeight = 200; // estimated height
+    const spacing = 20; // Very close spacing - almost touching the element
+
     switch (currentTutorialStep?.position) {
       case 'top':
-        top = rect.top + scrollTop - 20;
+        top = rect.top + scrollTop - tooltipHeight - spacing;
         left = rect.left + scrollLeft + rect.width / 2;
         break;
       case 'bottom':
-        top = rect.bottom + scrollTop + 20;
+        top = rect.bottom + scrollTop + spacing;
         left = rect.left + scrollLeft + rect.width / 2;
         break;
       case 'left':
-        top = rect.top + scrollTop + rect.height / 2;
-        left = rect.left + scrollLeft - 20;
+        top = rect.top + scrollTop + rect.height / 2 - tooltipHeight / 2;
+        left = rect.left + scrollLeft - spacing;
         break;
       case 'right':
-        top = rect.top + scrollTop + rect.height / 2;
-        left = rect.right + scrollLeft + 20;
+        top = rect.top + scrollTop + rect.height / 2 - tooltipHeight / 2;
+        left = rect.right + scrollLeft + spacing;
         break;
     }
 
     // Ensure tooltip stays within viewport bounds
-    const tooltipWidth = 320; // max-w-sm = 24rem = 384px, but we'll use 320 for safety
-    const tooltipHeight = 200; // estimated height
 
-    // Horizontal bounds checking
-    if (left < 20) {
-      left = 20;
-    } else if (left + tooltipWidth > viewportWidth - 20) {
-      left = viewportWidth - tooltipWidth - 20;
+    // Horizontal bounds checking - only adjust if completely out of bounds
+    if (left < 0) {
+      left = 10;
+    } else if (left + tooltipWidth > viewportWidth) {
+      left = viewportWidth - tooltipWidth - 10;
     }
 
-    // Vertical bounds checking
-    if (top < 20) {
-      top = 20;
-    } else if (top + tooltipHeight > viewportHeight + scrollTop - 20) {
-      top = viewportHeight + scrollTop - tooltipHeight - 20;
+    // Vertical bounds checking - only adjust if completely out of bounds
+    if (top < scrollTop) {
+      top = scrollTop + 10;
+    } else if (top + tooltipHeight > viewportHeight + scrollTop) {
+      top = viewportHeight + scrollTop - tooltipHeight - 10;
     }
 
     setTooltipPosition({ top, left });
@@ -202,10 +215,19 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
 
   return (
     <>
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />
+      {/* Full dark overlay with cutout for highlighted element */}
+      {targetElement ? (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40"
+          style={{
+            background: `radial-gradient(ellipse at ${targetElement.getBoundingClientRect().left + window.pageXOffset + targetElement.getBoundingClientRect().width / 2}px ${targetElement.getBoundingClientRect().top + window.pageYOffset + targetElement.getBoundingClientRect().height / 2}px, transparent 0%, transparent 40%, rgba(0, 0, 0, 0.5) 70%)`
+          }}
+        />
+      ) : (
+        <div className="fixed inset-0 bg-black/50 z-40" />
+      )}
       
-      {/* Highlighted element */}
+      {/* Highlighted element border */}
       {targetElement && (
         <div
           className="fixed z-50 pointer-events-none border-2 border-primary rounded-lg"
@@ -214,7 +236,6 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
             left: targetElement.getBoundingClientRect().left + window.pageXOffset - 4,
             width: targetElement.getBoundingClientRect().width + 8,
             height: targetElement.getBoundingClientRect().height + 8,
-            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
           }}
         />
       )}
@@ -238,8 +259,52 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                  <Icon icon="mingcute:lightbulb-line" className="w-5 h-5 text-primary" />
+                <div className="w-8 h-8 relative">
+                  <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 32 32">
+                    {/* Background ring */}
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="none"
+                      className="text-primary/20"
+                    />
+                    {/* Progress segments */}
+                    {tutorialSteps.map((_, index) => {
+                      const segmentAngle = 120; // 360 / 3 segments
+                      const startAngle = index * segmentAngle;
+                      const endAngle = startAngle + segmentAngle;
+                      const isCompleted = index < currentStep;
+                      const isCurrent = index === currentStep;
+                      
+                      const startX = 16 + 14 * Math.cos((startAngle * Math.PI) / 180);
+                      const startY = 16 + 14 * Math.sin((startAngle * Math.PI) / 180);
+                      const endX = 16 + 14 * Math.cos((endAngle * Math.PI) / 180);
+                      const endY = 16 + 14 * Math.sin((endAngle * Math.PI) / 180);
+                      
+                      const largeArcFlag = segmentAngle > 180 ? 1 : 0;
+                      const pathData = `M ${startX} ${startY} A 14 14 0 ${largeArcFlag} 1 ${endX} ${endY}`;
+                      
+                      return (
+                        <path
+                          key={index}
+                          d={pathData}
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          fill="none"
+                          className={`${
+                            isCompleted 
+                              ? 'text-primary' 
+                              : isCurrent 
+                              ? 'text-primary/60' 
+                              : 'text-primary/20'
+                          }`}
+                        />
+                      );
+                    })}
+                  </svg>
                 </div>
                 <div>
                   <h3 className="text-white font-semibold">{currentTutorialStep.title}</h3>
