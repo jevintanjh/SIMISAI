@@ -14,7 +14,7 @@ export function log(message: string, source = "express") {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
+  const distPath = path.resolve(import.meta.dirname, "..", "dist");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
@@ -22,9 +22,19 @@ export function serveStatic(app: Express) {
     );
   }
 
+  // Serve static files from the dist directory
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
+  // Handle specific routes that should serve static HTML files
+  app.get('/how-it-works', (_req, res) => {
+    res.sendFile(path.resolve(distPath, 'how-it-works', 'index.html'));
+  });
+
+  app.get('/welcome-static', (_req, res) => {
+    res.sendFile(path.resolve(distPath, 'welcome-static', 'index.html'));
+  });
+
+  // fall through to index.html for all other routes (SPA behavior)
   app.use("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
