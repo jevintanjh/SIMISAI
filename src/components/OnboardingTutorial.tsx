@@ -271,40 +271,26 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
                       fill="none"
                       className="text-primary/20"
                     />
-                    {/* Progress segments */}
-                    {tutorialSteps.map((_, index) => {
-                      const segmentAngle = 120; // 360 / 3 segments
-                      const startAngle = index * segmentAngle;
-                      const endAngle = startAngle + segmentAngle;
-                      const isCompleted = index < currentStep;
-                      const isCurrent = index === currentStep;
-                      
-                      const startX = 16 + 14 * Math.cos((startAngle * Math.PI) / 180);
-                      const startY = 16 + 14 * Math.sin((startAngle * Math.PI) / 180);
-                      const endX = 16 + 14 * Math.cos((endAngle * Math.PI) / 180);
-                      const endY = 16 + 14 * Math.sin((endAngle * Math.PI) / 180);
-                      
-                      const largeArcFlag = segmentAngle > 180 ? 1 : 0;
-                      const pathData = `M ${startX} ${startY} A 14 14 0 ${largeArcFlag} 1 ${endX} ${endY}`;
-                      
-                      return (
-                        <path
-                          key={index}
-                          d={pathData}
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          fill="none"
-                          className={`${
-                            isCompleted 
-                              ? 'text-primary' 
-                              : isCurrent 
-                              ? 'text-primary/60' 
-                              : 'text-primary/20'
-                          }`}
-                        />
-                      );
-                    })}
+                    {/* Progress ring */}
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="none"
+                      strokeDasharray={`${2 * Math.PI * 14}`}
+                      strokeDashoffset={`${2 * Math.PI * 14 * (1 - (currentStep + 1) / tutorialSteps.length)}`}
+                      className="text-primary"
+                      strokeLinecap="round"
+                    />
                   </svg>
+                  {/* Step number in center */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold text-primary">
+                      {currentStep + 1}
+                    </span>
+                  </div>
                 </div>
                 <div>
                   <h3 className="text-white font-semibold">{currentTutorialStep.title}</h3>
