@@ -23,26 +23,44 @@ function Router({ onShowSessionSummary }: { onShowSessionSummary: () => void }) 
   const [sessionConfig, setSessionConfig] = useState<SessionConfig | null>(null);
   const [wasInAdvancedMode, setWasInAdvancedMode] = useState<boolean>(false);
   const [showTutorial, setShowTutorial] = useState<boolean>(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
-  // Check if user has seen tutorial before - only show on guidance page
+  // Generate a unique session ID when starting a new session
+  const generateSessionId = () => {
+    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
+
+  // Check if tutorial should be shown for this session
   useEffect(() => {
-    const hasSeenTutorial = localStorage.getItem('simis-tutorial-completed');
-    if (!hasSeenTutorial && currentView === 'guidance') {
-      setShowTutorial(true);
+    if (currentView === 'guidance' && currentSessionId) {
+      const sessionTutorialKey = `simis-tutorial-session-${currentSessionId}`;
+      const hasSeenTutorialThisSession = sessionStorage.getItem(sessionTutorialKey);
+      
+      if (!hasSeenTutorialThisSession) {
+        setShowTutorial(true);
+      }
     }
-  }, [currentView]);
+  }, [currentView, currentSessionId]);
 
   const handleTutorialComplete = () => {
     setShowTutorial(false);
-    localStorage.setItem('simis-tutorial-completed', 'true');
+    if (currentSessionId) {
+      const sessionTutorialKey = `simis-tutorial-session-${currentSessionId}`;
+      sessionStorage.setItem(sessionTutorialKey, 'completed');
+    }
   };
 
   const handleTutorialSkip = () => {
     setShowTutorial(false);
-    localStorage.setItem('simis-tutorial-completed', 'true');
+    if (currentSessionId) {
+      const sessionTutorialKey = `simis-tutorial-session-${currentSessionId}`;
+      sessionStorage.setItem(sessionTutorialKey, 'skipped');
+    }
   };
 
   const handleStartSession = (config: SessionConfig) => {
+    const newSessionId = generateSessionId();
+    setCurrentSessionId(newSessionId);
     setSessionConfig(config);
     setCurrentView('guidance');
   };
@@ -50,6 +68,7 @@ function Router({ onShowSessionSummary }: { onShowSessionSummary: () => void }) 
   const handleBackToWelcome = () => {
     setCurrentView('welcome');
     setSessionConfig(null);
+    setCurrentSessionId(null);
     // Keep the advanced mode state when returning from guidance
   };
 
