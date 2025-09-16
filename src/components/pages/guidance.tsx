@@ -323,7 +323,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
       <main className="max-w-8xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[600px]">
           {/* Left Panel: Camera View (2/3 width) */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2" data-tutorial="camera-view">
             <div className="h-full min-h-[600px] rounded-xl overflow-hidden">
               <MediaPipeCameraView 
                 onThermometerDetected={(detection) => {
@@ -337,7 +337,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
           </div>
           
           {/* Right Panel: Instructions + Chat (1/3 width) */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1" data-tutorial="instructions-panel">
             {showInstructions ? (
               <div className="bg-card border border-border rounded-lg shadow-lg p-4 h-full min-h-[600px] flex flex-col">
                 {/* Instruction Card */}
@@ -374,7 +374,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 </div>
                 
                 {/* Toggle to Chat Button */}
-                <div className="mt-4 flex-shrink-0">
+                <div className="mt-4 flex-shrink-0" data-tutorial="chat-toggle">
                   <Button 
                     onClick={toggleInstructions}
                     className="w-full bg-primary text-white hover:bg-primary/90 transition-colors text-sm font-semibold py-4"
@@ -387,7 +387,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
             ) : (
               <div className="bg-card border border-border rounded-lg shadow-lg p-4 h-full min-h-[600px] flex flex-col">
                 {/* Toggle to Instructions Button - Above chat box */}
-                <div className="mb-4 flex-shrink-0">
+                <div className="mb-4 flex-shrink-0" data-tutorial="instructions-toggle">
                   <Button 
                     onClick={toggleInstructions}
                     className="w-full bg-primary text-white hover:bg-primary/90 transition-colors text-sm font-semibold py-4"
