@@ -31,64 +31,24 @@ const welcomeTutorialSteps: TutorialStep[] = [
   {
     id: 'device-selection',
     target: 'device-selection-card',
-    title: 'Device Selection',
-    description: 'Start by selecting your medical device type. We support thermometers, blood pressure monitors, and more.',
+    title: 'Select Your Device',
+    description: 'Choose from our 3 supported devices: Oral Thermometer, Ear Thermometer, or Blood Pressure Monitor.',
     position: 'bottom',
-    action: 'Try selecting a device'
+    action: 'Click on your device type'
   },
   {
-    id: 'device-type',
-    target: 'device-type-card',
-    title: 'Device Category',
-    description: 'Choose the category that best fits your device. This helps us provide more accurate guidance.',
-    position: 'bottom',
-    action: 'Select a category'
-  },
-  {
-    id: 'device-brand',
-    target: 'device-brand-card',
-    title: 'Device Brand',
-    description: 'Select your device brand for model-specific instructions. Popular brands include Omron, Braun, and more.',
-    position: 'bottom',
-    action: 'Choose your brand'
-  },
-  {
-    id: 'device-model',
-    target: 'device-model-card',
-    title: 'Device Model',
-    description: 'Pick your specific device model for the most accurate guidance and troubleshooting.',
-    position: 'bottom',
-    action: 'Select your model'
-  },
-  {
-    id: 'language',
-    target: 'language-card',
-    title: 'Language Selection',
-    description: 'Choose your preferred language for instructions and voice guidance.',
-    position: 'bottom',
-    action: 'Pick your language'
-  },
-  {
-    id: 'guidance-style',
-    target: 'guidance-card',
-    title: 'Guidance Style',
-    description: 'Select how you prefer to receive instructions - direct, gentle, or detailed explanations.',
-    position: 'bottom',
-    action: 'Choose your style'
-  },
-  {
-    id: 'voice-options',
-    target: 'voice-card',
-    title: 'Voice Options',
-    description: 'Choose your preferred voice assistant or text-only mode.',
-    position: 'bottom',
-    action: 'Select voice option'
+    id: 'advanced-toggle',
+    target: 'advanced-toggle',
+    title: 'Advanced Setup',
+    description: 'Need more control? Click here to access advanced settings for language, guidance style, and voice options.',
+    position: 'top',
+    action: 'Try the advanced setup'
   },
   {
     id: 'start-button',
     target: 'start-button',
     title: 'Ready to Start!',
-    description: 'Once you\'ve configured your session, click here to begin your guided experience.',
+    description: 'Once you\'ve selected your device, click here to begin your guided experience.',
     position: 'top',
     action: 'Start your session'
   }
@@ -248,14 +208,12 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
       {/* Highlighted element */}
       {targetElement && (
         <div
-          className="fixed z-50 pointer-events-none"
+          className="fixed z-50 pointer-events-none border-2 border-primary rounded-lg"
           style={{
             top: targetElement.getBoundingClientRect().top + window.pageYOffset - 4,
             left: targetElement.getBoundingClientRect().left + window.pageXOffset - 4,
             width: targetElement.getBoundingClientRect().width + 8,
             height: targetElement.getBoundingClientRect().height + 8,
-            border: '2px solid #3b82f6',
-            borderRadius: '8px',
             boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
           }}
         />
