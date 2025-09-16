@@ -13,7 +13,55 @@ cv_model/data
 yolov8l.pt
 .env
 
+<<<<<<< HEAD
 #logs
 *.log
 logs/
 temp/
+=======
+# AWS and deployment files
+*.pem
+*.key
+AWSCLIV2.pkg
+
+# Claude AI files
+CLAUDE.md
+HANDOVER.md
+
+# Build artifacts
+*.tar.gz
+vite.config.ts.*
+server/public
+
+# Package manager files
+.pnpm-debug.log*
+pnpm-lock.yaml.backup
+
+# Database and AWS deployment artifacts
+*test*.json
+*response*.json
+chatman-*.json
+lambda-*.json
+sagemaker-*.json
+security-*.json
+aws-permissions-*.json
+
+# AWS deployment directory (except core configs)
+aws-deployment/lambda/*/package*.json
+aws-deployment/cloudwatch/
+aws-deployment/database/
+aws-deployment/lambda/*/node_modules/
+aws-deployment/lambda/*/*.zip
+*.zip
+
+# Temporary deployment files
+*.mar
+direct-sagemaker-test.json
+simple-test.json
+test-*.json
+refined-*.zip
+hybrid-*.zip
+sealion.mar
+tash
+nul
+>>>>>>> parent of e7bde04 (Remove large model files from repository tracking)
