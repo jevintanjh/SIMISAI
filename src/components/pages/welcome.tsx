@@ -27,6 +27,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
   const [showSmartDefaults, setShowSmartDefaults] = useState<boolean>(false);
   const [showHowItWorks, setShowHowItWorks] = useState<boolean>(false);
   const [modalDeviceInfo, setModalDeviceInfo] = useState<{type: string, label: string} | null>(null);
+  const [howItWorksSource, setHowItWorksSource] = useState<'welcome' | 'smart-defaults' | null>(null);
   
   // Advanced view states (only used when advanced view is enabled)
   const [language, setLanguage] = useState<string>("en");
@@ -364,7 +365,11 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
               Back
             </Button>
             <Button
-              onClick={() => setShowHowItWorks(true)}
+              onClick={() => {
+                setHowItWorksSource('smart-defaults');
+                setShowSmartDefaults(false);
+                setShowHowItWorks(true);
+              }}
               variant="outline"
               size="sm"
               className="flex-1 text-xs"
@@ -391,7 +396,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
       {/* Hero Section */}
       <div className="flex justify-center pt-16">
         <div className="text-center">
-          <h1 className="text-5xl font-bold mb-6">
+          <h1 id="welcome-title" data-tutorial="welcome-title" className="text-5xl font-bold mb-6">
             Welcome to <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">SIMIS</span>
           </h1>
           <p className="text-white/70 text-lg mb-4">Your AI-powered medical device guidance assistant</p>
@@ -733,7 +738,10 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
           <div className="text-center space-y-4">
             <div className="flex justify-center space-x-8">
               <Button
-                onClick={() => setShowHowItWorks(true)}
+                onClick={() => {
+                  setHowItWorksSource('welcome');
+                  setShowHowItWorks(true);
+                }}
                 variant="outline"
                 size="lg"
                   className="font-semibold text-base hover:bg-white/10 hover:border-white/50"
@@ -758,7 +766,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
 
           {/* How it works Modal */}
           {showHowItWorks && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[70] p-4">
               <div className="bg-background border border-border rounded-2xl p-8 max-w-2xl w-full">
                 <h2 className="text-3xl font-bold text-white text-center mb-4">How SIMIS Works</h2>
                 
@@ -775,7 +783,13 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
                     <Icon icon="mingcute:external-link-line" className="w-4 h-4 ml-2" />
                   </Button>
                   <Button
-                    onClick={() => setShowHowItWorks(false)}
+                    onClick={() => {
+                      setShowHowItWorks(false);
+                      if (howItWorksSource === 'smart-defaults') {
+                        setShowSmartDefaults(true);
+                      }
+                      setHowItWorksSource(null);
+                    }}
                     variant="default"
                   >
                     Got it
