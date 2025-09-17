@@ -53,7 +53,7 @@ export default function MobileOptimizedView({
       {isMobile && (
         <>
           {/* Touch-friendly spacing */}
-          <style jsx>{`
+          <style>{`
             .mobile-optimized {
               -webkit-tap-highlight-color: transparent;
               -webkit-touch-callout: none;

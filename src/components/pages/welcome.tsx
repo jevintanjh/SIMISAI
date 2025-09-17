@@ -26,7 +26,7 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
   const [showAdvancedView, setShowAdvancedView] = useState<boolean>(false);
   const [showSmartDefaults, setShowSmartDefaults] = useState<boolean>(false);
   const [showHowItWorks, setShowHowItWorks] = useState<boolean>(false);
-  const [modalDeviceInfo, setModalDeviceInfo] = useState<{type: string, label: string} | null>(null);
+  const [modalDeviceInfo, setModalDeviceInfo] = useState<{type: string, label: string, brand?: string, model?: string} | null>(null);
   const [howItWorksSource, setHowItWorksSource] = useState<'welcome' | 'smart-defaults' | null>(null);
   
   // Advanced view states (only used when advanced view is enabled)

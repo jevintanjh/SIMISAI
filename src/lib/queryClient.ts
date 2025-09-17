@@ -26,7 +26,7 @@ export async function apiRequest(
 type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
-}) => (context: { queryKey: string[] }) => Promise<T> =
+}) => import('@tanstack/react-query').QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const res = await fetch(queryKey.join("/") as string, {
@@ -44,7 +44,8 @@ export const getQueryFn: <T>(options: {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
+      // Cast to satisfy TanStack Query's broader QueryKey type
+      queryFn: getQueryFn({ on401: "throw" }) as any,
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: Infinity,

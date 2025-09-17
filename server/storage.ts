@@ -336,7 +336,9 @@ export class MemStorage implements IStorage {
       translations: insertInstruction.translations ?? null,
       audioUrl: insertInstruction.audioUrl ?? null,
       imageUrl: insertInstruction.imageUrl ?? null,
-      checkpoints: insertInstruction.checkpoints || null
+      checkpoints: insertInstruction.checkpoints
+        ? Array.from(insertInstruction.checkpoints as string[])
+        : null
     };
     this.instructions.set(id, instruction);
     return instruction;

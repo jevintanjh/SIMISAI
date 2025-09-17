@@ -14,7 +14,8 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  // Use 'any' for cross-browser SpeechRecognition compatibility
+  const recognitionRef = useRef<any | null>(null);
 
   const isSupported = typeof window !== 'undefined' && 'webkitSpeechRecognition' in window;
 
@@ -37,7 +38,7 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
         setError(null);
       };
 
-      recognitionRef.current.onresult = (event) => {
+      recognitionRef.current.onresult = (event: any) => {
         let finalTranscript = '';
         let interimTranscript = '';
 
@@ -53,7 +54,7 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
         setTranscript(finalTranscript || interimTranscript);
       };
 
-      recognitionRef.current.onerror = (event) => {
+      recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setError(`Speech recognition error: ${event.error}`);
         setIsListening(false);
