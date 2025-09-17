@@ -4,7 +4,7 @@ import glob
 import time
 
 # === Config ===
-save_folder = 'data/thermometer_poc2'  # Changed from absolute to relative path
+save_folder = 'data/blood_pressure_poc3'  # Changed from absolute to relative path
 camera_index = 0   # 0 = default webcam. Try 1/2 if you have multiple cameras.
 width, height = 1280, 720  # set to None,None to skip forcing resolution
 
@@ -12,10 +12,16 @@ width, height = 1280, 720  # set to None,None to skip forcing resolution
 os.makedirs(save_folder, exist_ok=True)
 
 # Continue numbering from the highest existing filename
-existing = sorted(glob.glob(os.path.join(save_folder, '*.jpg')))
+existing = glob.glob(os.path.join(save_folder, '*.jpg'))
 if existing:
     try:
-        last_num = int(os.path.splitext(os.path.basename(existing[-1]))[0])
+        # Sort numerically by extracting the number from each filename
+        existing_numbers = []
+        for filepath in existing:
+            filename = os.path.basename(filepath)
+            number = int(os.path.splitext(filename)[0])
+            existing_numbers.append(number)
+        last_num = max(existing_numbers)
     except ValueError:
         last_num = 0
 else:

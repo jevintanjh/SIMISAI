@@ -85,7 +85,6 @@ aws-deployment/lambda/*/*.zip
 
 # Temporary deployment files
 *.mar
-*.gguf
 direct-sagemaker-test.json
 simple-test.json
 test-*.json

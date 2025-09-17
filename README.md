@@ -87,6 +87,20 @@ Preferred communication style: Simple, everyday language.
 - **Date Utilities**: date-fns for localized date formatting
 
 ### Form Management
+- **React Hook Form**: Form state management
+- **Zod**: Schema validation with Drizzle integration
+- **Hookform Resolvers**: Integration between React Hook Form and validation schemas
+
+## Model Performance
+
+The application uses a YOLOv8 model (POC3) trained for medical device detection with 24 classes across thermometers, IR thermometers, and blood pressure monitors.
+
+### Confusion Matrix
+
+![POC3 Model Confusion Matrix](cv_model/models/poc3/confusion_matrix.png)
+
+The confusion matrix shows the model's performance across all 24 device classes, demonstrating strong classification accuracy for medical device detection.
+
 ## Configuration
 
 Set `CV_REMOTE_URL` to point the backend to your CV microservice (preferred):
@@ -96,7 +110,3 @@ CV_REMOTE_URL=https://dockercv.onrender.com
 ```
 
 If `CV_REMOTE_URL` is not set, the server will use `HF_SPACES_URL` when provided; otherwise it falls back to the local Python model.
-
-- **React Hook Form**: Form state management
-- **Zod**: Schema validation with Drizzle integration
-- **Hookform Resolvers**: Integration between React Hook Form and validation schemas

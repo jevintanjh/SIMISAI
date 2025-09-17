@@ -5,9 +5,17 @@ import { storage } from "./storage";
 import { insertChatMessageSchema, insertGuidanceSessionSchema } from "@shared/schema";
 import { z } from "zod";
 import { cvService } from "./cv-service";
+import { cvServiceHF } from "./cv-service-hf";
+import { cvServiceRemote } from "./cv-service-remote";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
+
+  // Log selected CV backend at startup
+  const cvMode = process.env.CV_REMOTE_URL
+    ? `remote (${process.env.CV_REMOTE_URL})`
+    : (process.env.HF_SPACES_URL ? `hf (${process.env.HF_SPACES_URL})` : 'local');
+  console.log(`[CV] Selected backend: ${cvMode}`);
   
   // Setup WebSocket for real-time chat on a specific path to avoid conflicts
   const wss = new WebSocketServer({ 
@@ -33,27 +41,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const message = JSON.parse(data.toString());
         
         if (message.type === 'chat_message') {
-          // Enhanced language context processing
-          const languageContext = {
-            selectedLanguage: message.language || 'en',
-            deviceType: message.deviceType || 'general',
-            languagePreference: message.languagePreference || 'strict',
-            sessionContext: message.context || {}
-          };
-
-          console.log('Processing chat message with language context:', languageContext);
-
-          // Save user message with enhanced context
+          // Save user message
           const userMessage = await storage.createChatMessage({
             sessionId: message.sessionId,
             message: message.content,
             isUser: true,
-            language: languageContext.selectedLanguage,
-            deviceType: languageContext.deviceType,
-            metadata: {
-              languagePreference: languageContext.languagePreference,
-              context: languageContext.sessionContext
-            }
+            language: message.language || 'en'
           });
           
           // Broadcast user message
@@ -66,25 +59,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           });
           
-          // Generate AI response with enhanced language context
+          // Generate AI response via Sealion AI (with safe fallback)
           const aiResponse = await generateSealionResponse({
             sessionId: message.sessionId,
             userMessage: message.content,
-            language: languageContext.selectedLanguage,
-            deviceType: languageContext.deviceType,
-            languagePreference: languageContext.languagePreference,
-            context: languageContext.sessionContext
+            language: message.language || 'en'
           });
           const aiMessage = await storage.createChatMessage({
             sessionId: message.sessionId,
             message: aiResponse,
             isUser: false,
-            language: languageContext.selectedLanguage,
-            deviceType: languageContext.deviceType,
-            metadata: {
-              languagePreference: languageContext.languagePreference,
-              context: languageContext.sessionContext
-            }
+            language: message.language || 'en'
           });
           
           // Broadcast AI response
@@ -268,8 +253,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('CV detection request received');
       console.log('Image data length:', imageData.length);
-      
-      const result = await cvService.detectObjectsFromBase64(imageData);
+
+      // Prefer remote microservice if configured, else HF if configured, else local
+      const service = process.env.CV_REMOTE_URL
+        ? cvServiceRemote
+        : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
+      console.log('[CV] detect using:', process.env.CV_REMOTE_URL ? 'remote' : (process.env.HF_SPACES_URL ? 'hf' : 'local'));
+      const result = await service.detectObjectsFromBase64(imageData);
       
       console.log('CV detection completed');
       console.log('Detections found:', result.detections.length);
@@ -289,8 +279,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('CV health check requested');
       
-      const isHealthy = await cvService.healthCheck();
-      const modelInfo = cvService.getModelInfo();
+      const service = process.env.CV_REMOTE_URL
+        ? cvServiceRemote
+        : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
+      console.log('[CV] health using:', process.env.CV_REMOTE_URL ? 'remote' : (process.env.HF_SPACES_URL ? 'hf' : 'local'));
+
+      const isHealthy = await service.healthCheck();
+      const modelInfo = service.getModelInfo?.() ?? { model_type: 'unknown' };
       
       console.log('CV health check result:', { isHealthy, modelInfo });
       
@@ -300,6 +295,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString(),
         environment: {
           NODE_ENV: process.env.NODE_ENV,
+          CV_REMOTE_URL: process.env.CV_REMOTE_URL ? 'SET' : 'NOT_SET',
+          HF_SPACES_URL: process.env.HF_SPACES_URL ? 'SET' : 'NOT_SET',
           CV_MODEL_PATH: process.env.CV_MODEL_PATH,
           HUGGINGFACE_TOKEN: process.env.HUGGINGFACE_TOKEN ? 'SET' : 'NOT_SET'
         }
@@ -323,7 +320,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // For real-time streaming, you might want to implement WebSocket
       // This is a placeholder for future real-time detection
-      const result = await cvService.detectObjectsFromBase64(imageData);
+      const service = process.env.CV_REMOTE_URL
+        ? cvServiceRemote
+        : (process.env.HF_SPACES_URL ? cvServiceHF : cvService);
+      console.log('[CV] stream using:', process.env.CV_REMOTE_URL ? 'remote' : (process.env.HF_SPACES_URL ? 'hf' : 'local'));
+      const result = await service.detectObjectsFromBase64(imageData);
       res.json(result);
     } catch (error) {
       console.error('CV stream error:', error);
@@ -337,16 +338,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
-async function generateSealionResponse(args: { 
-  sessionId: string; 
-  userMessage: string; 
-  language: string; 
-  deviceType?: string;
-  languagePreference?: string;
-  context?: any;
-  extraContext?: string 
-}): Promise<string> {
-  const { sessionId, userMessage, language, deviceType, languagePreference, context, extraContext } = args;
+async function generateSealionResponse(args: { sessionId: string; userMessage: string; language: string; extraContext?: string }): Promise<string> {
+  const { sessionId, userMessage, language, extraContext } = args;
 
   const apiKey = process.env.SEALION_API_KEY;
   const apiBaseUrl = process.env.SEALION_API_URL || process.env.OPENAI_BASE_URL;
@@ -377,47 +370,16 @@ async function generateSealionResponse(args: {
       }
     } catch {}
 
-    // Enhanced language-specific and device-specific prompts
-    const languagePrompts = {
-      'id': {
-        instruction: `Jawab dalam bahasa Indonesia untuk perangkat medis. Gunakan istilah medis yang tepat dalam bahasa Indonesia.`,
-        deviceContext: deviceType ? `Perangkat: ${deviceType}` : ''
-      },
-      'th': {
-        instruction: `ตอบเป็นภาษาไทยสำหรับอุปกรณ์ทางการแพทย์ ใช้คำศัพท์ทางการแพทย์ที่เหมาะสมในภาษาไทย`,
-        deviceContext: deviceType ? `อุปกรณ์: ${deviceType}` : ''
-      },
-      'fil': {
-        instruction: `Sagutin sa Filipino para sa medical device. Gumamit ng angkop na medical terminology sa Filipino.`,
-        deviceContext: deviceType ? `Device: ${deviceType}` : ''
-      },
-      'vi': {
-        instruction: `Trả lời bằng tiếng Việt cho thiết bị y tế. Sử dụng thuật ngữ y tế phù hợp bằng tiếng Việt.`,
-        deviceContext: deviceType ? `Thiết bị: ${deviceType}` : ''
-      },
-      'ms': {
-        instruction: `Jawab dalam bahasa Melayu untuk peranti perubatan. Gunakan terminologi perubatan yang sesuai dalam bahasa Melayu.`,
-        deviceContext: deviceType ? `Peranti: ${deviceType}` : ''
-      }
-    };
-
-    const languagePrompt = languagePrompts[language as keyof typeof languagePrompts] || {
-      instruction: `Answer in the user's language (${language}). Use appropriate medical terminology.`,
-      deviceContext: deviceType ? `Device: ${deviceType}` : ''
-    };
-
     const messages = [
       {
         role: "system",
         content: [
           "You are SIMIS, a multilingual medical device assistant.",
-          `- ${languagePrompt.instruction}`,
-          `- Language preference: ${languagePreference || 'strict'}`,
+          `- Answer strictly in the user's language (ISO code: ${language}). Do not switch languages.`,
           "- Explain step-by-step, short and clear.",
           "- If safety-critical, recommend checking the device manual and consulting a clinician.",
           "- Keep responses under 120 words.",
-          languagePrompt.deviceContext,
-          deviceContext ? `\nCurrent device context: ${deviceContext}` : '',
+          deviceContext ? `\n${deviceContext}` : '',
           extraContext ? `\n${extraContext}` : ''
         ].filter(Boolean).join('\n')
       },

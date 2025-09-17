@@ -53,18 +53,52 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
 
   // Color mapping for different classes
   const getClassColor = (className: string): string => {
-    const colors: Record<string, string> = {
-      'thermometer (Lo error)': '#EF4444',        // Red
-      'thermometer (measuring)': '#3B82F6',       // Blue
-      'thermometer (no display found)': '#F59E0B', // Amber
-      'thermometer (off)': '#6B7280',             // Gray
-      'thermometer button': '#10B981',            // Green
-      'thermometer in ear': '#8B5CF6',            // Purple
-      'thermometer in mouth': '#EC4899',          // Pink
-      'thermometer in nose': '#6366F1',           // Indigo
-      'thermometer on face': '#F97316',           // Orange
+    // Device category color mapping based on actual POC3 dataset classes
+    const lowerClassName = className.toLowerCase();
+
+    // 1. Thermometer classes (starts with "thermometer") - 9 classes
+    if (lowerClassName.startsWith('thermometer')) {
+      const thermometerColors: Record<string, string> = {
+        'thermometer (lo error)': '#EF4444',        // Red
+        'thermometer (measuring)': '#3B82F6',       // Blue
+        'thermometer (no display found)': '#F59E0B', // Amber
+        'thermometer (off)': '#6B7280',             // Gray
+        'thermometer button': '#10B981',            // Green
+        'thermometer in ear': '#8B5CF6',            // Purple
+        'thermometer in mouth': '#EC4899',          // Pink
+        'thermometer in nose': '#6366F1',           // Indigo
+        'thermometer on face': '#F97316',           // Orange
+      };
+      return thermometerColors[lowerClassName] || '#10B981'; // Default green for unknown thermometer
+    }
+
+    // 2. IR Thermometer classes (starts with "ir thermometer") - 6 classes, colorful variety
+    if (lowerClassName.startsWith('ir thermometer')) {
+      const irThermometerColors: Record<string, string> = {
+        'ir thermometer display': '#06B6D4',         // Cyan
+        'ir thermometer in ear': '#10B981',          // Green (as requested)
+        ' ir thermometer in mouth': '#EF4444',       // Red (as requested) - note space in dataset
+        'ir thermometer on face': '#F59E0B',         // Amber
+        'ir thermometer power button': '#3B82F6',    // Blue (as requested)
+        'ir thermometer sensor': '#8B5CF6',          // Purple
+      };
+      return irThermometerColors[lowerClassName] || '#06B6D4'; // Default cyan for unknown IR thermometer
+    }
+
+    // 3. Blood Pressure Monitor classes (everything else) - 10 classes, colorful variety
+    // All remaining classes: air jack, arm cuff variations, BP monitor variations, tube head variations
+    const bpMonitorColors: Record<string, string> = {
+      'air jack': '#EC4899',                                            // Pink
+      'arm cuff (correct position)': '#6366F1',                        // Indigo
+      'arm cuff (unwrapped)': '#F97316',                               // Orange
+      'arm cuff (wrong position)': '#F59E0B',                         // Amber (as requested)
+      'blood pressure monitor display (measuring)': '#3B82F6',         // Blue (as requested)
+      'blood pressure monitor display (off)': '#EF4444',              // Red (as requested)
+      'blood pressure pressure monitor on button': '#06B6D4',         // Cyan (as requested)
+      'tube head (attached)': '#10B981',                               // Green (as requested)
+      'tube head (detached)': '#000000',                               // Black (as requested)
     };
-    return colors[className] || '#8B5CF6'; // Default purple
+    return bpMonitorColors[lowerClassName] || '#8B5CF6'; // Default purple for unknown BP monitor parts
   };
 
   // Initialize canvas dimensions
@@ -338,7 +372,7 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
           
           {/* Error message */}
           {error && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center z-50">
               <div className="text-center text-foreground max-w-sm mx-auto px-6">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-destructive/20 flex items-center justify-center">
                   <Icon icon="mingcute:alert-fill" className="w-8 h-8 text-destructive" />

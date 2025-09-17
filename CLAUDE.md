@@ -9,13 +9,12 @@ SIMIS AI is a React-based medical device assistant application with computer vis
 ## Development Commands
 
 ### Core Development
-- `npm run dev` - Start backend server only (Node.js/Express on port 3001)
-- `npm run dev:vite` - Start frontend only (Vite dev server on port 3000)
-- `npm run dev:full` - Start both frontend and backend concurrently
-- `npm run dev:mac` - Backend with explicit port 3001 for macOS
+- `npm run dev` - Start Astro frontend only (port 3000)
+- `npm run dev:server` - Start backend server only (Node.js/Express on port 3001)
+- `npm run dev:full` - Start both frontend and backend concurrently ⭐ **RECOMMENDED**
 
 ### Build and Deployment
-- `npm run build` - Build frontend (Vite) and backend (ESBuild)
+- `npm run build` - Build frontend (Astro) and backend (ESBuild)
 - `npm run start` - Start production server
 - `npm run check` - TypeScript type checking
 
@@ -24,14 +23,14 @@ SIMIS AI is a React-based medical device assistant application with computer vis
 
 ## Architecture
 
-### Frontend (Client)
-- **Framework**: React 18 with TypeScript
-- **Routing**: Wouter for lightweight client-side routing
+### Frontend
+- **Framework**: Astro with React components
+- **Routing**: Astro file-based routing
 - **State Management**: TanStack Query for server state
 - **UI**: Shadcn/ui components (Radix UI + Tailwind CSS)
-- **Build Tool**: Vite with TypeScript support
+- **Build Tool**: Astro with Vite
 
-### Backend (Server)
+### Backend
 - **Runtime**: Node.js with Express.js and ES modules
 - **WebSocket**: Real-time chat functionality on `/chat-ws` endpoint
 - **Database**: PostgreSQL with Drizzle ORM
@@ -39,8 +38,8 @@ SIMIS AI is a React-based medical device assistant application with computer vis
 
 ### Computer Vision Integration
 The system supports multiple CV backends via environment variables:
-1. **Remote CV Service** (preferred): Set `CV_REMOTE_URL`
-2. **Hugging Face Spaces**: Set `HF_SPACES_URL` 
+1. **Remote CV Service** (preferred): Set `CV_REMOTE_URL` - Currently AWS EC2
+2. **Hugging Face Spaces**: Set `HF_SPACES_URL`
 3. **Local Python Model**: Default fallback
 
 ### Database Schema
@@ -53,9 +52,9 @@ Located in `shared/schema.ts` with main tables:
 ## Key Directories
 
 ```
-client/src/
+src/
 ├── components/     # UI components including camera, chat, navigation
-├── pages/         # Main application pages (welcome, guidance, home)
+├── pages/         # Astro pages (welcome, guidance, home)
 ├── lib/           # Utilities and query client setup
 └── hooks/         # Custom React hooks
 
@@ -76,15 +75,15 @@ Required environment variables:
 - `NODE_ENV` - development/production mode
 - `PORT` - Server port (default: 3001)
 
-Optional CV service configuration:
-- `CV_REMOTE_URL` - Remote CV microservice endpoint (preferred)
+CV service configuration (choose one):
+- `CV_REMOTE_URL` - Remote CV microservice endpoint (AWS EC2 - preferred)
 - `HF_SPACES_URL` - Hugging Face Spaces endpoint (fallback)
 
 ## Development Workflow
 
-1. **Local Development**: Use `npm run dev:full` to start both servers
-2. **Frontend Only**: Use `npm run dev:vite` for UI development
-3. **Backend Only**: Use `npm run dev` for API development
+1. **Full-Stack Development**: Use `npm run dev:full` to start both servers ⭐
+2. **Frontend Only**: Use `npm run dev` for UI development
+3. **Backend Only**: Use `npm run dev:server` for API development
 4. **Type Checking**: Run `npm run check` before commits
 5. **Database Changes**: Use `npm run db:push` to sync schema changes
 
@@ -97,10 +96,19 @@ Optional CV service configuration:
 - **Mobile-First Design**: Responsive UI optimized for mobile devices
 - **Session Management**: PostgreSQL-backed user sessions
 
+## AWS Integration
+
+- **CV Service**: Deployed on AWS EC2 at configured `CV_REMOTE_URL`
+- **Performance**: ~2-5 seconds per inference on CPU instance
+- **Backup Options**: Hugging Face Spaces and local model fallbacks
+
 ## Testing and Linting
 
 This project does not include explicit test or lint commands in package.json. Check for any additional configuration files or ask the user for the preferred testing/linting approach.
 
 ## Deployment
 
-The application supports microservice deployment with separate frontend and CV model services. See `DEPLOYMENT.md` for detailed deployment instructions including Vercel, Hugging Face Spaces, Railway, and Render options.
+The application supports microservice deployment with separate frontend and CV model services. The system is designed to work with:
+- Astro static site generation
+- Express.js backend API
+- External CV service endpoints

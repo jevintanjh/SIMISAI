@@ -18,7 +18,8 @@ interface OnboardingTutorialProps {
   onSkip: () => void;
 }
 
-const tutorialSteps: TutorialStep[] = [
+// Welcome page tutorial steps
+const welcomeTutorialSteps: TutorialStep[] = [
   {
     id: 'welcome',
     target: 'welcome-title',
@@ -30,66 +31,54 @@ const tutorialSteps: TutorialStep[] = [
   {
     id: 'device-selection',
     target: 'device-selection-card',
-    title: 'Device Selection',
-    description: 'Start by selecting your medical device type. We support thermometers, blood pressure monitors, and more.',
+    title: 'Select Your Device',
+    description: 'Choose from our 3 supported devices: Oral Thermometer, Ear Thermometer, or Blood Pressure Monitor.',
     position: 'bottom',
-    action: 'Try selecting a device'
+    action: 'Click on your device type'
   },
   {
-    id: 'device-type',
-    target: 'device-type-card',
-    title: 'Device Category',
-    description: 'Choose the category that best fits your device. This helps us provide more accurate guidance.',
-    position: 'bottom',
-    action: 'Select a category'
-  },
-  {
-    id: 'device-brand',
-    target: 'device-brand-card',
-    title: 'Device Brand',
-    description: 'Select your device brand for model-specific instructions. Popular brands include Omron, Braun, and more.',
-    position: 'bottom',
-    action: 'Choose your brand'
-  },
-  {
-    id: 'device-model',
-    target: 'device-model-card',
-    title: 'Device Model',
-    description: 'Pick your specific device model for the most accurate guidance and troubleshooting.',
-    position: 'bottom',
-    action: 'Select your model'
-  },
-  {
-    id: 'language',
-    target: 'language-card',
-    title: 'Language Selection',
-    description: 'Choose your preferred language for instructions and voice guidance.',
-    position: 'bottom',
-    action: 'Pick your language'
-  },
-  {
-    id: 'guidance-style',
-    target: 'guidance-card',
-    title: 'Guidance Style',
-    description: 'Select how you prefer to receive instructions - direct, gentle, or detailed explanations.',
-    position: 'bottom',
-    action: 'Choose your style'
-  },
-  {
-    id: 'voice-options',
-    target: 'voice-card',
-    title: 'Voice Options',
-    description: 'Choose your preferred voice assistant or text-only mode.',
-    position: 'bottom',
-    action: 'Select voice option'
+    id: 'advanced-toggle',
+    target: 'advanced-toggle',
+    title: 'Advanced Setup',
+    description: 'Need more control? Click here to access advanced settings for language, guidance style, and voice options.',
+    position: 'top',
+    action: 'Try the advanced setup'
   },
   {
     id: 'start-button',
     target: 'start-button',
     title: 'Ready to Start!',
-    description: 'Once you\'ve configured your session, click here to begin your guided experience.',
+    description: 'Once you\'ve selected your device, click here to begin your guided experience.',
     position: 'top',
     action: 'Start your session'
+  }
+];
+
+// Guidance page tutorial steps
+const guidanceTutorialSteps: TutorialStep[] = [
+  {
+    id: 'camera-view',
+    target: 'camera-view',
+    title: 'Camera View',
+    description: 'This is your camera view where SIMIS will detect and guide you through using your medical device.',
+    position: 'right',
+    action: 'Position your device in view'
+  },
+  {
+    id: 'instructions-panel',
+    target: 'instructions-panel',
+    title: 'Instructions Panel',
+    description: 'Here you\'ll see step-by-step instructions for your device. Follow along as SIMIS guides you.',
+    position: 'left',
+    action: 'Read the instructions carefully'
+  },
+  {
+    id: 'chat-toggle',
+    target: 'chat-toggle',
+    title: 'Chat with SIMIS',
+    description: 'Click here to switch to chat mode where you can ask questions or get help from SIMIS.',
+    position: 'left',
+    action: 'Try chatting with SIMIS'
   }
 ];
 
@@ -99,6 +88,14 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
 
+  // Determine which tutorial steps to use based on current page
+  const getTutorialSteps = (): TutorialStep[] => {
+    // Check if we're on the guidance page by looking for guidance-specific elements
+    const hasGuidanceElements = document.querySelector('[data-tutorial="camera-view"]') !== null;
+    return hasGuidanceElements ? guidanceTutorialSteps : welcomeTutorialSteps;
+  };
+
+  const tutorialSteps = getTutorialSteps();
   const currentTutorialStep = tutorialSteps[currentStep];
 
   // Find and position the target element
@@ -109,6 +106,28 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
     if (element) {
       setTargetElement(element);
       updateTooltipPosition(element);
+    } else {
+      // If element not found, try to find it after a short delay (for dynamic content)
+      const timeoutId = setTimeout(() => {
+        const retryElement = document.querySelector(`[data-tutorial="${currentTutorialStep.target}"]`) as HTMLElement;
+        if (retryElement) {
+          setTargetElement(retryElement);
+          updateTooltipPosition(retryElement);
+        } else {
+          // Still not found, center the tooltip in the viewport
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          
+          setTargetElement(null);
+          setTooltipPosition({
+            top: viewportHeight / 2 + scrollTop,
+            left: viewportWidth / 2
+          });
+        }
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [isVisible, currentStep, currentTutorialStep]);
 
@@ -125,28 +144,50 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
     const rect = element.getBoundingClientRect();
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
 
     let top = rect.top + scrollTop;
     let left = rect.left + scrollLeft;
 
     // Adjust position based on tooltip position preference
+    const tooltipWidth = 320; // max-w-sm = 24rem = 384px, but we'll use 320 for safety
+    const tooltipHeight = 200; // estimated height
+    const spacing = 20; // Very close spacing - almost touching the element
+
     switch (currentTutorialStep?.position) {
       case 'top':
-        top = rect.top + scrollTop - 20;
+        top = rect.top + scrollTop - tooltipHeight - spacing;
         left = rect.left + scrollLeft + rect.width / 2;
         break;
       case 'bottom':
-        top = rect.bottom + scrollTop + 20;
+        top = rect.bottom + scrollTop + spacing;
         left = rect.left + scrollLeft + rect.width / 2;
         break;
       case 'left':
-        top = rect.top + scrollTop + rect.height / 2;
-        left = rect.left + scrollLeft - 20;
+        top = rect.top + scrollTop + rect.height / 2 - tooltipHeight / 2;
+        left = rect.left + scrollLeft - spacing;
         break;
       case 'right':
-        top = rect.top + scrollTop + rect.height / 2;
-        left = rect.right + scrollLeft + 20;
+        top = rect.top + scrollTop + rect.height / 2 - tooltipHeight / 2;
+        left = rect.right + scrollLeft + spacing;
         break;
+    }
+
+    // Ensure tooltip stays within viewport bounds
+
+    // Horizontal bounds checking - only adjust if completely out of bounds
+    if (left < 0) {
+      left = 10;
+    } else if (left + tooltipWidth > viewportWidth) {
+      left = viewportWidth - tooltipWidth - 10;
+    }
+
+    // Vertical bounds checking - only adjust if completely out of bounds
+    if (top < scrollTop) {
+      top = scrollTop + 10;
+    } else if (top + tooltipHeight > viewportHeight + scrollTop) {
+      top = viewportHeight + scrollTop - tooltipHeight - 10;
     }
 
     setTooltipPosition({ top, left });
@@ -174,21 +215,27 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
 
   return (
     <>
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />
+      {/* Full dark overlay with cutout for highlighted element */}
+      {targetElement ? (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40"
+          style={{
+            background: `radial-gradient(ellipse at ${targetElement.getBoundingClientRect().left + window.pageXOffset + targetElement.getBoundingClientRect().width / 2}px ${targetElement.getBoundingClientRect().top + window.pageYOffset + targetElement.getBoundingClientRect().height / 2}px, transparent 0%, transparent 40%, rgba(0, 0, 0, 0.5) 70%)`
+          }}
+        />
+      ) : (
+        <div className="fixed inset-0 bg-black/50 z-40" />
+      )}
       
-      {/* Highlighted element */}
+      {/* Highlighted element border */}
       {targetElement && (
         <div
-          className="fixed z-50 pointer-events-none"
+          className="fixed z-50 pointer-events-none border-2 border-primary rounded-lg"
           style={{
             top: targetElement.getBoundingClientRect().top + window.pageYOffset - 4,
             left: targetElement.getBoundingClientRect().left + window.pageXOffset - 4,
             width: targetElement.getBoundingClientRect().width + 8,
             height: targetElement.getBoundingClientRect().height + 8,
-            border: '2px solid #3b82f6',
-            borderRadius: '8px',
-            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
           }}
         />
       )}
@@ -199,19 +246,51 @@ export default function OnboardingTutorial({ isVisible, onComplete, onSkip }: On
         style={{
           top: tooltipPosition.top,
           left: tooltipPosition.left,
-          transform: currentTutorialStep.position === 'top' || currentTutorialStep.position === 'bottom' 
-            ? 'translateX(-50%)' 
-            : currentTutorialStep.position === 'right' 
-            ? 'translateY(-50%)' 
-            : 'translateY(-50%) translateX(-100%)',
+          transform: targetElement 
+            ? (currentTutorialStep.position === 'top' || currentTutorialStep.position === 'bottom' 
+                ? 'translateX(-50%)' 
+                : currentTutorialStep.position === 'right' 
+                ? 'translateY(-50%)' 
+                : 'translateY(-50%) translateX(-100%)')
+            : 'translate(-50%, -50%)', // Center when no target element
         }}
       >
         <Card className="bg-background border-2 border-primary shadow-2xl">
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                  <Icon icon="mingcute:lightbulb-line" className="w-5 h-5 text-primary" />
+                <div className="w-8 h-8 relative">
+                  <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 32 32">
+                    {/* Background ring */}
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="none"
+                      className="text-primary/20"
+                    />
+                    {/* Progress ring */}
+                    <circle
+                      cx="16"
+                      cy="16"
+                      r="14"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="none"
+                      strokeDasharray={`${2 * Math.PI * 14}`}
+                      strokeDashoffset={`${2 * Math.PI * 14 * (1 - (currentStep + 1) / tutorialSteps.length)}`}
+                      className="text-primary"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  {/* Step number in center */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold text-primary">
+                      {currentStep + 1}
+                    </span>
+                  </div>
                 </div>
                 <div>
                   <h3 className="text-white font-semibold">{currentTutorialStep.title}</h3>
