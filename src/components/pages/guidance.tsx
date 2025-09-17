@@ -74,11 +74,11 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 deviceId: deviceType,
                 stepNumber: step,
                 title: data.title || `Step ${step}`,
-                description: data.description || data.content || '',
+                description: data.instructions || data.description || data.content || '',
                 translations: null,
                 audioUrl: null,
                 imageUrl: null,
-                checkpoints: null
+                checkpoints: data.checkpoints || null
               });
             }
           } catch (stepError) {
@@ -422,6 +422,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                     sessionId="guidance-session"
                     language={config.language}
                     showToggleButton={false}
+                    sessionConfig={config}
                   />
                 </div>
               </div>

@@ -12,6 +12,12 @@ interface FloatingChatProps {
   sessionId: string;
   language: string;
   showToggleButton?: boolean;
+  sessionConfig?: {
+    language: string;
+    device: string;
+    guidanceStyle: string;
+    voiceOption: string;
+  };
 }
 
 const suggestedQuestions = [
@@ -25,7 +31,7 @@ const suggestedQuestions = [
   "What's the difference between oral and rectal readings?"
 ];
 
-export default function FloatingChat({ sessionId, language, showToggleButton = true }: FloatingChatProps) {
+export default function FloatingChat({ sessionId, language, showToggleButton = true, sessionConfig }: FloatingChatProps) {
   const [isOpen, setIsOpen] = useState(!showToggleButton);
   const [message, setMessage] = useState("");
   const [isListening, setIsListening] = useState(false);
@@ -71,7 +77,13 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
         type: 'chat_message',
         sessionId,
         content: message,
-        language
+        language,
+        sessionConfig: sessionConfig || {
+          language,
+          device: 'thermometer',
+          guidanceStyle: 'direct',
+          voiceOption: 'text'
+        }
       });
     } else {
       // Fallback: show a message that we're not connected
@@ -104,7 +116,13 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
         type: 'chat_message',
         sessionId,
         content: suggestion,
-        language
+        language,
+        sessionConfig: sessionConfig || {
+          language,
+          device: 'thermometer',
+          guidanceStyle: 'direct',
+          voiceOption: 'text'
+        }
       });
     } else {
       // Fallback: show a message that we're not connected
