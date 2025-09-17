@@ -53,10 +53,22 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
       try {
         setLoading(true);
         
-        // Use AWS guidance API to fetch instructions
-        const deviceType = config.device === 'thermometer' ? 'digital_oral_thermometer' : 
-                          config.device === 'blood_pressure' ? 'blood_pressure_monitor' : 
-                          'digital_oral_thermometer'; // default
+        // Map UI device selections to API device types
+        const deviceType = (() => {
+          switch (config.device) {
+            case 'oral-thermometer':
+            case 'thermometer':
+              return 'digital_oral_thermometer';
+            case 'blood-pressure':
+            case 'blood_pressure':
+              return 'blood_pressure_monitor';
+            case 'ear-thermometer':
+              // Fallback to oral guidance until ear variant is available
+              return 'digital_oral_thermometer';
+            default:
+              return 'digital_oral_thermometer';
+          }
+        })();
         
         const instructions: Instruction[] = [];
         
@@ -290,9 +302,14 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                     <p className="text-sm text-white">
                       {config.language === 'en' ? 'English' :
                        config.language === 'id' ? 'Bahasa Indonesia' :
+                       config.language === 'ms' ? 'Bahasa Melayu' :
                        config.language === 'th' ? 'ไทย' :
                        config.language === 'vi' ? 'Tiếng Việt' :
-                       config.language === 'fil' ? 'Filipino' : 'English'}
+                       config.language === 'fil' ? 'Filipino' :
+                       config.language === 'my' ? 'မြန်မာ' :
+                       config.language === 'lo' ? 'ລາວ' :
+                       config.language === 'km' ? 'ខ្មែរ' :
+                       config.language === 'bn' ? 'Bahasa Melayu (Brunei)' : 'English'}
                     </p>
                   </div>
                 </div>

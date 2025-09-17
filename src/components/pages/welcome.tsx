@@ -72,11 +72,12 @@ export default function Welcome({ onStartSession, onGoToHome, initialAdvancedMod
   // Handle smart defaults start
   const handleSmartDefaultsStart = () => {
     const deviceType = modalDeviceInfo ? modalDeviceInfo.type : selectedDevice;
+    // Use user's current selections from the modal instead of overriding with defaults
     const config: SessionConfig = {
-      language: autoDetectLanguage(),
+      language: language || autoDetectLanguage(),
       device: deviceType,
-      guidanceStyle: "gentle",
-      voiceOption: "female"
+      guidanceStyle: guidanceStyle || "gentle",
+      voiceOption: voiceOption || "female"
     };
     setModalDeviceInfo(null); // Clear modal info
     onStartSession(config);
