@@ -47,34 +47,53 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
   const [loading, setLoading] = useState(true);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-  // Fetch instructions from server
+  // Fetch instructions from AWS guidance API
   useEffect(() => {
     const fetchInstructions = async () => {
       try {
         setLoading(true);
         
-        // First, get all devices to find the thermometer
-        const devicesResponse = await fetch('/api/devices');
-        if (devicesResponse.ok) {
-          const devices = await devicesResponse.json();
-          const thermometerDevice = devices.find((device: any) => device.type === 'thermometer');
-          
-          if (thermometerDevice) {
-            // Now fetch instructions for the thermometer device
-            const instructionsResponse = await fetch(`/api/devices/${thermometerDevice.id}/instructions`);
-            if (instructionsResponse.ok) {
-              const data = await instructionsResponse.json();
-              setInstructions(data);
-              setTotalSteps(data.length);
-              if (data.length > 0) {
-                setCurrentInstruction(data[0]); // Start with first step
-              }
+        // Use AWS guidance API to fetch instructions
+        const deviceType = config.device === 'thermometer' ? 'digital_oral_thermometer' : 
+                          config.device === 'blood_pressure' ? 'blood_pressure_monitor' : 
+                          'digital_oral_thermometer'; // default
+        
+        const instructions: Instruction[] = [];
+        
+        // Fetch all 5 steps for the device
+        for (let step = 1; step <= 5; step++) {
+          try {
+            const response = await fetch(
+              `https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/guidance/${deviceType}/${step}?language=${config.language}&style=${config.guidanceStyle}`
+            );
+            
+            if (response.ok) {
+              const data = await response.json();
+              instructions.push({
+                id: `${deviceType}-${step}`,
+                deviceId: deviceType,
+                stepNumber: step,
+                title: data.title || `Step ${step}`,
+                description: data.description || data.content || '',
+                translations: null,
+                audioUrl: null,
+                imageUrl: null,
+                checkpoints: null
+              });
             }
-          } else {
-            console.error('Thermometer device not found');
-            setInstructions([]);
-            setTotalSteps(0);
+          } catch (stepError) {
+            console.warn(`Failed to fetch step ${step}:`, stepError);
           }
+        }
+        
+        if (instructions.length > 0) {
+          setInstructions(instructions);
+          setTotalSteps(instructions.length);
+          setCurrentInstruction(instructions[0]); // Start with first step
+        } else {
+          console.error('No instructions fetched from AWS guidance API');
+          setInstructions([]);
+          setTotalSteps(0);
         }
       } catch (error) {
         console.error('Failed to fetch instructions:', error);
