@@ -92,4 +92,6 @@ refined-*.zip
 hybrid-*.zip
 sealion.mar
 tash
-nul
+nul*.gguf
+*.pt
+*.mar

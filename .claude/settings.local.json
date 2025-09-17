@@ -29,7 +29,13 @@
       "Bash(npx tsx:*)",
       "Bash(npm run dev:*)",
       "Bash(git rm:*)",
-      "Bash(xargs git rm:*)"
+      "Bash(xargs git rm:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx esbuild:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(set PORT=3001)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

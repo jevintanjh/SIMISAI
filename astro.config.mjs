@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 import icon from 'astro-icon';
+import path from 'path';
 
 // https://astro.build/config
 export default defineConfig({
@@ -26,9 +27,9 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: {
-        '@': new URL('./src', import.meta.url).pathname,
-        '@shared': new URL('./shared', import.meta.url).pathname,
-        '@assets': new URL('./attached_assets', import.meta.url).pathname,
+        '@': path.resolve('./src'),
+        '@shared': path.resolve('./shared'),
+        '@assets': path.resolve('./attached_assets'),
       },
     },
     optimizeDeps: {
@@ -44,13 +45,7 @@ export default defineConfig({
     // Clear cache on startup to prevent stale chunk references
     clearScreen: false,
     server: {
-      proxy: {
-        '/api': 'http://localhost:3001',
-        '/chat-ws': {
-          target: 'ws://localhost:3001',
-          ws: true,
-        },
-      },
+      // Proxy removed - using production AWS endpoints directly
       // Ensure proper dependency resolution
       fs: {
         strict: false

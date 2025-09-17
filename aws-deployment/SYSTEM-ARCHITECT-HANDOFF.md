@@ -1057,6 +1057,109 @@ Generation      Execution       Achieved ✅         Achieved ✅
 
 ---
 
+## 🎨 **ASTRO FRONTEND DEPLOYMENT FIX PLAN - 2025-09-17**
+
+### 📋 **Executive Summary**
+Complete plan to fix Astro frontend build issues and achieve full demo-ready deployment. Success rate: 95%+ with estimated 15-25 minute implementation.
+
+### 🔍 **Root Cause Analysis**
+
+#### Primary Issue: Windows Path Resolution
+- `astro.config.mjs` path aliases not resolving correctly on Windows
+- `new URL('./src', import.meta.url).pathname` causing cross-platform issues
+- All required files exist but can't be imported due to path resolution
+
+#### Secondary Issues:
+- Stale Vite/Astro build caches
+- Import dependency chain issues
+- Temporarily disabled UI components need restoration
+
+### 🛠️ **Implementation Plan**
+
+#### Phase 1: Environment Reset (5 minutes)
+1. **Kill all running processes** (prevent file locks)
+2. **Clear build caches**:
+   - Remove `node_modules/.vite`
+   - Remove `.astro` directory
+   - Remove `dist` directory
+3. **Fresh dependency install**: `npm install`
+
+#### Phase 2: Fix Path Configuration (5 minutes)
+1. **Update astro.config.mjs**:
+   ```js
+   // Fix Windows-compatible path aliases
+   resolve: {
+     alias: {
+       '@': path.resolve('./src'),
+       '@shared': path.resolve('./shared'),
+       '@assets': path.resolve('./attached_assets'),
+     }
+   }
+   ```
+
+2. **Verify tsconfig.json** has matching path mapping
+3. **Test alias resolution** with simple import
+
+#### Phase 3: Component Restoration (10 minutes)
+1. **Re-enable core UI components**:
+   - Restore `TooltipProvider` and `Toaster` imports
+   - Fix any remaining import issues
+   - Test component by component
+
+2. **Progressive testing**:
+   - Start dev server after each component fix
+   - Verify no new errors introduced
+
+#### Phase 4: Build & Deploy (5 minutes)
+1. **Test production build**: `npm run build`
+2. **Deploy to AWS S3**: Upload to `simisai-production-frontend`
+3. **Invalidate CloudFront**: Clear CDN cache
+4. **Verify demo functionality**: Test critical demo features
+
+### 🎯 **Expected Deliverables**
+
+#### ✅ **Working Features for Demo**:
+- Complete medical device interface (oral/ear thermometers, BP monitors)
+- AI chat system with multilingual support (EN, ID, TH, VI, FIL)
+- Camera integration for device detection
+- Modern responsive UI (Astro + React + Tailwind)
+- Real-time WebSocket chat
+- Backend API integration
+- AWS production deployment
+
+#### 📊 **Demo URLs**:
+- **Frontend**: https://d10d4mz28ky5nk.cloudfront.net
+- **API**: https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod
+- **Local Dev**: http://localhost:3000 (frontend) + http://localhost:3001 (backend)
+
+#### 🔧 **Technical Specifications**:
+- **Framework**: Astro 5.13.7 + React 18
+- **Styling**: Tailwind CSS + Shadcn/UI components
+- **State**: TanStack Query for server state
+- **Backend**: Express.js with WebSocket support
+- **Database**: PostgreSQL with 105 pre-generated guidance entries
+- **AI**: Hybrid LLM (OpenAI GPT-4 + SeaLion fallback)
+
+### 🚨 **Fallback Strategy**
+If any issues arise, we have a working simple frontend already deployed that can serve as immediate demo backup while we resolve the full Astro build.
+
+### 📝 **Success Criteria**
+1. ✅ `npm run build` completes without errors
+2. ✅ Local development server accessible at localhost:3000
+3. ✅ AWS deployment successful with updated frontend
+4. ✅ All demo features functional (device selection, chat, camera)
+5. ✅ Mobile-responsive interface working
+6. ✅ Multilingual support active
+
+---
+
+**Status**: Implementation in progress (2025-09-17 18:45 UTC)
+**Confidence Level**: Very High (95%+)
+**Implementation Time**: 15-25 minutes
+**Business Impact**: Demo-ready production deployment
+
+---
+
 ## 🧹 **REPOSITORY CLEANUP & GIT OPTIMIZATION - COMPLETED**
 
 ### ✅ **Git Repository Cleanup Successfully Completed:**

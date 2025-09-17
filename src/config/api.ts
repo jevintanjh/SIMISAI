@@ -6,26 +6,34 @@ const isProduction = typeof window !== 'undefined' &&
   (window.location.hostname.includes('cloudfront.net') || 
    window.location.hostname.includes('amazonaws.com'));
 
+// Force use of production AWS endpoints for local development
+const useProductionEndpoints = true;
+
 export const API_CONFIG = {
-  // Base URL for API calls
-  baseUrl: isProduction 
+  // Base URL for API calls - Use production AWS endpoints for local development
+  baseUrl: (isProduction || useProductionEndpoints)
     ? 'https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod'
     : 'http://localhost:3001',
   
-  // WebSocket URL for real-time chat
-  wsUrl: isProduction
+  // WebSocket URL for real-time chat - Use production AWS endpoints
+  wsUrl: (isProduction || useProductionEndpoints)
     ? 'wss://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/chat-ws'
     : 'ws://localhost:3001/chat-ws',
   
-  // Chat API endpoint
-  chatEndpoint: isProduction
+  // Chat API endpoint - Use production AWS endpoints
+  chatEndpoint: (isProduction || useProductionEndpoints)
     ? 'https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/chat'
     : 'http://localhost:3001/api/chat/ask',
   
-  // Status API endpoint
-  statusEndpoint: isProduction
+  // Status API endpoint - Use production AWS endpoints
+  statusEndpoint: (isProduction || useProductionEndpoints)
     ? 'https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/status'
     : 'http://localhost:3001/api/status',
+  
+  // Guidance API endpoint - Use production AWS endpoints
+  guidanceEndpoint: (isProduction || useProductionEndpoints)
+    ? 'https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/guidance'
+    : 'http://localhost:3001/api/guidance',
   
   // Mock data for devices (since we don't have a full backend yet)
   mockDevices: [

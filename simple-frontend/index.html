@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMIS AI - Medical Device Assistant</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .chat-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+        .user-message {
+            background: rgba(255, 255, 255, 0.3);
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .ai-message {
+            background: rgba(0, 0, 0, 0.2);
+            align-self: flex-start;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+        }
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .devices {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .device-card {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .device-card:hover {
+            transform: translateY(-5px);
+        }
+        .device-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 SIMIS AI</h1>
+        <p style="text-align: center; margin-bottom: 30px; font-size: 1.2em;">Your AI-powered medical device assistant</p>
+
+        <div class="status" id="status">
+            Checking system status...
+        </div>
+
+        <div class="devices">
+            <div class="device-card" onclick="startChat('digital_oral_thermometer')">
+                <div class="device-icon">🌡️</div>
+                <h3>Oral Thermometer</h3>
+                <p>Get guidance for digital oral thermometers</p>
+            </div>
+            <div class="device-card" onclick="startChat('digital_ear_thermometer')">
+                <div class="device-icon">👂</div>
+                <h3>Ear Thermometer</h3>
+                <p>Learn how to use ear thermometers</p>
+            </div>
+            <div class="device-card" onclick="startChat('blood_pressure_monitor')">
+                <div class="device-icon">🩸</div>
+                <h3>Blood Pressure Monitor</h3>
+                <p>Get help with blood pressure measurements</p>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="messages"></div>
+            <div class="input-container">
+                <input type="text" id="messageInput" placeholder="Ask about your medical device..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod';
+        let messages = [];
+
+        // Check system status on load
+        async function checkStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/status`);
+                const data = await response.json();
+                const statusEl = document.getElementById('status');
+                statusEl.innerHTML = `
+                    🚀 Status: ${data.sagemaker.status} |
+                    Provider: ${data.currentProvider} |
+                    ${data.message}
+                `;
+                statusEl.style.background = data.sagemaker.ready ? 'rgba(46, 125, 50, 0.3)' : 'rgba(255, 152, 0, 0.3)';
+            } catch (error) {
+                document.getElementById('status').innerHTML = '⚠️ Unable to connect to backend services';
+                document.getElementById('status').style.background = 'rgba(244, 67, 54, 0.3)';
+            }
+        }
+
+        function addMessage(content, isUser = false) {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            messageDiv.innerHTML = content.replace(/\n/g, '<br>');
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            input.value = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        messages: [
+                            ...messages,
+                            { role: 'user', content: message }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                addMessage(data.response);
+
+                // Update status with provider info
+                if (data.provider) {
+                    const statusEl = document.getElementById('status');
+                    statusEl.innerHTML = `
+                        🤖 Provider: ${data.provider.provider} |
+                        Language: ${data.provider.detectedLanguage} |
+                        ${data.provider.note}
+                    `;
+                }
+
+                messages.push(
+                    { role: 'user', content: message },
+                    { role: 'assistant', content: data.response }
+                );
+            } catch (error) {
+                addMessage('❌ Sorry, I encountered an error. Please try again.');
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function startChat(deviceType) {
+            try {
+                const response = await fetch(`${API_BASE}/guidance/${deviceType}/1?language=en&style=direct`);
+                const data = await response.json();
+                addMessage(`📋 ${data.title}\n\n${data.instructions}\n\n💡 ${data.tips}`);
+                document.getElementById('messageInput').focus();
+            } catch (error) {
+                addMessage('❌ Unable to load guidance for this device. You can still ask questions!');
+            }
+        }
+
+        // Initialize
+        checkStatus();
+        addMessage('👋 Hello! I\'m SIMIS, your medical device assistant. Click on a device above to get started, or ask me any questions about your medical devices.');
+    </script>
+</body>
+</html>
