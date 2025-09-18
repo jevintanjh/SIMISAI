@@ -53,10 +53,18 @@ yolov8l.pt
 *.key
 AWSCLIV2.pkg
 
-# Claude AI files
+# Claude AI files and development tools
 CLAUDE.md
 HANDOVER.md
 .chaude/
+.cursor/
+.claude/
+*claude*
+*Claude*
+*CLAUDE*
+subagent*
+Subagent*
+SUBAgent*
 
 # Build artifacts
 *.tar.gz
