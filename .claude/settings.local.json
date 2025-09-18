@@ -35,7 +35,16 @@
       "Bash(node:*)",
       "Bash(npm:*)",
       "Bash(set PORT=3001)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(set PORT=3002)",
+      "Bash(python test:*)",
+      "Bash(dir)",
+      "Bash(dir models)",
+      "Bash(dir:*)",
+      "Bash(timeout 10s npm run dev)",
+      "Bash(ConvertTo-Json)",
+      "WebFetch(domain:d10d4mz28ky5nk.cloudfront.net)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []
