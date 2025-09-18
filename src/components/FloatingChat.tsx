@@ -62,9 +62,12 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: messageText,
-          language: language,
-          sessionConfig: sessionConfig
+          messages: [
+            {
+              role: "user",
+              content: messageText
+            }
+          ]
         })
       });
 
