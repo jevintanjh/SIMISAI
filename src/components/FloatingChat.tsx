@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "./ui/card";
 import { MessageCircle, X, Send, Mic, Bot } from "lucide-react";
 import { Icon } from "@iconify/react";
 import { useWebSocket } from "../hooks/use-websocket";
+import { API_CONFIG } from "../config/api";
 import type { ChatMessage } from "../../shared/schema";
 
 interface FloatingChatProps {
@@ -44,7 +45,7 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
     enabled: isOpen,
   });
 
-  const { sendMessage, isConnected } = useWebSocket((newMessage) => {
+  const { sendMessage: sendWebSocketMessage, isConnected } = useWebSocket((newMessage) => {
     // Update the chat messages when receiving new messages
     queryClient.setQueryData(
       ["/api/chat", sessionId],
@@ -52,81 +53,138 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
     );
   });
 
+  // HTTP API fallback for sending messages
+  const sendMessageViaAPI = async (messageText: string, language: string, sessionConfig: any) => {
+    try {
+      const response = await fetch(API_CONFIG.chatEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: messageText,
+          language: language,
+          sessionConfig: sessionConfig
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Add AI response to chat
+      const aiMessage = {
+        id: Date.now() + 1,
+        isUser: false,
+        message: data.response || data.message || "I'm sorry, I couldn't process your request right now."
+      };
+
+      queryClient.setQueryData(
+        ["/api/chat", sessionId],
+        (oldMessages: any[] = []) => [...oldMessages, aiMessage]
+      );
+
+      return data;
+    } catch (error) {
+      console.error('API chat error:', error);
+
+      // Add error message to chat
+      const errorMessage = {
+        id: Date.now() + 1,
+        isUser: false,
+        message: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment."
+      };
+
+      queryClient.setQueryData(
+        ["/api/chat", sessionId],
+        (oldMessages: any[] = []) => [...oldMessages, errorMessage]
+      );
+    }
+  };
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!message.trim()) return;
 
-    // Add message to local state immediately for better UX
+    const messageText = message;
+    setMessage(""); // Clear input immediately
+
+    // Add user message to local state immediately for better UX
     const newMessage = {
       id: Date.now(),
       isUser: true,
-      message: message
+      message: messageText
     };
-    
+
     queryClient.setQueryData(
       ["/api/chat", sessionId],
       (oldMessages: any[] = []) => [...oldMessages, newMessage]
     );
 
-    // Try to send via WebSocket if connected
+    const config = sessionConfig || {
+      language,
+      device: 'thermometer',
+      guidanceStyle: 'direct',
+      voiceOption: 'text'
+    };
+
+    // Try to send via WebSocket if connected, otherwise use HTTP API
     if (isConnected) {
-      sendMessage({
+      sendWebSocketMessage({
         type: 'chat_message',
         sessionId,
-        content: message,
+        content: messageText,
         language,
-        sessionConfig: sessionConfig || {
-          language,
-          device: 'thermometer',
-          guidanceStyle: 'direct',
-          voiceOption: 'text'
-        }
+        sessionConfig: config
       });
     } else {
-      // Fallback: show a message that we're not connected
-      console.warn('WebSocket not connected, message saved locally only');
+      // Use HTTP API fallback
+      console.log('WebSocket not connected, using HTTP API fallback');
+      await sendMessageViaAPI(messageText, language, config);
     }
-
-    setMessage("");
-    // Keep suggestions visible so users can scroll back to them
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleSuggestionClick = async (suggestion: string) => {
     // Send the suggestion directly without setting it in the input
     if (!suggestion.trim()) return;
 
-    // Add message to local state immediately for better UX
+    // Add user message to local state immediately for better UX
     const newMessage = {
       id: Date.now(),
       isUser: true,
       message: suggestion
     };
-    
+
     queryClient.setQueryData(
       ["/api/chat", sessionId],
       (oldMessages: any[] = []) => [...oldMessages, newMessage]
     );
 
-    // Try to send via WebSocket if connected
+    const config = sessionConfig || {
+      language,
+      device: 'thermometer',
+      guidanceStyle: 'direct',
+      voiceOption: 'text'
+    };
+
+    // Try to send via WebSocket if connected, otherwise use HTTP API
     if (isConnected) {
-      sendMessage({
+      sendWebSocketMessage({
         type: 'chat_message',
         sessionId,
         content: suggestion,
         language,
-        sessionConfig: sessionConfig || {
-          language,
-          device: 'thermometer',
-          guidanceStyle: 'direct',
-          voiceOption: 'text'
-        }
+        sessionConfig: config
       });
     } else {
-      // Fallback: show a message that we're not connected
-      console.warn('WebSocket not connected, message saved locally only');
+      // Use HTTP API fallback
+      console.log('WebSocket not connected, using HTTP API fallback');
+      await sendMessageViaAPI(suggestion, language, config);
     }
   };
 
@@ -207,13 +265,16 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
         <Card className="w-full h-[500px] border-0 shadow-none flex flex-col">
           <CardHeader className="text-white p-4 rounded-t-xl flex-shrink-0">
               <div className="flex items-center justify-center space-x-2">
-                <div title={isConnected ? 'Connected' : 'Disconnected'}>
-                  <Icon 
-                    icon="mingcute:message-3-fill" 
-                    className={`w-4 h-4 ${isConnected ? 'text-green-400' : 'text-red-400'}`}
+                <div title={isConnected ? 'WebSocket Connected' : 'Using HTTP API'}>
+                  <Icon
+                    icon="mingcute:message-3-fill"
+                    className={`w-4 h-4 ${isConnected ? 'text-green-400' : 'text-blue-400'}`}
                   />
                 </div>
                 <span className="font-medium text-sm">Chat with SIMIS</span>
+                <span className="text-xs text-white/60">
+                  {isConnected ? 'Live' : 'API'}
+                </span>
               </div>
           </CardHeader>
           
