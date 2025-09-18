@@ -70,7 +70,6 @@ Preferred communication style: Simple, everyday language.
 - **Vite**: Build tool and development server
 - **TypeScript**: Type checking and compilation
 - **ESBuild**: Production bundling
-- **Replit Integration**: Development environment plugins
 
 ### Real-time Communication
 - **WebSocket (ws)**: Real-time bidirectional communication

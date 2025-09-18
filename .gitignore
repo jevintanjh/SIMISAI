@@ -66,6 +66,13 @@ subagent*
 Subagent*
 SUBAgent*
 
+# Replit files
+.replit
+replit.md
+*replit*
+*Replit*
+*REPLIT*
+
 # Build artifacts
 *.tar.gz
 vite.config.ts.*
