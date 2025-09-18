@@ -56,6 +56,7 @@ AWSCLIV2.pkg
 # Claude AI files
 CLAUDE.md
 HANDOVER.md
+.chaude/
 
 # Build artifacts
 *.tar.gz
