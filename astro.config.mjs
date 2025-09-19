@@ -20,7 +20,7 @@ export default defineConfig({
   },
   // Configure the dev server
   server: {
-    port: 3000,
+    port: 5000,
     host: '0.0.0.0',
   },
   // Configure Vite for compatibility with existing setup
@@ -45,7 +45,9 @@ export default defineConfig({
     // Clear cache on startup to prevent stale chunk references
     clearScreen: false,
     server: {
-      // Proxy removed - using production AWS endpoints directly
+      // Allow all hosts for Replit proxy compatibility
+      host: '0.0.0.0',
+      port: 5000,
       // Ensure proper dependency resolution
       fs: {
         strict: false
