@@ -70,48 +70,8 @@ try {
     }
   });
   
-  // CV detection endpoint
-  app.post('/api/cv/detect', async (req, res) => {
-    try {
-      const { imageData } = req.body || {};
-      
-      if (!imageData) {
-        return res.status(400).json({ error: 'Image data is required' });
-      }
-      
-      // Placeholder response for CV detection
-      const response = {
-        detections: [
-          {
-            label: 'medical_device',
-            confidence: 0.85,
-            bbox: [100, 100, 200, 200]
-          }
-        ],
-        timestamp: new Date().toISOString()
-      };
-      
-      res.json(response);
-    } catch (error) {
-      console.error('CV detection error:', error);
-      res.status(500).json({ 
-        error: 'CV detection service temporarily unavailable' 
-      });
-    }
-  });
-  
-  // Health check for CV service
-  app.get('/api/cv/health', (req, res) => {
-    res.json({
-      healthy: true,
-      model_info: {
-        name: 'YOLOv8 Medical Device Detection',
-        version: '1.0.0',
-        status: 'loaded'
-      },
-      timestamp: new Date().toISOString()
-    });
-  });
+  // CV endpoints removed - now handled directly by ALB
+  // Frontend connects directly to: https://simis-cv-alb-578986465.us-west-2.elb.amazonaws.com/predict
   
   // Devices API
   app.get('/api/devices', async (req, res) => {

@@ -190,8 +190,8 @@ export function MediaPipeCameraView({ onThermometerDetected, sessionConfig, lang
         const imageData = tempCanvas.toDataURL('image/jpeg', 0.8);
         const base64Data = imageData.split(',')[1];
 
-        // Call CV API
-        const response = await fetch('/api/cv/detect', {
+        // Call CV API directly via ALB
+        const response = await fetch('https://simis-cv-alb-578986465.us-west-2.elb.amazonaws.com/predict', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
