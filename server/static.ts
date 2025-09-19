@@ -30,7 +30,15 @@ export function serveStatic(app: Express) {
     res.sendFile(path.resolve(distPath, 'how-it-works', 'index.html'));
   });
 
+  app.get('/how-it-works/', (_req, res) => {
+    res.sendFile(path.resolve(distPath, 'how-it-works', 'index.html'));
+  });
+
   app.get('/welcome-static', (_req, res) => {
+    res.sendFile(path.resolve(distPath, 'welcome-static', 'index.html'));
+  });
+
+  app.get('/welcome-static/', (_req, res) => {
     res.sendFile(path.resolve(distPath, 'welcome-static', 'index.html'));
   });
 
