@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import https from 'https';
 
 export interface DetectionResult {
   class: string;
@@ -15,15 +16,21 @@ export interface CVResponse {
 
 export class CVServiceRemote {
   private apiBaseUrl: string;
+  private agent: https.Agent;
 
   constructor() {
     this.apiBaseUrl = (process.env.CV_REMOTE_URL || '').replace(/\/$/, '');
+    // Create HTTPS agent that accepts self-signed certificates
+    this.agent = new https.Agent({
+      rejectUnauthorized: false
+    });
     if (!this.apiBaseUrl) {
       console.warn('CVServiceRemote initialized without CV_REMOTE_URL');
     }
     console.log('CV Service Remote initialized with:');
     console.log(`- API URL: ${this.apiBaseUrl || 'NOT SET'}`);
     console.log(`- Environment: ${process.env.NODE_ENV}`);
+    console.log(`- SSL Verification: Disabled for self-signed certificates`);
   }
 
   async detectObjectsFromBase64(base64Data: string): Promise<CVResponse> {
@@ -37,13 +44,16 @@ export class CVServiceRemote {
     };
 
     const body = JSON.stringify({
-      // Provide common field names to maximize compatibility
-      imageData: base64Data,
-      image_data: base64Data,
-      data: [base64Data]
+      // Format expected by EC2 service
+      imageData: base64Data
     });
 
-    const response = await fetch(url, { method: 'POST', headers, body });
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body,
+      agent: this.apiBaseUrl.startsWith('https:') ? this.agent : undefined
+    });
     if (!response.ok) {
       const text = await response.text().catch(() => '');
       throw new Error(`Remote CV error ${response.status}: ${text}`);
@@ -81,13 +91,17 @@ export class CVServiceRemote {
     if (!this.apiBaseUrl) return false;
     try {
       const url = `${this.apiBaseUrl}/health`;
-      const res = await fetch(url, { method: 'GET' });
+      const res = await fetch(url, {
+        method: 'GET',
+        agent: this.apiBaseUrl.startsWith('https:') ? this.agent : undefined
+      });
       if (res.ok) return true;
       // Fallback: try a lightweight predict call
       const ping = await fetch(`${this.apiBaseUrl}/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageData: '' })
+        body: JSON.stringify({ imageData: '' }),
+        agent: this.apiBaseUrl.startsWith('https:') ? this.agent : undefined
       });
       return ping.ok;
     } catch {

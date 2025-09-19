@@ -48,6 +48,14 @@ export default defineConfig({
       // Allow all hosts for Replit proxy compatibility
       host: '0.0.0.0',
       port: 5000,
+      // Proxy API calls to backend server
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+          secure: false
+        }
+      },
       // Ensure proper dependency resolution
       fs: {
         strict: false
