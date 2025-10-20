@@ -1,0 +1,59 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist
+.astro
+.next
+.nuxt
+.vuepress/dist
+
+# Environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# AWS deployment files
+aws-deployment
+*.zip
+
+# Logs
+logs
+*.log
+
+# Coverage
+coverage
+
+# Temporary files
+*.tmp
+*.temp
+
+# Cache
+.cache
+
+# CV model files (if large)
+cv_model/models/*
+!cv_model/models/poc3/best.pt

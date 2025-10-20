@@ -17,7 +17,11 @@ export default defineConfig({
   // Configure the build output
   build: {
     outDir: './dist',
+    // Generate trailing slash URLs for proper S3/CloudFront routing
+    format: 'directory',
   },
+  // Handle routing for static hosting (only in production)
+  trailingSlash: process.env.NODE_ENV === 'production' ? 'always' : 'ignore',
   // Configure the dev server
   server: {
     port: 5000,
