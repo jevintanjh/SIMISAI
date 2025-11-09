@@ -1,0 +1,27 @@
+# OpenCode CLI Configuration for SIMISAI Project
+# This file serves as a quick reference for OpenCode settings
+# Copy this file to .opencode-config and configure for your setup
+
+# Default Model Configuration
+DEFAULT_MODEL=github-copilot/grok-code-fast-1
+
+# Project Workspace
+WORKSPACE_PATH=/home/runner/workspace
+
+# Quick Start Commands
+# 1. Start TUI: opencode --model github-copilot/grok-code-fast-1 /home/runner/workspace
+# 2. One-shot: opencode run --model github-copilot/grok-code-fast-1 "Your question"
+# 3. Continue: opencode --continue
+
+# Available Free Models
+# - github-copilot/grok-code-fast-1 (current)
+# - github-copilot/grok-3-mini
+# - github-copilot/claude-haiku-4.5
+# - github-copilot/gpt-5-mini
+
+# Authentication
+# Requires GitHub token with copilot access
+# Set: export GITHUB_TOKEN=your_github_token_here
+
+# Documentation
+# Full setup guide: /docs/development/opencode-setup.md
