@@ -1,9 +1,10 @@
-# SIMISAI 5-Minute Investor Pitch
+# SIMISAI Investor Pitch (6-7 Minutes + 3-4 Minute Demo)
 ## Universal Visual Guidance Platform (Non-Medical Focus)
 
 **Prepared**: November 2025
 **Status**: 1st Place Winner - AI Singapore Sealion Challenge
 **Platform**: Universal Visual Guidance (Enterprise, Consumer, Retail)
+**Presentation Format**: 15-minute slot (6-7min pitch + 3-4min live demo + 4-5min Q&A)
 
 ---
 
@@ -26,7 +27,7 @@
 
 ---
 
-## SLIDE 2: THE PROBLEM (30 seconds)
+## SLIDE 2: THE PROBLEM (45 seconds)
 
 ### Visual:
 - 3-panel problem illustration:
@@ -52,7 +53,7 @@
 
 ---
 
-## SLIDE 3: THE SOLUTION (45 seconds)
+## SLIDE 3: THE SOLUTION (60 seconds)
 
 ### Visual:
 - 3-step user flow diagram with screenshots:
@@ -110,7 +111,7 @@
 
 ---
 
-## SLIDE 5: MARKET OPPORTUNITY (30 seconds)
+## SLIDE 5: MARKET OPPORTUNITY (45 seconds)
 
 ### Visual:
 - 3 concentric circles (TAM/SAM/SOM) with breakdown
@@ -143,7 +144,7 @@
 
 ---
 
-## SLIDE 6: BUSINESS MODEL (30 seconds)
+## SLIDE 6: BUSINESS MODEL (45 seconds)
 
 ### Visual:
 - 3 revenue stream boxes with icons
@@ -286,7 +287,7 @@
 
 ---
 
-## SLIDE 10: TEAM & THE ASK (30 seconds)
+## SLIDE 10: TEAM & THE ASK (45 seconds)
 
 ### Visual:
 - Team member photos with brief credentials
@@ -338,18 +339,24 @@
 | Slide | Topic | Time | Running Total |
 |-------|-------|------|---------------|
 | 1 | Opening Hook | 30s | 0:30 |
-| 2 | The Problem | 30s | 1:00 |
-| 3 | The Solution | 45s | 1:45 |
-| 4 | Proof of Technology | 30s | 2:15 |
-| 5 | Market Opportunity | 30s | 2:45 |
-| 6 | Business Model | 30s | 3:15 |
-| 7 | Go-to-Market Strategy | 30s | 3:45 |
-| 8 | Competitive Advantage | 20s | 4:05 |
-| 9 | Traction & Roadmap | 30s | 4:35 |
-| 10 | Team & The Ask | 30s | 5:05 |
-| - | Closing (optional) | 10s | 5:15 |
+| 2 | The Problem | 45s | 1:15 |
+| 3 | The Solution | 60s | 2:15 |
+| 4 | Proof of Technology | 30s | 2:45 |
+| 5 | Market Opportunity | 45s | 3:30 |
+| 6 | Business Model | 45s | 4:15 |
+| 7 | Go-to-Market Strategy | 30s | 4:45 |
+| 8 | Competitive Advantage | 20s | 5:05 |
+| 9 | Traction & Roadmap | 30s | 5:35 |
+| 10 | Team & The Ask | 45s | 6:20 |
+| - | Closing (optional) | 10s | 6:30 |
 
-**Total**: 5 minutes (with 15-second buffer for Q&A transition)
+**Total**: 6.5 minutes pitch + 3-4 minutes live demo = ~10 minutes, leaving 4-5 minutes for Q&A
+
+**15-Minute Breakdown**:
+- **Pitch slides**: 6.5 minutes
+- **Live demo**: 3-4 minutes
+- **Q&A**: 4-5 minutes
+- **Buffer/transitions**: 30 seconds
 
 ---
 
