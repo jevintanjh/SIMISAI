@@ -1,0 +1,33 @@
+#!/bin/bash
+# Custom bashrc for Claude Code mode switching
+# This file is automatically loaded by the Replit bashrc
+
+# ============================================
+# Add npm global bin to PATH
+# ============================================
+export PATH="/home/runner/workspace/.config/npm/node_global/bin:$PATH"
+
+# ============================================
+# Claude Code Mode Aliases
+# ============================================
+# These aliases allow easy switching between subscription and Bedrock modes
+# without permanently exporting environment variables.
+
+# Subscription mode (default - uses Anthropic account login)
+alias claude-sub='claude'
+
+# Bedrock mode (AWS Bedrock with cost tracking and real-time token usage)
+alias claude-bed='CLAUDE_CODE_USE_BEDROCK=1 \
+  AWS_ACCESS_KEY_ID=AKIA2K65A4PQK36PSDES \
+  AWS_SECRET_ACCESS_KEY=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 \
+  AWS_REGION=us-east-1 \
+  claude'
+
+# ============================================
+# Usage:
+#   claude-sub  -> Subscription mode (Anthropic account)
+#   claude-bed  -> AWS Bedrock mode (pay-per-token with IAM credentials)
+# ============================================
+
+# Echo messages removed to avoid noise in command outputs
+# Aliases are loaded silently

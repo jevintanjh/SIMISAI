@@ -1,0 +1,16 @@
+#!/bin/bash
+# User custom bashrc for Claude Code configuration
+
+# ==================== BEDROCK MODE REMOVED ====================
+# Bedrock mode is now handled by the claude-bed alias in workspace/.config/bashrc
+# This allows proper switching between subscription and Bedrock modes
+#
+# DO NOT export CLAUDE_CODE_USE_BEDROCK=1 here permanently
+# Use aliases instead:
+#   - claude-sub: Subscription mode (default)
+#   - claude-bed: AWS Bedrock mode (explicit opt-in)
+#
+# Previous permanent export removed to enable mode switching
+
+# ==================== CUSTOM ALIASES AND FUNCTIONS ====================
+# Add your custom aliases and functions below

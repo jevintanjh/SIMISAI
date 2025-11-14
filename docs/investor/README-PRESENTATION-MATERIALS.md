@@ -93,7 +93,49 @@
 
 ---
 
-### **5. SIMISAI-12-24-MONTH-ROADMAP.md** 📅 PRODUCT ROADMAP
+### **5. SIMISAI-POST-PITCH-FOLLOW-UP-SEQUENCE.md** 📧 EMAIL PLAYBOOK
+**Purpose**: Systematic investor follow-up strategy (Sabri Suby style)
+
+**When to Use**:
+- Immediately after pitch (1 hour follow-up)
+- Throughout 2-week follow-up sequence
+- For tracking investor engagement
+
+**Key Features**:
+- 6 email templates (1 hour, 24 hours, 3-5 days, 1 week, 2 weeks, monthly)
+- Investor tracking system (Hot/Warm/Cold/Out)
+- Response handling scripts
+- Materials checklist for each stage
+
+**Action Items**:
+- [ ] Review before pitch (know the sequence)
+- [ ] Prepare email templates (customize with your details)
+- [ ] Set up investor tracking spreadsheet
+
+---
+
+### **6. CLAIM-JUSTIFICATION-SUMMARY.md** 🛡️ DEFENSE DOCUMENT
+**Purpose**: Backup evidence for "$50B market" and "18-24 months to replicate" claims
+
+**When to Use**:
+- Preparation for tough investor questions
+- When challenged on market size or competitive timing
+- Due diligence phase
+
+**Key Features**:
+- Market size breakdown with sources needed
+- Time-to-replicate justification (evidence-based)
+- Official problem statement integration
+- Scripted investor Q&A responses
+
+**Action Items**:
+- [ ] Memorize key defense responses
+- [ ] Gather market research sources (Gartner, Forrester, Statista)
+- [ ] Practice defending claims with colleagues
+
+---
+
+### **7. SIMISAI-12-24-MONTH-ROADMAP.md** 📅 PRODUCT ROADMAP
 **Purpose**: Detailed product and market expansion plan
 
 **When to Use**:
@@ -110,6 +152,23 @@
 - [ ] Review roadmap (don't present during pitch unless asked)
 - [ ] Have digital copy ready for follow-up emails
 - [ ] Update quarterly as plans evolve
+
+---
+
+## 📦 ARCHIVE FOLDER
+
+The `/archive/` subfolder contains research and background documents used during pitch development:
+
+- **SEA-LION-CHALLENGE-RESEARCH-REPORT.md** - Gemini research on AI Singapore competition
+- **COMPETITION-ACCURACY-SUMMARY.md** - Quick reference for competition details
+- **PITCH-DECK-CORRECTIONS.md** - Historical corrections applied to pitch deck
+- **PROBLEM_AGITATION_RESEARCH_REPORT.md** - Research for Slide 2 problem agitation
+- **SLIDE_2_IMPLEMENTATION_GUIDE.md** - Slide 2 Sabri Suby PAS framework guide
+
+**When to Use Archive**:
+- Reference if you need competition background details
+- Historical context for pitch deck evolution
+- Research citations if investors ask "where did you get this data?"
 
 ---
 

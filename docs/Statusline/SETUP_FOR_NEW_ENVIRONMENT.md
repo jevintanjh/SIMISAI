@@ -1,9 +1,30 @@
 # Claude Code AWS Bedrock Statusline - Complete Setup Guide
 
 **Last Updated**: 2025-11-12
-**Version**: 2.0
+**Version**: 2.1
 
 This guide explains how Claude Code connects to AWS Bedrock and how to set up the cost tracking statusline in a new environment.
+
+---
+
+## ⚠️ Important: Don't Get Stuck in Bedrock Mode!
+
+**Common Problem**: After setting up AWS Bedrock mode, users find they can't switch back to subscription mode - even after uninstalling!
+
+**Solution**: Use **aliases** instead of permanent environment variables. See [Switching Between Subscription and Bedrock Modes](#switching-between-subscription-and-bedrock-modes) for the recommended setup.
+
+**Quick Fix** (if already stuck):
+```bash
+# Edit your shell config
+nano ~/.bashrc  # or ~/.zshrc
+
+# Comment out or delete these lines:
+# export CLAUDE_CODE_USE_BEDROCK=1
+# export AWS_BEARER_TOKEN_BEDROCK=...
+
+# Save, then reload
+source ~/.bashrc
+```
 
 ---
 
@@ -11,12 +32,67 @@ This guide explains how Claude Code connects to AWS Bedrock and how to set up th
 
 1. [Architecture Overview](#architecture-overview)
 2. [Understanding the Connection](#understanding-the-connection)
-3. [Statusline Setup](#statusline-setup)
-4. [Configuration Files](#configuration-files)
-5. [Environment-Specific Instructions](#environment-specific-instructions)
-6. [Verification and Testing](#verification-and-testing)
-7. [Usage and Monitoring](#usage-and-monitoring)
-8. [Troubleshooting](#troubleshooting)
+3. [Prerequisites: AWS Bedrock Access](#prerequisites-aws-bedrock-access)
+4. [Statusline Setup](#statusline-setup)
+5. [Configuration Files](#configuration-files)
+6. [Environment-Specific Instructions](#environment-specific-instructions)
+7. [Verification and Testing](#verification-and-testing)
+8. [Usage and Monitoring](#usage-and-monitoring)
+9. [Switching Between Subscription and Bedrock Modes](#switching-between-subscription-and-bedrock-modes) ⭐ **Important**
+10. [Troubleshooting](#troubleshooting)
+11. [Security Considerations](#security-considerations) 🔒 **Important**
+
+---
+
+## 🔒 Security Considerations
+
+### Credential Storage and Handling
+
+**Important**: This setup guide demonstrates AWS credential configuration for Claude Code. How you store these credentials depends on your environment:
+
+#### For Private/Local Workspaces
+- **Current Implementation**: Credentials hardcoded in bash aliases (`.config/bashrc`)
+- **Location**: `/home/runner/workspace/.config/bashrc` contains AWS keys in `claude-bed` alias
+- **Risk Level**: ✅ **Acceptable** for single-user, private environments
+- **Benefit**: Convenient, no additional setup needed
+- **Caveat**: Credentials visible in plaintext in configuration files
+
+#### For Shared/Public Workspaces
+- **⚠️ DO NOT hardcode credentials** in configuration files
+- **Use environment variables** instead:
+  ```bash
+  # Store in Replit Secrets, .env, or system environment
+  export AWS_ACCESS_KEY_ID="your-key"
+  export AWS_SECRET_ACCESS_KEY="your-secret"
+
+  # Reference in alias:
+  alias claude-bed='CLAUDE_CODE_USE_BEDROCK=1 \
+    AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+    AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+    claude'
+  ```
+- **Or use AWS profiles**: Configure `~/.aws/credentials` with named profiles
+- **Rotate credentials immediately** if workspace was ever public/shared
+
+#### Git and Version Control
+- ✅ **Add to .gitignore**: Ensure `.config/bashrc` is not tracked
+- ✅ **Review git history**: Check if credentials were ever committed
+- ✅ **Use git-secrets**: Consider installing git-secrets tool for protection
+- 🔴 **If credentials were committed**: Rotate immediately and clean git history
+
+#### Best Practices
+1. **Principle of Least Privilege**: Use IAM users with minimal Bedrock-only permissions
+2. **Separate Credentials**: Different AWS keys for Bedrock vs application deployment
+3. **Regular Rotation**: Rotate credentials every 90 days minimum
+4. **Monitor Usage**: Check AWS CloudTrail for unexpected access
+5. **Use AWS IAM Roles**: When possible, use IAM roles instead of access keys
+
+#### Current Setup Status
+This workspace uses **hardcoded credentials** (private workspace acceptable). Credentials are located in:
+- `/home/runner/workspace/.config/bashrc` (line 20-24, `claude-bed` alias)
+- Backed up in: `/home/runner/workspace/docs/Statusline/backups/backup-2025-11-12/`
+
+For migration to secure storage, see [Switching Between Modes](#switching-between-subscription-and-bedrock-modes).
 
 ---
 
@@ -38,6 +114,8 @@ This guide explains how Claude Code connects to AWS Bedrock and how to set up th
    - You pay Anthropic subscription
 
 This guide covers **Option 1** - using your own AWS Bedrock account.
+
+**See [Switching Between Modes](#switching-between-subscription-and-bedrock-modes)** to learn how to keep both options available.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -991,6 +1069,412 @@ cat ~/workspace/.claude/data/usage-stats.json | jq ".weekly[\"$(date +%Y-W%V)\"]
 # Calculate all-time total
 cat ~/workspace/.claude/data/usage-stats.json | jq '[.sessions[].cost] | add'
 ```
+
+---
+
+## Switching Between Subscription and Bedrock Modes
+
+**Problem**: Once you set up AWS Bedrock mode, Claude Code gets "stuck" in Bedrock mode and can't access your subscription - even after uninstalling the statusline!
+
+**Cause**: The environment variable `CLAUDE_CODE_USE_BEDROCK=1` forces Bedrock mode, regardless of what else you configure.
+
+### Understanding the Two Modes
+
+| Feature | **Subscription Mode** | **AWS Bedrock Mode** |
+|---------|----------------------|---------------------|
+| **Command** | `claude-code` | `claude-code` (with env vars) |
+| **Authentication** | Anthropic account | AWS IAM credentials |
+| **Billing** | Anthropic subscription | AWS pay-per-token |
+| **Cost Display** | None (subscription) | Real-time token costs |
+| **Environment Variable** | (none) | `CLAUDE_CODE_USE_BEDROCK=1` |
+| **Best For** | Daily development work | Cost tracking & monitoring |
+
+### The Problem: Getting Stuck in Bedrock Mode
+
+When you configure AWS Bedrock by adding these to `~/.bashrc` or `~/.zshrc`:
+
+```bash
+export CLAUDE_CODE_USE_BEDROCK=1
+export AWS_ACCESS_KEY_ID=AKIA...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_REGION=ap-southeast-1
+export AWS_BEARER_TOKEN_BEDROCK=...
+```
+
+**These variables persist across all terminal sessions**, forcing Claude Code into Bedrock mode every time.
+
+Even if you:
+- ❌ Delete the statusline script
+- ❌ Remove Claude Code settings
+- ❌ Restart your terminal
+- ❌ Uninstall and reinstall Claude Code
+
+**You're still in Bedrock mode** because the environment variables are loaded automatically!
+
+---
+
+### Solution 1: Keep Both Modes Available (Recommended)
+
+The best approach is to **NOT** permanently export Bedrock variables. Instead, use shell aliases.
+
+#### Step 1: Remove Permanent Exports
+
+Edit your shell configuration file:
+
+```bash
+# Check which shell you're using
+echo $SHELL
+
+# Edit the appropriate file
+nano ~/.bashrc     # for bash
+nano ~/.zshrc      # for zsh
+nano ~/.profile    # alternative location
+```
+
+**Find and REMOVE or COMMENT OUT these lines**:
+
+```bash
+# REMOVE OR COMMENT OUT (add # at start):
+# export CLAUDE_CODE_USE_BEDROCK=1
+# export AWS_BEARER_TOKEN_BEDROCK=...
+# export AWS_ACCESS_KEY_ID=AKIA...  (only if for Claude Code)
+# export AWS_SECRET_ACCESS_KEY=...  (only if for Claude Code)
+```
+
+**Important**: If you use AWS credentials for OTHER purposes (deploying your app, accessing S3, etc.), keep those! Only remove Bedrock-specific variables.
+
+#### Step 2: Create Aliases for Both Modes
+
+Add these aliases to your `~/.bashrc` or `~/.zshrc`:
+
+```bash
+# ============================================
+# Claude Code Mode Aliases
+# ============================================
+
+# Subscription mode (default - uses Anthropic subscription)
+alias claude-sub='claude-code'
+
+# AWS Bedrock mode (pay-per-token with cost tracking)
+alias claude-bedrock='CLAUDE_CODE_USE_BEDROCK=1 \
+  AWS_ACCESS_KEY_ID=AKIA... \
+  AWS_SECRET_ACCESS_KEY=... \
+  AWS_REGION=ap-southeast-1 \
+  AWS_BEARER_TOKEN_BEDROCK=... \
+  claude-code'
+```
+
+**Replace with your actual credentials in the `claude-bedrock` alias.**
+
+#### Step 3: Apply Changes
+
+```bash
+# Reload shell configuration
+source ~/.bashrc  # or ~/.zshrc
+
+# Verify subscription mode works by default
+env | grep CLAUDE_CODE_USE_BEDROCK
+# Should return nothing
+```
+
+#### Step 4: Use the Appropriate Mode
+
+```bash
+# For daily development (subscription mode)
+claude-sub
+# OR just:
+claude-code
+
+# For cost tracking (AWS Bedrock mode)
+claude-bedrock
+```
+
+---
+
+### Solution 2: Manual Switching
+
+If you prefer to manually switch modes when needed:
+
+#### To Use Subscription Mode
+
+```bash
+# Unset Bedrock variables
+unset CLAUDE_CODE_USE_BEDROCK
+unset AWS_BEARER_TOKEN_BEDROCK
+
+# Start Claude Code
+claude-code
+```
+
+#### To Use Bedrock Mode
+
+```bash
+# Set Bedrock variables
+export CLAUDE_CODE_USE_BEDROCK=1
+export AWS_ACCESS_KEY_ID=AKIA...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_REGION=ap-southeast-1
+export AWS_BEARER_TOKEN_BEDROCK=...
+
+# Start Claude Code
+claude-code
+```
+
+**Downside**: You must manually set/unset variables each time.
+
+---
+
+### Solution 3: Separate Configuration Files
+
+Create separate configuration files for each mode:
+
+#### Create Config Files
+
+```bash
+# Create directory for Claude Code configs
+mkdir -p ~/.config/claude-code
+
+# Subscription mode (empty or minimal config)
+cat > ~/.config/claude-code/subscription.env << 'EOF'
+# Subscription mode - no AWS Bedrock variables
+EOF
+
+# Bedrock mode
+cat > ~/.config/claude-code/bedrock.env << 'EOF'
+export CLAUDE_CODE_USE_BEDROCK=1
+export AWS_ACCESS_KEY_ID=AKIA...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_REGION=ap-southeast-1
+export AWS_BEARER_TOKEN_BEDROCK=...
+EOF
+```
+
+#### Create Wrapper Scripts
+
+```bash
+# Subscription mode wrapper
+cat > ~/bin/claude-sub << 'EOF'
+#!/bin/bash
+source ~/.config/claude-code/subscription.env
+claude-code "$@"
+EOF
+
+# Bedrock mode wrapper
+cat > ~/bin/claude-bedrock << 'EOF'
+#!/bin/bash
+source ~/.config/claude-code/bedrock.env
+claude-code "$@"
+EOF
+
+# Make executable
+chmod +x ~/bin/claude-sub ~/bin/claude-bedrock
+```
+
+#### Usage
+
+```bash
+# Subscription mode
+claude-sub
+
+# Bedrock mode
+claude-bedrock
+```
+
+---
+
+### How to Restore Subscription Mode (If Stuck)
+
+If you're currently stuck in Bedrock mode and want to restore subscription:
+
+#### Step 1: Find Where Variables Are Set
+
+```bash
+# Check all common shell config files
+grep -n "CLAUDE_CODE_USE_BEDROCK" ~/.bashrc ~/.zshrc ~/.profile ~/.bash_profile 2>/dev/null
+```
+
+This shows which file(s) contain the Bedrock configuration and the line numbers.
+
+#### Step 2: Edit and Remove
+
+```bash
+# Edit the file that was found (example uses ~/.bashrc)
+nano ~/.bashrc
+
+# Find lines like:
+# export CLAUDE_CODE_USE_BEDROCK=1
+# export AWS_BEARER_TOKEN_BEDROCK=...
+
+# Either DELETE them or COMMENT OUT (add # at start):
+# # export CLAUDE_CODE_USE_BEDROCK=1
+# # export AWS_BEARER_TOKEN_BEDROCK=...
+```
+
+**Save and exit** (Ctrl+X, then Y in nano)
+
+#### Step 3: Unset in Current Session
+
+```bash
+# Unset Bedrock variables immediately
+unset CLAUDE_CODE_USE_BEDROCK
+unset AWS_BEARER_TOKEN_BEDROCK
+
+# Reload shell config
+source ~/.bashrc  # or ~/.zshrc
+```
+
+#### Step 4: Verify Restoration
+
+```bash
+# Check variables are gone
+env | grep CLAUDE_CODE_USE_BEDROCK
+# Should return nothing
+
+env | grep AWS_BEARER_TOKEN_BEDROCK
+# Should return nothing
+
+# Exit any running Claude Code sessions
+exit
+
+# Start fresh
+claude-code
+```
+
+#### Step 5: Test Subscription Mode
+
+Start Claude Code and verify:
+- ✅ No AWS authentication errors
+- ✅ Responses from Claude work normally
+- ✅ No new AWS Bedrock charges appear in your AWS bill
+
+---
+
+### Verification: Which Mode Am I In?
+
+To check which mode you're currently using:
+
+```bash
+# Check environment variables
+echo "Bedrock mode: ${CLAUDE_CODE_USE_BEDROCK:-not set}"
+echo "AWS bearer token: ${AWS_BEARER_TOKEN_BEDROCK:+SET}"
+
+# If both show "not set", you're in subscription mode
+# If both show values, you're in Bedrock mode
+```
+
+**Inside Claude Code**, check the statusline:
+- **Subscription mode**: Minimal display (time, directory, git only) or no statusline
+- **Bedrock mode**: Shows token counts and costs (`Session: 3.4M↑/17.2K↓ $12.83`)
+
+---
+
+### Best Practice Recommendations
+
+1. **Default to Subscription Mode**
+   - Keep your shell config files clean (no permanent Bedrock exports)
+   - Use subscription for daily development work
+   - Avoid unnecessary AWS charges
+
+2. **Use Bedrock Mode for Specific Tasks**
+   - Cost analysis and monitoring
+   - Budget tracking for projects
+   - Understanding token usage patterns
+   - Switch explicitly when needed: `claude-bedrock`
+
+3. **Keep AWS Credentials Separate**
+   - Bedrock credentials: Use aliases or wrapper scripts
+   - Application credentials: Keep in `.env` files or AWS profiles
+   - Never mix the two
+
+4. **Document Your Setup**
+   - Add comments in your config files explaining the aliases
+   - Note which credentials are for which purpose
+   - Share setup instructions with your team
+
+---
+
+### Common Mistakes to Avoid
+
+❌ **Mistake 1**: Adding Bedrock variables to shell config permanently
+```bash
+# DON'T DO THIS in ~/.bashrc:
+export CLAUDE_CODE_USE_BEDROCK=1  # This makes Bedrock permanent!
+```
+
+✅ **Correct**: Use aliases instead
+```bash
+# DO THIS in ~/.bashrc:
+alias claude-bedrock='CLAUDE_CODE_USE_BEDROCK=1 ... claude-code'
+```
+
+---
+
+❌ **Mistake 2**: Thinking uninstalling Claude Code removes environment variables
+- Environment variables are in YOUR shell config files
+- Claude Code doesn't manage these files
+- You must manually remove the exports
+
+---
+
+❌ **Mistake 3**: Removing ALL AWS credentials
+```bash
+# DON'T remove these if you need them for your application:
+export AWS_ACCESS_KEY_ID=...      # Needed for app deployment
+export AWS_SECRET_ACCESS_KEY=...  # Needed for app deployment
+```
+
+✅ **Correct**: Only remove Bedrock-specific variables
+```bash
+# Remove ONLY these:
+unset CLAUDE_CODE_USE_BEDROCK
+unset AWS_BEARER_TOKEN_BEDROCK
+```
+
+---
+
+### Example: Complete Setup
+
+Here's a complete example of a well-configured `~/.bashrc`:
+
+```bash
+# ============================================
+# AWS Credentials for Application Deployment
+# ============================================
+# These are for deploying your app to AWS
+export AWS_ACCESS_KEY_ID=AKIA...deployment...
+export AWS_SECRET_ACCESS_KEY=...deployment...
+export AWS_REGION=ap-southeast-1
+
+# ============================================
+# Claude Code Mode Aliases
+# ============================================
+# Subscription mode (default)
+alias claude='claude-code'
+alias claude-sub='claude-code'
+
+# Bedrock mode (cost tracking)
+# Note: Uses SEPARATE credentials from deployment
+alias claude-bedrock='CLAUDE_CODE_USE_BEDROCK=1 \
+  AWS_ACCESS_KEY_ID=AKIA...bedrock... \
+  AWS_SECRET_ACCESS_KEY=...bedrock... \
+  AWS_REGION=ap-southeast-1 \
+  AWS_BEARER_TOKEN_BEDROCK=... \
+  claude-code'
+
+# ============================================
+# Usage:
+#   claude           -> subscription mode (default)
+#   claude-sub       -> subscription mode (explicit)
+#   claude-bedrock   -> AWS Bedrock with cost tracking
+# ============================================
+```
+
+With this setup:
+- **Default**: `claude` or `claude-code` uses subscription mode
+- **Deployment**: AWS tools use deployment credentials
+- **Cost tracking**: `claude-bedrock` uses separate Bedrock credentials
+- **No conflicts**: Each use case has its own credentials
+- **Easy switching**: Just use different commands
 
 ---
 

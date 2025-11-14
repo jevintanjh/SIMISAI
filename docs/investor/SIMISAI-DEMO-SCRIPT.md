@@ -28,8 +28,10 @@
 - Wait for green detection box (2-3 seconds)
 - Point out the detection box to audience
 
-### **Say** (when detected):
-> "See that? Detected in real-time. Now it knows exactly what device I'm using."
+### **Say** (when detected) - VALUE BOMB:
+> "Two seconds. That's how long SIMISAI takes to identify any device. Compare that to an employee flipping through a 200-page manual for 10 minutes—or calling support and waiting on hold for 15. **This just saved your employee 14 minutes and 58 seconds. Multiply that by 1,000 employees asking 5 questions a week, and you've just recovered 1,300 employee hours per month.** That's $65,000 in labor costs if you're paying $50 an hour. **From device detection alone.**"
+
+**Sabri Suby Technique**: Quantify ROI immediately (time saved → labor costs saved → specific dollar amount)
 
 ### **If detection fails**:
 - Move device slightly
@@ -50,8 +52,10 @@
 - Scroll through 2-3 instruction steps (slowly but confidently)
 - Tilt screen toward judges if needed
 
-### **Say** (while scrolling):
-> "Each step has clear visual guidance. This is perfect for elderly users, factory workers learning new equipment, or consumers setting up smart devices at home."
+### **Say** (while scrolling) - VALUE BOMB:
+> "See these AR overlays? **This is what eliminated that $52,000 in downtime at the Singapore factory I mentioned earlier.** The operator would have guessed. He would have broken something. He would have cost the company a day of lost production. Instead, he followed these overlays and got it right the first time. **That's the difference between a $52,000 mistake and a $0 mistake.** And it's not just factories—this works for elderly users with medical devices, consumers assembling IKEA furniture, retail customers setting up smart home products. **One platform. Every guidance problem.**"
+
+**Sabri Suby Technique**: Connect feature directly to the pain story told in Slide 2 (callback to $52K factory shutdown) + show versatility
 
 ### **If screen doesn't load**:
 - Wait 2 more seconds
@@ -71,8 +75,10 @@
 - Wait for AI response (3-5 seconds)
 - Show response to audience
 
-### **Say** (when response appears):
-> "Instant answer, in context, in their language. This is what makes SIMISAI different—computer vision for detection, augmented reality for guidance, and AI chat for questions. All in one platform."
+### **Say** (when response appears) - VALUE BOMB:
+> "Three seconds. That's how long it took to answer a question. Now here's the value bomb: **Every question answered by this AI chat? That's a support call you're NOT paying $35 for.** If you have 1,000 employees asking 5 questions a month, that's 5,000 support calls. At $35 per call, you're spending **$175,000 annually on call center costs.** This AI assistant just eliminated that entire expense. **And it answered in 3 seconds instead of a 15-minute hold time.** That's computer vision for detection, augmented reality for guidance, and AI chat for questions—all in one platform. All in their native language. All eliminating costs you're paying right now."
+
+**Sabri Suby Technique**: Stack the value (ROI calculation) + time comparison + reinforce "all in one platform" positioning
 
 ### **If AI fails to respond**:
 - Wait 3 more seconds
@@ -83,13 +89,16 @@
 
 ## 🎯 STEP 4: Demo Closing (30 seconds)
 
-### **Say**:
-> "That's SIMISAI—production-ready, deployed on AWS, and working right now. The same technology scales across enterprise training, consumer products, and retail. This isn't a prototype. This is live today."
+### **Say** - VALUE BOMB FINALE:
+> "That's SIMISAI—production-ready, deployed on AWS, and working right now. **This isn't a prototype. This is live, in production, scaling today.** You could deploy this in your factory next Monday. By Friday, you'd start seeing training time cut in half. By the end of the month, you'd have your first prevented equipment failure. **That's the difference between a concept and a solution.** The same technology scales across enterprise training, consumer products, and retail—because if it works for an 80-year-old grandmother with a blood pressure monitor, **it works for anyone, anywhere, with anything.**"
+
+**Sabri Suby Technique**: Concrete timeline (Monday → Friday → End of month) + confidence close ("concept vs. solution") + callback to opening hook (80-year-old grandmother)
 
 ### **Do**:
 - Put phone down confidently
 - Make eye contact with all judges
 - Smile (show confidence)
+- Pause for 2 seconds (let the impact land)
 - Return to pitch deck or closing slide
 
 ---

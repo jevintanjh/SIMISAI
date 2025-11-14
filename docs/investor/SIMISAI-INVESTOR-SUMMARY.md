@@ -2,7 +2,7 @@
 ## Universal Visual Guidance Platform - Seed Round Investment Opportunity
 
 **Prepared**: November 2025
-**Status**: 1st Place Winner - AI Singapore Sealion Challenge
+**Status**: Healthcare Track Winner - AI Singapore Pan-SEA AI Developer Challenge
 **Stage**: Seed Round Fundraising
 **Funding Ask**: $800K-$1.2M
 
@@ -10,7 +10,7 @@
 
 ## EXECUTIVE SUMMARY
 
-**SIMISAI** is a universal visual guidance platform that combines computer vision, augmented reality, and multilingual AI to help anyone operate any device or complete any physical task. We won Singapore's national AI competition by solving the hardest guidance problem—teaching elderly users with low digital literacy how to use medical devices—and are now applying that validated technology to a $50B+ commercial market across enterprise training, consumer products, and retail.
+**SIMISAI** is a universal visual guidance platform that combines computer vision, augmented reality, and multilingual AI to help anyone operate any device or complete any physical task. We won the healthcare track of AI Singapore's Pan-SEA AI Developer Challenge—organized by AI Singapore, the national AI program—by solving the hardest guidance problem: teaching elderly users with low digital literacy how to use medical devices safely. We're now applying that government-validated, safety-critical technology to a $50B+ commercial market across enterprise training, consumer products, and retail.
 
 ---
 
@@ -40,11 +40,11 @@ SIMISAI provides real-time, personalized visual guidance through:
 ## COMPETITIVE ADVANTAGE
 
 ### Why We Win:
-1. **Government-validated technology**: AI Singapore Sealion Challenge winner (1st place)
-2. **Unique positioning**: Only platform combining CV + AI chat + multilingual support
-3. **Production-ready**: MVP deployed on AWS, 19 Lambda functions, scalable infrastructure
-4. **Proven performance**: 95%+ device detection accuracy, 85%+ task completion rate
-5. **First-mover advantage**: 12-18 months ahead of potential competitors
+1. **Government-validated technology**: Healthcare Track Winner - AI Singapore Pan-SEA AI Developer Challenge (Problem: "Reimagining Healthcare Access and Intelligence in Southeast Asia using LLM-related solutions")
+2. **Safety-critical proof**: 95%+ device detection accuracy, 85%+ task completion with elderly users for medical devices
+3. **Unique positioning**: Only platform combining CV + AI chat + multilingual support for universal guidance
+4. **Production-ready**: MVP deployed on AWS, 19 Lambda functions, scalable infrastructure
+5. **First-mover advantage**: Competitors would need 18-24 months to replicate our government validation and production deployment
 
 ### Moats:
 - **Data network effect**: More devices detected → better accuracy → more users
