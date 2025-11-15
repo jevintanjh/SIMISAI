@@ -438,8 +438,8 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 </div>
                 
                 {/* Chat Assistant */}
-                <div className="flex flex-col h-full min-h-0">
-                  <FloatingChat 
+                <div className="flex flex-col">
+                  <FloatingChat
                     sessionId="guidance-session"
                     language={config.language}
                     showToggleButton={false}

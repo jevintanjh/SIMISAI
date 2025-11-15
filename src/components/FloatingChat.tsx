@@ -265,7 +265,7 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
   return (
     <div className="relative">
       {isOpen && (
-        <Card className="w-full h-[500px] border-0 shadow-none flex flex-col">
+        <Card className="w-full h-[calc(100vh-250px)] border-0 shadow-none flex flex-col">
           <CardHeader className="text-white p-4 rounded-t-xl flex-shrink-0">
               <div className="flex items-center justify-center space-x-2">
                 <div title={isConnected ? 'WebSocket Connected' : 'Using HTTP API'}>
@@ -281,13 +281,13 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
               </div>
           </CardHeader>
           
-          <CardContent className="p-0 flex flex-col flex-1 min-h-0">
+          <CardContent className="p-0 flex flex-col flex-1 overflow-hidden">
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto min-h-0">
+            <div className="flex-1 overflow-y-auto p-3">
               {isLoading ? (
                 <div className="text-center text-gray-500">Loading messages...</div>
               ) : (
-                <div className="space-y-3 p-2">
+                <div className="space-y-3">
                   {/* SIMIS Introduction Message - Always shown */}
                   <div className="flex justify-start">
                     <div className="rounded-lg text-white">
@@ -331,8 +331,8 @@ export default function FloatingChat({ sessionId, language, showToggleButton = t
             </div>
             
             {/* Chat Input */}
-            <div className="pt-4 flex-shrink-0 border-t border-border">
-              <div className="flex gap-2">
+            <div className="flex-shrink-0 border-t border-border">
+              <div className="flex gap-2 p-3">
                 <Input
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
