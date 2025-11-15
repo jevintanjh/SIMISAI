@@ -70,33 +70,37 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
           }
         })();
         
-        const instructions: Instruction[] = [];
-        
-        // Fetch all 5 steps for the device
-        for (let step = 1; step <= 5; step++) {
-          try {
-            const response = await fetch(
-              `https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/guidance/${deviceType}/${step}?language=${config.language}&style=${config.guidanceStyle}`
-            );
-            
-            if (response.ok) {
-              const data = await response.json();
-              instructions.push({
-                id: `${deviceType}-${step}`,
-                deviceId: deviceType,
-                stepNumber: step,
-                title: data.title || `Step ${step}`,
-                description: data.instructions || data.description || data.content || '',
-                translations: null,
-                audioUrl: null,
-                imageUrl: null,
-                checkpoints: data.checkpoints || null
-              });
-            }
-          } catch (stepError) {
-            console.warn(`Failed to fetch step ${step}:`, stepError);
-          }
-        }
+        // Fetch all 5 steps in parallel for faster loading
+        const stepPromises = Array.from({ length: 5 }, (_, i) => {
+          const step = i + 1;
+          return fetch(
+            `https://2e7j2vait1.execute-api.us-east-1.amazonaws.com/prod/guidance/${deviceType}/${step}?language=${config.language}&style=${config.guidanceStyle}`
+          )
+            .then(response => {
+              if (response.ok) {
+                return response.json();
+              }
+              throw new Error(`Failed to fetch step ${step}`);
+            })
+            .then(data => ({
+              id: `${deviceType}-${step}`,
+              deviceId: deviceType,
+              stepNumber: step,
+              title: data.title || `Step ${step}`,
+              description: data.instructions || data.description || data.content || '',
+              translations: null,
+              audioUrl: null,
+              imageUrl: null,
+              checkpoints: data.checkpoints || null
+            }))
+            .catch(error => {
+              console.warn(`Failed to fetch step ${step}:`, error);
+              return null;
+            });
+        });
+
+        const results = await Promise.all(stepPromises);
+        const instructions = results.filter(instruction => instruction !== null) as Instruction[];
         
         if (instructions.length > 0) {
           setInstructions(instructions);
@@ -356,12 +360,12 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
       </header>
 
       {/* Main Content - Two Panel Layout */}
-      <main className="max-w-8xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[600px]">
+      <main className="max-w-8xl mx-auto px-6 h-[calc(100vh-120px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
           {/* Left Panel: Camera View (2/3 width) */}
-          <div className="lg:col-span-2" data-tutorial="camera-view">
-            <div className="h-full min-h-[600px] rounded-xl overflow-hidden">
-              <MediaPipeCameraView 
+          <div className="lg:col-span-2 h-full" data-tutorial="camera-view">
+            <div className="h-full rounded-xl overflow-hidden">
+              <MediaPipeCameraView
                 onThermometerDetected={(detection) => {
                   console.log('Device detected:', detection);
                 }}
@@ -371,11 +375,11 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
               />
             </div>
           </div>
-          
+
           {/* Right Panel: Instructions + Chat (1/3 width) */}
-          <div className="lg:col-span-1" data-tutorial="instructions-panel">
+          <div className="lg:col-span-1 h-full" data-tutorial="instructions-panel">
             {showInstructions ? (
-              <div className="bg-card border border-border rounded-lg shadow-lg p-4 h-full min-h-[600px] flex flex-col">
+              <div className="bg-card border border-border rounded-lg shadow-lg p-4 h-full flex flex-col">
                 {/* Instruction Card */}
                 <div className="flex-1">
                   {loading ? (
@@ -421,7 +425,7 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
                 </div>
               </div>
             ) : (
-              <div className="bg-card border border-border rounded-lg shadow-lg p-4 h-full min-h-[600px] flex flex-col">
+              <div className="bg-card border border-border rounded-lg shadow-lg p-4 h-full flex flex-col">
                 {/* Toggle to Instructions Button - Above chat box */}
                 <div className="mb-4 flex-shrink-0" data-tutorial="instructions-toggle">
                   <Button 

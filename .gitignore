@@ -112,3 +112,14 @@ tash
 nul*.gguf
 *.pt
 *.mar
+aws-deployment/lambda/guidance-service-database/env-config.json
+aws-deployment/lambda/*/env-config.json
+
+# Temporary database update scripts with hardcoded credentials
+update-database-content.cjs
+test-indonesian-flow.sh
+aws-deployment/lambda/update-bp-instructions/
+aws-deployment/lambda/guidance-service-database/check-schema.js
+aws-deployment/lambda/guidance-service-database/query-schema.js
+aws-deployment/lambda/guidance-service-database/verify-all-languages.sh
+DEPLOYMENT-SUMMARY.md

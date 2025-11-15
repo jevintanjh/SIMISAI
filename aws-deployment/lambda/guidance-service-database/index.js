@@ -14,12 +14,12 @@ const { SageMakerRuntimeClient, InvokeEndpointCommand } = require('@aws-sdk/clie
 
 // Database connection pool
 const dbPool = new Pool({
-    host: process.env.DB_HOST || 'simisai-production-db.xxx.us-east-1.rds.amazonaws.com',
-    port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'simisai_guidance',
-    user: process.env.DB_USER || 'simis_guidance_app',
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT || '5432'),
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    ssl: { rejectUnauthorized: false },
     max: 20,                    // Maximum connections
     idleTimeoutMillis: 30000,   // 30 seconds
     connectionTimeoutMillis: 2000, // 2 seconds
@@ -203,12 +203,13 @@ async function handleGetGuidance(pathParameters, queryStringParameters, requestI
 async function getCachedGuidance(deviceType, stepNumber, language, style) {
     try {
         const query = `
-            SELECT 
+            SELECT
                 gc.step_title,
                 gc.step_description,
                 gc.step_instructions,
                 gc.step_warnings,
                 gc.step_tips,
+                gc.checkpoints,
                 gc.generation_quality_score as quality_score,
                 gc.is_ai_generated,
                 gc.generated_by_ai_provider as ai_provider,
@@ -236,6 +237,7 @@ async function getCachedGuidance(deviceType, stepNumber, language, style) {
                 instructions: row.step_instructions,
                 warnings: row.step_warnings,
                 tips: row.step_tips,
+                checkpoints: row.checkpoints || null,
                 qualityScore: parseFloat(row.quality_score),
                 isAiGenerated: row.is_ai_generated,
                 aiProvider: row.ai_provider,

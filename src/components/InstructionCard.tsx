@@ -41,29 +41,11 @@ export default function InstructionCard({
   
   const { speak, stop } = useVoice();
 
-  // Use props if provided, otherwise fall back to mock data
+  // Use props from API - translations are already provided by the API based on language parameter
   const instruction = {
     number: propCurrentStep,
     title: propTitle || "Wrap the Cuff Around Your Arm",
     description: propDescription || "Place the cuff around your upper arm, about 1 inch above your elbow. The cuff should be snug but not too tight.",
-    translation: {
-      id: {
-        title: "Lingkarkan Manset di Lengan Anda",
-        description: "Lingkarkan manset di sekitar lengan atas Anda, sekitar 1 inci di atas siku. Manset harus pas tetapi tidak terlalu ketat."
-      },
-      th: {
-        title: "พันข้อมือรอบแขน",
-        description: "วางข้อมือรอบต้นแขนของคุณ ประมาณ 1 นิ้วเหนือข้อศอก ข้อมือควรพอดีแต่ไม่แน่นเกินไป"
-      },
-      vi: {
-        title: "Quấn vòng bít quanh cánh tay",
-        description: "Đặt vòng bít quanh cánh tay trênของคุณ, cách khuỷu tay khoảng 1 inch. Vòng bít phải vừa khít nhưng không quá chặt."
-      },
-      fil: {
-        title: "Ikabit ang Cuff sa Braso",
-        description: "Ilagay ang cuff sa paligid ng inyong upper arm, mga 1 pulgada sa itaas ng siko. Ang cuff ay dapat makakasya ngunit hindi masyadong mahigpit."
-      }
-    },
     checkpoints: propCheckpoints.length > 0 ? propCheckpoints : ["Cuff Position", "Tightness Check"]
   };
 
@@ -72,10 +54,8 @@ export default function InstructionCard({
       stop();
       setIsPlaying(false);
     } else {
-      let textToSpeak = instruction.description;
-      if (language !== "en" && instruction.translation[language as keyof typeof instruction.translation]) {
-        textToSpeak = instruction.translation[language as keyof typeof instruction.translation]?.description || instruction.description;
-      }
+      // The description is already in the correct language from the API
+      const textToSpeak = instruction.description;
       if (textToSpeak) {
         speak(textToSpeak, language, playbackSpeed);
         setIsPlaying(true);
@@ -123,14 +103,10 @@ export default function InstructionCard({
           <div className="flex-1 flex flex-col">
             <div className="flex-1">
               <h3 className="font-semibold text-white text-lg mb-3 leading-tight">
-                {language !== "en" && instruction.translation[language as keyof typeof instruction.translation]
-                  ? instruction.translation[language as keyof typeof instruction.translation]?.title || instruction.title
-                  : instruction.title}
+                {instruction.title}
               </h3>
               <p className="text-white/90 text-sm leading-tight mb-4">
-                {language !== "en" && instruction.translation[language as keyof typeof instruction.translation]
-                  ? instruction.translation[language as keyof typeof instruction.translation]?.description || instruction.description
-                  : instruction.description}
+                {instruction.description}
               </p>
 
               {/* Interactive Checkpoints */}
