@@ -58,15 +58,14 @@ export default function Guidance({ config, onBack }: GuidanceProps) {
           switch (config.device) {
             case 'oral-thermometer':
             case 'thermometer':
-              return 'digital_oral_thermometer';
+              return 'thermometer';
             case 'blood-pressure':
             case 'blood_pressure':
               return 'blood_pressure_monitor';
             case 'ear-thermometer':
-              // Fallback to oral guidance until ear variant is available
-              return 'digital_oral_thermometer';
+              return 'ear_thermometer';
             default:
-              return 'digital_oral_thermometer';
+              return 'thermometer';
           }
         })();
         

@@ -123,3 +123,9 @@ aws-deployment/lambda/guidance-service-database/check-schema.js
 aws-deployment/lambda/guidance-service-database/query-schema.js
 aws-deployment/lambda/guidance-service-database/verify-all-languages.sh
 DEPLOYMENT-SUMMARY.md
+
+raymond_archives
+
+# Temporary database update scripts with credentials
+lambda-update-thermometers.js
+update-thermometer-instructions.cjs
