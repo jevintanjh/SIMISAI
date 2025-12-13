@@ -41,7 +41,7 @@ SIMISAI provides real-time, personalized visual guidance through:
 
 ### Why We Win:
 1. **Government-validated technology**: Healthcare Track Winner - AI Singapore Pan-SEA AI Developer Challenge (Problem: "Reimagining Healthcare Access and Intelligence in Southeast Asia using LLM-related solutions")
-2. **Safety-critical proof**: 95%+ device detection accuracy, 85%+ task completion with elderly users for medical devices
+2. **Safety-critical proof**: High device detection accuracy, 85%+ task completion with elderly users for medical devices
 3. **Unique positioning**: Only platform combining CV + AI chat + multilingual support for universal guidance
 4. **Production-ready**: MVP deployed on AWS, 19 Lambda functions, scalable infrastructure
 5. **First-mover advantage**: Competitors would need 18-24 months to replicate our government validation and production deployment
@@ -121,7 +121,7 @@ SIMISAI provides real-time, personalized visual guidance through:
 - **AI Singapore Sealion Challenge**: 1st Place (Q4 2024) - National technology validation
 - **Production MVP**: Deployed on AWS with 19 Lambda functions, RDS PostgreSQL, frontend live
 - **Technology Validation**: 500+ medical device testing users
-- **Performance Metrics**: 95%+ detection accuracy, 85%+ task completion rate
+- **Performance Metrics**: High detection accuracy, 85%+ task completion rate
 
 ### Next 6 Months (Q2-Q3 2025):
 - **3 enterprise pilot programs**: Manufacturing, logistics, field services
@@ -191,7 +191,7 @@ SIMISAI provides real-time, personalized visual guidance through:
 
 **2. Proven Technology**
 - AI Singapore national competition winner (government validation)
-- 95%+ accuracy with hardest use case (elderly + medical devices)
+- High accuracy with hardest use case (elderly + medical devices)
 - Production-ready infrastructure deployed on AWS
 
 **3. Unique Positioning**

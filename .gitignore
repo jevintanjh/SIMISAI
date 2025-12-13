@@ -133,3 +133,7 @@ raymond_archives
 # Temporary database update scripts with credentials
 lambda-update-thermometers.js
 update-thermometer-instructions.cjs
+
+# Archived non-SIMISAI content
+docs/archived/non-simisai-projects/
+docs/archived/temp-scripts/

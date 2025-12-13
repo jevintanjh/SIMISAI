@@ -102,7 +102,7 @@ Subject: SIMISAI - AI Singapore Healthcare Track Coverage
 
 [INVESTOR NAME],
 
-Quick follow-up: AI Singapore just published coverage of our healthcare track win highlighting our 95% device detection accuracy and 85% task completion with elderly users.
+Quick follow-up: AI Singapore just published coverage of our healthcare track win highlighting our high device detection accuracy and 85% task completion with elderly users.
 
 Thought you'd find this relevant given your question yesterday about proving our technology works with non-technical users.
 
@@ -180,7 +180,7 @@ You asked a great question during our pitch about medical device regulatory barr
 **Medical = Proof (Not Go-to-Market)**
 - Healthcare track win proves technology works for safety-critical, life-threatening use cases
 - Government validation from Singapore NRF = third-party technical verification
-- 95% accuracy, 85% task completion with elderly users = hardest possible use case
+- High accuracy, 85% task completion with elderly users = hardest possible use case
 
 **Enterprise + Consumer = Revenue (Go-to-Market)**
 - No regulatory approval needed

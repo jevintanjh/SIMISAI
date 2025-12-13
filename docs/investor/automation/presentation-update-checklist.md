@@ -54,7 +54,7 @@ Draft the $52K Singapore production line shutdown story:
 **"Godfather Offer" Value Stack** (Priority 2):
 ```
 Write compelling descriptions for 6 benefits:
-1. Instant Recognition (95%+ accuracy, YOLOv8, works on anything)
+1. Instant Recognition (high accuracy, YOLOv8, works on anything)
 2. Real-Time Guidance (AR overlays, step-by-step, no searching)
 3. Speaks Every Language (5 SEA languages, AI chat with Sealion)
 4. Works Anywhere (offline capability, no connectivity required)
@@ -155,7 +155,7 @@ Write 3 urgency reasons:
 
 ### Slide 4: Proof of Technology
 - [ ] ADD AI Singapore Challenge badge (hero element)
-- [ ] ADD challenge details (problem statement, results: 95% detection, 85% completion)
+- [ ] ADD challenge details (problem statement, results: high detection accuracy, 85% completion)
 - [ ] REFRAME: "If it works for safety-critical medical + elderly, enterprise is easier"
 - [ ] KEEP tech architecture diagram (from Slide 16, remove duplicates 17-19)
 - [ ] KEEP production specs (from Slide 27, frame as "18 months to replicate")

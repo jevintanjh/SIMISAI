@@ -34,7 +34,7 @@ This roadmap prioritizes **fast commercial revenue** through enterprise and cons
 - ✅ Develop sales collateral (case studies, ROI calculators, pilot agreements)
 
 #### Technical Goals:
-- Device detection accuracy: 95%+ for industrial equipment
+- Device detection accuracy: High accuracy for industrial equipment
 - Response time: <2 seconds for object recognition
 - Offline mode: Core guidance works without internet
 - Multi-device support: Phones, tablets, smart glasses (AR compatibility)

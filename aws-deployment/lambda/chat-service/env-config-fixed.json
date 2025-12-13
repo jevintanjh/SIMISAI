@@ -1,6 +1,0 @@
-{
-    "Variables": {
-        "SAGEMAKER_ENDPOINT": "simisai-sealion-realtime-endpoint",
-        "OPENAI_API_KEY": "YOUR_OPENAI_API_KEY_HERE"
-    }
-}

@@ -1,5 +1,7 @@
 # AWS Infrastructure Status
 
+> **🔧 Developer Tools:** For Claude Code AWS Bedrock configuration, see [BEDROCK-VERIFICATION-REPORT.md](./BEDROCK-VERIFICATION-REPORT.md)
+
 ## 📊 Current Deployment Status
 
 ### ✅ Deployed & Operational Resources
@@ -235,6 +237,106 @@ aws sagemaker update-endpoint --endpoint-name simisai-sealion-realtime-endpoint
 - **Encryption at Rest**: RDS and S3 encryption enabled
 - **Encryption in Transit**: HTTPS/TLS for all communications
 - **Session Security**: Secure session management in PostgreSQL
+
+## 🔐 Pending Security Enhancements
+
+### Database Security Improvements (Priority: HIGH)
+
+**Status**: ⚠️ Documented for implementation
+**Last Updated**: November 14, 2025
+**Context**: Security hardening recommendations from database architecture review
+
+#### 1. Credential Management & Rotation
+**Current Issue**: Database password stored in plaintext in repository files
+**Security Risk**: HIGH - Credentials exposed in version control history
+
+**Action Items**:
+- [ ] Rotate RDS master password immediately
+- [ ] Store new password in AWS Secrets Manager (create secret: `simisai/database/master`)
+- [ ] Enable automatic rotation policy (30-90 day cycle)
+- [ ] Update all Lambda functions to retrieve DATABASE_URL from Secrets Manager
+- [ ] Remove plaintext passwords from repository files:
+  - `aws-deployment/parameters.json`
+  - `docs/archived/session-handoffs/DEPLOYMENT-STATUS.md`
+  - CloudFormation templates
+- [ ] Add `.env` files to `.gitignore` (if not present)
+
+**Estimated Time**: 3-4 hours
+**Resources**: [AWS Secrets Manager Best Practices](https://docs.aws.amazon.com/secretsmanager/)
+
+#### 2. Lambda Environment Configuration
+**Current Issue**: Backend Lambda functions missing DATABASE_URL environment variable
+**Impact**: Services cannot connect to RDS database
+
+**Action Items**:
+- [ ] Configure DATABASE_URL for all 19 Lambda functions:
+  - `simisai-backend-service`
+  - `simisai-guidance-service`
+  - `simisai-database-setup`
+  - `simisai-chat-service`
+  - `simisai-cache-service`
+  - All multilingual content generation functions
+- [ ] Use Secrets Manager ARN reference (not plaintext)
+- [ ] Grant Lambda execution roles permission to read secrets
+- [ ] Test database connectivity from each Lambda function
+- [ ] Document connection string format in deployment procedures
+
+**Estimated Time**: 2-3 hours
+**Dependencies**: Complete credential rotation first
+
+#### 3. Connection Security & Encryption
+**Current Gap**: SSL/TLS enforcement not verified
+
+**Action Items**:
+- [ ] Enable RDS SSL/TLS enforcement (require encrypted connections)
+- [ ] Update PostgreSQL parameter group: `rds.force_ssl = 1`
+- [ ] Download RDS CA certificate bundle
+- [ ] Configure Lambda functions with SSL certificate path
+- [ ] Test connection with `sslmode=require` parameter
+- [ ] Document SSL configuration in connection strings
+
+**Estimated Time**: 2 hours
+**Resources**: [RDS PostgreSQL SSL Documentation](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/PostgreSQL.Concepts.General.SSL.html)
+
+#### 4. IAM Database Authentication (Optional Enhancement)
+**Benefit**: Eliminate passwords entirely, use IAM tokens for authentication
+
+**Action Items**:
+- [ ] Enable IAM database authentication on RDS instance
+- [ ] Create IAM database users in PostgreSQL
+- [ ] Grant Lambda execution roles `rds-db:connect` permission
+- [ ] Update connection logic to use IAM token generation
+- [ ] Test IAM authentication from Lambda functions
+- [ ] Migrate from password-based to IAM-based authentication
+
+**Estimated Time**: 4-5 hours
+**Priority**: Medium (implement after basic credential rotation)
+
+#### 5. Access Control & Monitoring
+**Enhancement**: Implement database access auditing
+
+**Action Items**:
+- [ ] Enable RDS Enhanced Monitoring
+- [ ] Configure CloudWatch alarms for suspicious database activity
+- [ ] Review and minimize database user permissions (least privilege)
+- [ ] Implement row-level security (RLS) for multi-tenant data isolation
+- [ ] Create read-only database roles for reporting queries
+- [ ] Enable PostgreSQL query logging (log_statement = 'all' for audit period)
+- [ ] Document role hierarchy and permission matrix
+
+**Estimated Time**: 4-6 hours
+**Priority**: Medium (implement incrementally)
+
+---
+
+**Total Estimated Implementation Time**: 15-20 hours
+**Recommended Approach**: Implement in phases (credential rotation → Lambda config → encryption → IAM auth → monitoring)
+**Target Timeline**: Q1 2025 before medical device certification
+
+**Cross-References**:
+- Database Schema: [/docs/architecture/database-schema.md](/docs/architecture/database-schema.md)
+- Backend Architecture: [/docs/architecture/backend-architecture.md](/docs/architecture/backend-architecture.md)
+- AWS Deployment Guide: [Getting Started](/docs/development/getting-started.md)
 
 ---
 

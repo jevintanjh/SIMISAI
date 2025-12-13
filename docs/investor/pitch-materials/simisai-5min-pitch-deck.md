@@ -99,7 +99,7 @@ Three months ago, a manufacturing facility in Singapore had to shut down a produ
 
 **✓ Instant Recognition**
 - Point phone at any object, device, or machine → Identified in seconds
-- Computer vision (YOLOv8 + MediaPipe): 95%+ accuracy, works on anything
+- Computer vision (YOLOv8 + MediaPipe): high accuracy, works on anything
 
 **✓ Real-Time Guidance**
 - Augmented reality overlays show exactly what to do, step by step
@@ -173,7 +173,7 @@ Three months ago, a manufacturing facility in Singapore had to shut down a produ
 - **Competition**: AI Singapore Pan-SEA AI Developer Challenge (organized by AI Singapore)
 - **Challenge Problem**: "Reimagining Healthcare Access and Intelligence in Southeast Asia using LLM-related solutions"
 - **Our Solution**: Visual guidance combining computer vision + Sealion LLM for elderly (65+) with low digital literacy using medical devices
-- **Results**: 95%+ device detection accuracy, 85%+ task completion rate with safety-critical medical devices
+- **Results**: High device detection accuracy, 85%+ task completion rate with safety-critical medical devices
 - **Validation**: Government-backed AI Singapore technical verification
 
 **Why Healthcare Track Matters**:
@@ -487,7 +487,7 @@ Three months ago, a manufacturing facility in Singapore had to shut down a produ
 4. **Government support**: $400K-$800K non-dilutive funding available (I2Start program)
 
 ### Why Us?
-1. **Proven technology**: 95%+ accuracy with hardest use case (elderly + medical devices)
+1. **Proven technology**: High accuracy with hardest use case (elderly + medical devices)
 2. **Production-ready**: MVP deployed on AWS, scalable infrastructure
 3. **First-mover advantage**: 12-18 months ahead of potential competitors
 4. **Capital-efficient**: Built production platform before institutional raise
