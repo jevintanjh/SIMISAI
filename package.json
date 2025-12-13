@@ -11,7 +11,10 @@
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push",
-    "md2docx": "python3 scripts/md2docx.py"
+    "md2docx": "python3 scripts/md2docx.py",
+    "pdf:text": "python3 scripts/extract_pdf_content.py",
+    "pdf:images": "python3 scripts/extract_pdf_images.py",
+    "pdf:pages": "python3 scripts/extract_pdf_pages.py"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
