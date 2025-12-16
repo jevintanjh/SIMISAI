@@ -27,6 +27,9 @@ tmp/
 temp/
 .tmp/
 
+# Local state directories
+.local/
+
 # OS generated files
 .DS_Store
 .DS_Store?
@@ -45,8 +48,15 @@ Thumbs.db
 
 # CV Model files and data
 cv_model/data/
-cv_model/models/*.pt
+cv_model/models/**/*.pt
+!cv_model/models/poc3/best.pt
 yolov8l.pt
+
+# Python virtual environments and cache
+.pythonlibs/
+__pycache__/
+*.pyc
+*.pyo
 
 # AWS and deployment files
 *.pem
@@ -79,6 +89,9 @@ replit.md
 vite.config.ts.*
 server/public
 
+# Generated documentation (do not version control)
+*.docx
+
 # Package manager files
 .pnpm-debug.log*
 pnpm-lock.yaml.backup
@@ -98,6 +111,7 @@ aws-deployment/cloudwatch/
 aws-deployment/database/
 aws-deployment/lambda/*/node_modules/
 aws-deployment/lambda/*/*.zip
+aws-deployment/**/*.zip
 *.zip
 
 # AI tool configurations (contain API keys)
