@@ -18,8 +18,8 @@ alias claude-sub='claude'
 
 # Bedrock mode (AWS Bedrock with cost tracking and real-time token usage)
 alias claude-bed='CLAUDE_CODE_USE_BEDROCK=1 \
-  AWS_ACCESS_KEY_ID=AKIA2K65A4PQK36PSDES \
-  AWS_SECRET_ACCESS_KEY=STP80bpXsTbCxOLXs/sI+XBlXb4gq7bw/9IMOv2G \
+  AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY_ID \
+  AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_ACCESS_KEY \
   AWS_REGION=us-east-1 \
   claude'
 

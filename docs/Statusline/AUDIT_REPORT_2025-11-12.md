@@ -83,8 +83,8 @@ alias claude-sub='claude'
 
 # Bedrock mode (explicit opt-in)
 alias claude-bed='CLAUDE_CODE_USE_BEDROCK=1 \
-  AWS_ACCESS_KEY_ID=AKIA2K65A4PQK36PSDES \
-  AWS_SECRET_ACCESS_KEY=STP80bpXsTbCxOLXs/sI+XBlXb4gq7bw/9IMOv2G \
+  AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY_ID \
+  AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_ACCESS_KEY \
   AWS_REGION=us-east-1 \
   claude'
 ```
@@ -98,7 +98,7 @@ alias claude-bed='CLAUDE_CODE_USE_BEDROCK=1 \
 ### Current Session Status
 ```
 CLAUDE_CODE_USE_BEDROCK=1  ✅ (Active - session started in Bedrock mode)
-AWS_ACCESS_KEY_ID=AKIA2K65A4PQK36PSDES
+AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY=[present]
 AWS_REGION=us-east-1
 ```
@@ -156,7 +156,7 @@ echo "Bedrock mode: ${CLAUDE_CODE_USE_BEDROCK:-not set}"
 
 ### 3.3 AWS IAM Permissions
 **Current Credentials**: IAM user with Bedrock access
-- **Access Key**: AKIA2K65A4PQK36PSDES
+- **Access Key**: YOUR_AWS_ACCESS_KEY_ID
 - **Region**: us-east-1
 - **Service**: AWS Bedrock (Claude Sonnet 4.5)
 
